@@ -523,7 +523,8 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp process_property_spec(%{type: :string} = property, [url_property] = path)
-       when url_property in ~w(result_url server_url) and not is_map_key(property, :format) do
+       when url_property in ~w(result_url server_url product_url) and
+              not is_map_key(property, :format) do
     property_new = Map.put(property, :format, :uri)
     process_property_spec(property_new, path)
   end
