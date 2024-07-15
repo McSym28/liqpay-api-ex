@@ -28,7 +28,7 @@ defmodule Mix.Tasks.Generate do
          [standalone_code_block_class] =
            ~r/new_doc_page_content__\w+/ |> Regex.run(body, capture: :first),
          #  [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0"),
-         [main_doc] = document |> Floki.find("div.#main_doc"),
+         [main_doc] = document |> Floki.find("div#main_doc"),
          block_classes = node_classes(main_doc),
          #  document |> Floki.find("div.MuiBox-root:has(> div.#{block_title_class})") |> Enum.map(&node_classes/1) |> IO.inspect(label: "blocks.classes"),
          #  document |> Floki.find("div.#{doc_block_class}.MuiBox-root.css-0 > div.MuiBox-root.css-0  > div.MuiBox-root.css-0  > div.MuiBox-root") |> Enum.map(&node_classes/1) |> IO.inspect(label: "blocks.classes"),
