@@ -26,6 +26,7 @@ defmodule LiqpayAPI.MixProject do
       {:httpoison, "~> 2.2", optional: true, only: [:dev, :test]},
       {:mox, "~> 1.1", only: [:dev, :test]},
       {:floki, "~> 0.36", only: [:dev, :test]},
+      {:fast_html, "~> 2.0", only: [:dev, :test]},
       {:wallaby, "~> 0.30", runtime: false, only: [:dev, :test]}
     ]
   end

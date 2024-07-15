@@ -157,8 +157,7 @@ defmodule Mix.Tasks.Generate do
           end
       end)
 
-    # IO.puts(code)
-    ~r/^\s*(")?(\w+)(?(1)\1|)\s*:(.*)$/
+    ~r/^\s*(")?(\w+)(?(1)\1|)\s*:(.*)$/s
     |> Regex.scan(code, capture: :all_but_first)
     |> case do
       [["", name, value]] -> ~s<{"#{name}": #{value}}>
@@ -311,53 +310,13 @@ defmodule Mix.Tasks.Generate do
               end
 
             options =
-              %{type: type, required: required, description: description}
+              %{name: name, type: type, required: required, description: description}
               |> parse_maximum_length_from_description()
+              |> parse_possible_values_from_description()
+              |> parse_examples_from_description()
+              |> parse_separate_example(rest)
 
-            {description_new, options_new} =
-              parse_possible_values_from_description(description_new, options_new)
-
-            {description_new, options_new} =
-              parse_examples_from_description(description_new, name, options_new)
-
-            description_new =
-              with [example] <- rest,
-                   [code] <- Floki.find(example, "code.language-json"),
-                   true <- String.contains?(description, "base64") do
-                # if Regex.match?(~r/(`)?JSON(?(1)\1|)\s+string/, description) and
-                #      name not in ~w(split_rules) do
-                json =
-                  code
-                  |> extract_code()
-                  |> Jason.decode!()
-
-                # |> IO.inspect(label: "language-json")
-                # |> IO.inspect(label: name, pretty: true)
-                description_new
-                |> String.replace(
-                  ~r/(?:\.\s+)?(`)?JSON(?(1)\1|)\s+can\s+contain\s+the\s+parameters\s+shown\s+in\s+the\s+example/,
-                  ""
-                )
-                |> Kernel.<>("\n\n`JSON` example:\n```#{Jason.encode!(json, pretty: true)}\n```")
-
-                # end
-              else
-                _ -> description_new
-              end
-
-            # description = Floki.text(description)
-            # IO.puts(
-            #   "#{caption}: name=#{name}, description=#{description_new}, options=#{inspect(options_new)}"
-            # )
-            # {{name, Map.put(options_new, :description, description_new)}, if(required, do: [name], else: [])}
-            options_new =
-              if description_new == "" do
-                options_new
-              else
-                Map.put(options_new, :description, description_new)
-              end
-
-            {name, options_new}
+            {name, options}
           end)
 
         # end
@@ -490,6 +449,29 @@ defmodule Mix.Tasks.Generate do
     |> then(&File.write!("tmp/checkout.json", &1))
   end
 
+  defp parse_separate_example(schema, []) do
+    schema
+  end
+
+  defp parse_separate_example(%{name: name, description: description} = schema, [
+         {"code", _, _} = code
+       ]) do
+    case name do
+      "dae" ->
+        description_new =
+          "#{description |> String.split("\n") |> hd()}\n\nPossible `JSON` object:\n```\n#{code |> Floki.text() |> String.trim()}\n```"
+
+        %{schema | description: description_new}
+
+      _ ->
+        schema
+    end
+  end
+
+  defp parse_separate_example(schema, [{_, _, _} = node]) do
+    parse_separate_example(schema, Floki.find(node, "code.language-json"))
+  end
+
   defp patch_schema_examples(example, %{type: :object, properties: properties} = schema)
        when is_map(example) do
     properties_new =
@@ -555,7 +537,6 @@ defmodule Mix.Tasks.Generate do
 
   defp process_property_spec(%{type: :array} = property, ["delivery_emails", "rro_info"] = path)
        when not is_map_key(property, :items) do
-    IO.inspect(property)
     property_new = Map.put(property, :items, %{type: :string, format: :email})
     process_property_spec(property_new, path)
   end
@@ -732,7 +713,7 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_possible_values_from_description(description, options) do
+  defp parse_possible_values_from_description(%{description: description} = options) do
     ~r/(\.\s+)?(Possible\s+values?\s*:?|Current\s+value\s*\-?)([^\.\n]+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
@@ -762,66 +743,54 @@ defmodule Mix.Tasks.Generate do
             |> String.replace(~r/^\s*\.\s*/, "")
           end
 
-        options_new = Map.put(options, :enum, Enum.map(enum_options, fn {key, _} -> key end))
-
         options_new =
-          if not has_descriptions and length(enum_options) == 1 and
-               prefix_text |> String.replace(~r/\s+/, " ") |> String.starts_with?("Current value") do
-            [{default, _}] = enum_options
-            Map.put(options_new, :default, default)
-          else
-            options_new
-          end
+          Map.merge(options, %{
+            enum: Enum.map(enum_options, fn {key, _} -> key end),
+            description: description_new
+          })
 
-        {description_new, options_new}
+        if not has_descriptions and length(enum_options) == 1 and
+             prefix_text |> String.replace(~r/\s+/, " ") |> String.starts_with?("Current value") do
+          [{default, _}] = enum_options
+          Map.put(options_new, :default, default)
+        else
+          options_new
+        end
 
       [] ->
-        {description, options}
+        options
     end
   end
 
-  defp parse_examples_from_description(description, name, options) do
-    ~r/(?:\.\s+)?(?:For\s+example|Example\s+of\s+parameter\s+`#{name}`):?((?:\s*(`)?[^`]+?(?(2)\2|),?)+)(?:\.|$)/
+  defp parse_examples_from_description(%{description: description} = options) do
+    ~r/(?:\.\s+)?For\s+example:?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
-      [[full_match, examples_match, "`"]] ->
-        process_examples_match_in_description(description, full_match, examples_match, options)
-
       [[full_match, examples_match]] ->
-        # examples =
-        #   ~r/`([^`]+?)`/
-        #   |> Regex.scan(examples_match)
-        #   |> Enum.map(fn [_example_full_match, example] -> example |> String.trim_leading("«") |> String.trim_trailing("»") end)
-
-        # description_new = String.replace(description, full_match, "")
-        # options_new = Map.put(options, :examples, examples)
-        # {description_new, options_new}
-        process_examples_match_in_description(
-          description,
-          full_match,
-          "`#{String.trim(examples_match)}`",
-          options
-        )
+        process_examples_match_in_description(options, full_match, examples_match)
 
       [] ->
-        ~r/(?<!following\sformat|following\sformat )((?:\s*`[^`]+`,?)+)$/
+        ~r/(?<!following\sformat|following\sformat )((?:\s*`[^`]+?`,?)+)$/
         |> Regex.scan(description)
         |> case do
           [[full_match, examples_match]] ->
             process_examples_match_in_description(
-              description,
+              options,
               full_match,
-              examples_match,
-              options
+              examples_match
             )
 
           [] ->
-            {description, options}
+            options
         end
     end
   end
 
-  defp process_examples_match_in_description(description, full_match, match, options) do
+  defp process_examples_match_in_description(
+         %{description: description} = options,
+         full_match,
+         match
+       ) do
     examples =
       ~r/`([^`]+?)`/
       # ~r/(`)?([^`]+?)(?(1)\1|)/
@@ -840,8 +809,7 @@ defmodule Mix.Tasks.Generate do
       |> String.replace(full_match, "")
       |> String.trim()
 
-    options_new = Map.put(options, :examples, examples)
-    {description_new, options_new}
+    Map.merge(options, %{examples: examples, description: description_new})
   end
 
   defp node_classes(node) do
@@ -850,128 +818,4 @@ defmodule Mix.Tasks.Generate do
     |> Enum.flat_map(&String.split/1)
     |> Enum.uniq()
   end
-
-  # defguardp parameter_not_required?(map)
-  #           when not is_map_key(map, "required") or :erlang.map_get("required", map) == false
-
-  # # Update `tags` and `operationId` to operations
-  # Enum.map(@operation_changes, fn {url, method, changes} ->
-  #   defp traverse_spec(
-  #          operation_spec,
-  #          [unquote(method), unquote(url), "paths"] = path
-  #        )
-  #        when is_map(operation_spec) do
-  #     operation_spec
-  #     |> do_traverse_spec(path)
-  #     |> Map.merge(%{unquote_splicing(Map.to_list(changes))})
-  #   end
-  # end)
-
-  # # Fix incorrect examples
-  # defp traverse_spec(
-  #        {"example", value},
-  #        [
-  #          "example",
-  #          "cvv",
-  #          "properties",
-  #          "cardData",
-  #          "properties",
-  #          "PaymentDirectRequest",
-  #          "schemas",
-  #          "components"
-  #        ] = _path
-  #      )
-  #      when not is_binary(value) do
-  #   {"example", to_string(value)}
-  # end
-
-  # defp traverse_spec(
-  #        {"example", value},
-  #        [
-  #          "example",
-  #          "sst",
-  #          "properties",
-  #          "cardData",
-  #          "properties",
-  #          "InvoiceSyncPaymentRequest",
-  #          "schemas",
-  #          "components"
-  #        ] = _path
-  #      )
-  #      when not is_number(value) do
-  #   {float_value, ""} = Float.parse(value)
-  #   {"example", float_value}
-  # end
-
-  # # Force required params
-  # Enum.map(@forced_required_params, fn {url, method, name, location} ->
-  #   defp traverse_spec(
-  #          %{"name" => unquote(name), "in" => unquote(location)} = value,
-  #          [[_index], "parameters", unquote(method), unquote(url), "paths"] = path
-  #        )
-  #        when parameter_not_required?(value) do
-  #     value
-  #     |> do_traverse_spec(path)
-  #     |> Map.put("required", true)
-  #   end
-  # end)
-
-  # # Fix invalid required attributes (not strictly necessary)
-  # defp traverse_spec(
-  #        %{"type" => schema_type, "required" => required} = value,
-  #        ["schema" | _] = path
-  #      )
-  #      when schema_type != "object" and is_boolean(required) do
-  #   value
-  #   |> Map.delete("required")
-  #   |> traverse_spec(path)
-  # end
-
-  # defp traverse_spec(
-  #        %{"type" => schema_type, "required" => required} = value,
-  #        [_name, "properties" | _] = path
-  #      )
-  #      when schema_type != "object" and is_boolean(required) do
-  #   value
-  #   |> Map.delete("required")
-  #   |> traverse_spec(path)
-  # end
-
-  # defp traverse_spec(
-  #        %{"type" => schema_type, "required" => required} = value,
-  #        [_name, "schemas", "components"] = path
-  #      )
-  #      when schema_type != "object" and is_boolean(required) do
-  #   value
-  #   |> Map.delete("required")
-  #   |> traverse_spec(path)
-  # end
-
-  # # Remove query parameters from path URLs
-  # defp traverse_spec({url, value}, [url | ["paths"] = rest_path]) do
-  #   url_new = url |> URI.parse() |> struct!(query: nil) |> URI.to_string()
-  #   do_traverse_spec({url_new, value}, [url_new | rest_path])
-  # end
-
-  # defp traverse_spec(key_andor_value, path), do: do_traverse_spec(key_andor_value, path)
-
-  # defp do_traverse_spec({key, map}, path) when is_map(map) do
-  #   {key, traverse_spec(map, path)}
-  # end
-
-  # defp do_traverse_spec({key, list}, path) when is_list(list) do
-  #   {key, traverse_spec(list, path)}
-  # end
-
-  # defp do_traverse_spec(map, path) when is_map(map) do
-  #   Map.new(map, fn {key, value} -> traverse_spec({key, value}, [key | path]) end)
-  # end
-
-  # defp do_traverse_spec(list, path) when is_list(list) do
-  #   list
-  #   |> Enum.with_index()
-  #   |> Enum.map(fn {value, index} -> traverse_spec(value, [[index] | path]) end)
-  # end
-
-  # defp do_traverse_spec(key_andor_value, _path), do: key_andor_value
 end
