@@ -24,9 +24,13 @@ defmodule Mix.Tasks.Generate do
          [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
          [block_title_class] =
            ~r/new_doc_possibilities_text__\w+/ |> Regex.run(body, capture: :first),
-         {:ok, document} <- parse_document(body),
+         [code_text_class] =
+           ~r/new_doc_integration_code_text__\w+/ |> Regex.run(body, capture: :first),
+         [table_class] =
+           ~r/new_doc_table_scroll__\w+/ |> Regex.run(body, capture: :first),
          [standalone_code_block_class] =
            ~r/new_doc_page_content__\w+/ |> Regex.run(body, capture: :first),
+         {:ok, document} <- parse_document(body),
          #  [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0"),
          [main_doc] = document |> Floki.find("div#main_doc"),
          block_classes = node_classes(main_doc),
@@ -38,7 +42,9 @@ defmodule Mix.Tasks.Generate do
              main_block_class,
              standalone_code_block_class,
              block_classes,
-             block_title_class
+             block_title_class,
+             table_class,
+             code_text_class
            ) do
       # spec_filepath =
       #   @temp_spec_filename_length
@@ -171,7 +177,9 @@ defmodule Mix.Tasks.Generate do
          main_block_class,
          standalone_code_block_class,
          block_classes,
-         block_title_class
+         block_title_class,
+         table_class,
+         code_text_class
        ) do
     # document
     # |> Floki.find("code.language-javascript")
@@ -233,7 +241,7 @@ defmodule Mix.Tasks.Generate do
         properties =
           section
           |> Floki.find(
-            "div.new_doc_table_scroll__tz8vk.MuiBox-root  table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
+            "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
           )
           # |> Enum.map(
           |> Enum.map(fn parameter ->
@@ -266,22 +274,8 @@ defmodule Mix.Tasks.Generate do
                 {"span", _attrs, [text]} = span ->
                   span
                   |> node_classes()
-                  |> Enum.member?("new_doc_integration_code_text__G93bP")
+                  |> Enum.member?(code_text_class)
                   |> if(do: "`#{text}`", else: text)
-
-                  # span
-                  # |>
-                  # |> case do
-                  #   [classes] ->
-
-                  #     |> if do
-
-                  #     else
-                  #       text
-                  #     end
-                  #     end
-                  # # |> then(&IO.inspect(&1, label: "#{caption}/#{name}"))
-                  # # text
               end)
               |> String.replace(~r/\n\s+([^[:upper:]])/, " \\1")
               |> String.trim()
@@ -642,39 +636,10 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp process_property_spec(%{type: type} = property, _path) do
-    if type in ~w(integer boolean number)a do
-      property
-      |> Map.replace_lazy(
-        :enum,
-        &Enum.map(&1, fn value ->
-          {:ok, value_decoded} =
-            OpenAPIClient.Client.TypedDecoder.decode(
-              value,
-              type,
-              [],
-              OpenAPIClient.Client.TypedDecoder
-            )
-
-          value_decoded
-        end)
-      )
-      |> Map.replace_lazy(
-        :examples,
-        &(&1
-          |> Enum.map(fn value ->
-            {:ok, value_decoded} =
-              OpenAPIClient.Client.TypedDecoder.decode(
-                value,
-                type,
-                [],
-                OpenAPIClient.Client.TypedDecoder
-              )
-
-            value_decoded
-          end)
-          |> Enum.uniq())
-      )
-      |> Map.replace_lazy(:default, fn value ->
+    property
+    |> Map.replace_lazy(
+      :enum,
+      &Enum.map(&1, fn value ->
         {:ok, value_decoded} =
           OpenAPIClient.Client.TypedDecoder.decode(
             value,
@@ -685,10 +650,41 @@ defmodule Mix.Tasks.Generate do
 
         value_decoded
       end)
-    else
-      property
+    )
+    |> Map.replace_lazy(
+      :examples,
+      &(&1
+        |> Enum.map(fn value ->
+          {:ok, value_decoded} =
+            OpenAPIClient.Client.TypedDecoder.decode(
+              value,
+              type,
+              [],
+              OpenAPIClient.Client.TypedDecoder
+            )
+
+          value_decoded
+        end)
+        |> Enum.uniq())
+    )
+    |> Map.replace_lazy(:default, fn value ->
+      {:ok, value_decoded} =
+        OpenAPIClient.Client.TypedDecoder.decode(
+          value,
+          type,
+          [],
+          OpenAPIClient.Client.TypedDecoder
+        )
+
+      value_decoded
+    end)
+    |> Map.take(
+      ~w(type enum default format properties required items maxLength description examples)a
+    )
+    |> case do
+      %{type: :object, required: [_ | _]} = schema -> schema
+      schema -> Map.delete(schema, :required)
     end
-    |> Map.take(~w(type enum default format properties items maxLength description examples)a)
   end
 
   defp patch_properties(item, _reference_section, true), do: {item, true}
