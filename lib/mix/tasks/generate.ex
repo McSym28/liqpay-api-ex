@@ -221,6 +221,7 @@ defmodule Mix.Tasks.Generate do
           |> Floki.text()
           |> String.replace(~r/\s+/, " ")
           |> String.trim_trailing(":")
+          |> Macro.underscore()
 
         # if caption == "" or caption |> String.downcase() |> String.contains?("response") do
         #   []
@@ -311,6 +312,65 @@ defmodule Mix.Tasks.Generate do
 
             options =
               %{name: name, type: type, required: required, description: description}
+              |> case do
+                %{name: "split_rules"} = schema ->
+                  Map.merge(schema, %{
+                    type: :array,
+                    items: %{
+                      type: :object,
+                      properties: [
+                        {"public_key",
+                         %{
+                           name: "public_key",
+                           type: :string,
+                           required: false,
+                           description: "Public key - the store identifier",
+                           block: caption
+                         }},
+                        {"amount",
+                         %{
+                           name: "amount",
+                           type: :number,
+                           required: true,
+                           description: "Payment amount",
+                           block: caption
+                         }},
+                        {"commission_payer",
+                         %{
+                           name: "commission_payer",
+                           type: :string,
+                           required: false,
+                           description: "Commission payer",
+                           default: "sender",
+                           enum: ["sender", "receiver"],
+                           block: caption
+                         }},
+                        {"server_url",
+                         %{
+                           name: "server_url",
+                           type: :string,
+                           format: :uri,
+                           required: false,
+                           description:
+                             "URL API in your store for notifications of payment status change (`server` -> `server`)",
+                           max_length: 510,
+                           block: caption
+                         }},
+                        {"description",
+                         %{
+                           name: "description",
+                           type: :string,
+                           required: false,
+                           description: "Payment description",
+                           block: caption
+                         }}
+                      ]
+                    }
+                  })
+
+                schema ->
+                  schema
+              end
               |> parse_maximum_length_from_description()
               |> parse_possible_values_from_description()
               |> parse_examples_from_description()
@@ -338,8 +398,6 @@ defmodule Mix.Tasks.Generate do
             {{String.to_existing_atom(type), name}, properties}
 
           [] ->
-            caption = Macro.underscore(caption)
-
             Enum.map(properties, fn {key, property} ->
               {key, Map.put(property, :block, caption)}
             end)
@@ -463,8 +521,15 @@ defmodule Mix.Tasks.Generate do
 
         %{schema | description: description_new}
 
-      _ ->
-        schema
+      "split_rules" ->
+        description_new =
+          String.replace(description, ~r/\.?\s*Example\s+(`)?JSON(?(1)\1|)\s+string:?\s*$/, "")
+
+        code
+        |> extract_code()
+        |> Jason.decode!()
+        |> Enum.reverse()
+        |> patch_schema_examples(%{schema | description: description_new})
     end
   end
 
