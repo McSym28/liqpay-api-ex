@@ -141,14 +141,11 @@ defmodule Mix.Tasks.Generate do
           classes = span |> node_classes() |> MapSet.new()
 
           cond do
-            not MapSet.member?(classes, "token") ->
-              ""
-
-            MapSet.member?(classes, "comment") ->
+            not MapSet.member?(classes, "token") or MapSet.member?(classes, "comment") ->
               ""
 
             classes
-            |> MapSet.intersection(MapSet.new(["property", "string", "string-property"]))
+            |> MapSet.intersection(MapSet.new(["property", "string"]))
             |> Enum.empty?() ->
               Floki.text(span)
 
@@ -591,7 +588,7 @@ defmodule Mix.Tasks.Generate do
   defp process_property_spec(%{type: :string} = property, [datetime_property] = path)
        when datetime_property in ~w(subscribe_date_start expired_date) and
               not is_map_key(property, :format) do
-    property_new = Map.put(property, :format, "date-time-liqpay")
+    property_new = Map.put(property, :format, "date-time")
     process_property_spec(property_new, path)
   end
 
