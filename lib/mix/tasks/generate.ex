@@ -2,16 +2,17 @@ defmodule Mix.Tasks.Generate do
   @moduledoc "Generates library's modules"
   use Mix.Task
   # use Wallaby.Feature
-  use Wallaby.DSL
+  # use Wallaby.DSL
 
   @liqpay_base_url "https://www.liqpay.ua"
 
   @checkout_webpage_url "#{@liqpay_base_url}/en/doc/api/internet_acquiring/checkout?tab=1"
   @checkout_webpage_file "tmp/checkout.html"
-  # # @checkout_webpage_file "tmp/liqpay/acquiring_applepay.html"
+  @checkout_json_file "tmp/checkout.json"
 
-  # @subscription_webpage_file "tmp/liqpay/subscription2.html"
-  # @subscription_webpage_url "https://www.liqpay.ua/en/doc/api/internet_acquiring/subscription?tab=1"
+  @cash_webpage_url "https://www.liqpay.ua/en/doc/api/internet_acquiring/cash?tab=1"
+  @cash_webpage_file "tmp/cash.html"
+  @cash_json_file "tmp/cash.json"
 
   @requirements ["app.start"]
   @shortdoc "Generates library's modules"
@@ -20,7 +21,12 @@ defmodule Mix.Tasks.Generate do
 
     {:ok, session} = Wallaby.start_session()
 
-    with {:ok, body} <- http_request(@checkout_webpage_url, session, @checkout_webpage_file),
+    process_page(@checkout_webpage_url, session, @checkout_webpage_file, @checkout_json_file)
+    process_page(@cash_webpage_url, session, @cash_webpage_file, @cash_json_file)
+  end
+
+  defp process_page(url, session, html_file, json_file) do
+    with {:ok, body} <- http_request(url, session, html_file),
          [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
          [block_title_class] =
            ~r/new_doc_possibilities_text__\w+/ |> Regex.run(body, capture: :first),
@@ -31,11 +37,17 @@ defmodule Mix.Tasks.Generate do
          [standalone_code_block_class] =
            ~r/new_doc_page_content__\w+/ |> Regex.run(body, capture: :first),
          {:ok, document} <- parse_document(body),
-         #  [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0"),
-         [main_doc] = document |> Floki.find("div#main_doc"),
+         main_doc =
+           document
+           |> Floki.find(
+             "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
+           )
+           |> Enum.find(fn potential_block ->
+             not (potential_block
+                  |> Floki.find("div.#{table_class}")
+                  |> Enum.empty?())
+           end),
          block_classes = node_classes(main_doc),
-         #  document |> Floki.find("div.MuiBox-root:has(> div.#{block_title_class})") |> Enum.map(&node_classes/1) |> IO.inspect(label: "blocks.classes"),
-         #  document |> Floki.find("div.#{doc_block_class}.MuiBox-root.css-0 > div.MuiBox-root.css-0  > div.MuiBox-root.css-0  > div.MuiBox-root") |> Enum.map(&node_classes/1) |> IO.inspect(label: "blocks.classes"),
          {:ok, _spec} <-
            find_spec(
              document,
@@ -44,66 +56,10 @@ defmodule Mix.Tasks.Generate do
              block_classes,
              block_title_class,
              table_class,
-             code_text_class
+             code_text_class,
+             json_file
            ) do
-      # spec_filepath =
-      #   @temp_spec_filename_length
-      #   |> :crypto.strong_rand_bytes()
-      #   |> Base.url_encode64(padding: false)
-      #   |> then(&Enum.join([&1, "json"], "."))
-      #   |> then(&Path.join(tmp_dir, &1))
-
-      # if File.exists?(spec_filepath) do
-      #   File.rm!(spec_filepath)
-      # end
-
-      # File.write!("test/fixtures/mono.json",  Jason.encode!(spec, pretty: true))
-
-      # spec
-      # |> traverse_spec([])
-      # |> Jason.encode!(pretty: true)
-      # |> then(&File.write!(spec_filepath, &1))
-
-      # File.rm_rf!("lib/acquiring/*")
-      # File.rm_rf!("test/acquiring/*")
-
-      # Mix.Task.run("api.gen", ["acquiring", spec_filepath])
-
-      # File.rm!(spec_filepath)
     end
-
-    # HTTPoison.start()
-
-    # # tmp_dir = System.tmp_dir!()
-
-    # with {:ok, body} <- http_request(@checkout_url),
-    #      {:ok, document} <- parse_document(body),
-    #      {:ok, _spec} <- find_spec(document) do
-    #   # spec_filepath =
-    #   #   @temp_spec_filename_length
-    #   #   |> :crypto.strong_rand_bytes()
-    #   #   |> Base.url_encode64(padding: false)
-    #   #   |> then(&Enum.join([&1, "json"], "."))
-    #   #   |> then(&Path.join(tmp_dir, &1))
-
-    #   # if File.exists?(spec_filepath) do
-    #   #   File.rm!(spec_filepath)
-    #   # end
-
-    #   # File.write!("test/fixtures/mono.json",  Jason.encode!(spec, pretty: true))
-
-    #   # spec
-    #   # |> traverse_spec([])
-    #   # |> Jason.encode!(pretty: true)
-    #   # |> then(&File.write!(spec_filepath, &1))
-
-    #   # File.rm_rf!("lib/acquiring/*")
-    #   # File.rm_rf!("test/acquiring/*")
-
-    #   # Mix.Task.run("api.gen", ["acquiring", spec_filepath])
-
-    #   # File.rm!(spec_filepath)
-    # end
   end
 
   defp http_request(url, session, file) do
@@ -111,8 +67,8 @@ defmodule Mix.Tasks.Generate do
       File.read(file)
     else
       session
-      |> visit(url)
-      |> page_source()
+      |> Wallaby.Browser.visit(url)
+      |> Wallaby.Browser.page_source()
       |> tap(&File.write!(file, &1))
       |> then(&{:ok, &1})
     end
@@ -176,49 +132,14 @@ defmodule Mix.Tasks.Generate do
          block_classes,
          block_title_class,
          table_class,
-         code_text_class
+         code_text_class,
+         json_file
        ) do
-    # document
-    # |> Floki.find("code.language-javascript")
-    # |> Enum.map(fn {"code", _, _} = code ->
-    #   [[json]] =
-    #     code
-    #     |> extract_code()
-    #     |> then(
-    #       &Regex.scan(
-    #         ~r/liqpay\.(?:cnb_form\(|api\(\s*\"request\"\s*,)\s*(\{(?:[^}{]+|(?R))*+\})/,
-    #         &1,
-    #         capture: :all_but_first
-    #       )
-    #     )
-
-    #   # IO.inspect(json, label: "language-javascript")
-    #   json |> Jason.decode!() |> IO.inspect(pretty: true)
-    # end)
-
-    # document
-    # |> Floki.find("code.language-json")
-    # |> Enum.map(fn {"code", _, _} = code ->
-    #   code
-    #   |> extract_code()
-    #   # |> IO.inspect(label: "language-json")
-    #   # |> IO.puts()
-    #   |> Jason.decode!() |> IO.inspect(pretty: true)
-    # end)
-
-    # IO.puts(standalone_code_block_class)
-
     [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0")
 
     sections =
       main_block
-      # |> Floki.find("div.new_doc_possibilities_text__MLKp5.MuiBox-root")
-      # |> Floki.find("div.MuiBox-root.css-14kxyr")
-      # |> Floki.find("div.MuiBox-root.css-0 > div.MuiBox-root.css-0 > div.MuiBox-root")
       |> Floki.find("div.#{Enum.join(block_classes, ".")}")
-      # |> Enum.each(&IO.inspect(&1))
-      # |> Enum.flat_map(
-      # |> Map.new(
       |> Enum.flat_map(fn section ->
         caption =
           section
@@ -228,162 +149,149 @@ defmodule Mix.Tasks.Generate do
           |> String.trim_trailing(":")
           |> Macro.underscore()
 
-        # if caption == "" or caption |> String.downcase() |> String.contains?("response") do
-        #   []
-        # else
+        if caption |> String.downcase() |> String.contains?("response") do
+          []
+        else
+          properties =
+            section
+            |> Floki.find(
+              "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
+            )
+            |> Enum.map(fn parameter ->
+              [name, required, type, description | rest] =
+                Floki.find(parameter, "td.MuiTableCell-root.MuiTableCell-body")
 
-        # IO.inspect(caption, label: "caption")
+              name = name |> Floki.text() |> String.trim()
 
-        # if caption == "Main" do
-        properties =
-          section
-          |> Floki.find(
-            "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
-          )
-          # |> Enum.map(
-          |> Enum.map(fn parameter ->
-            # IO.inspect(parameter, label: caption)
-            [name, required, type, description | rest] =
-              Floki.find(parameter, "td.MuiTableCell-root.MuiTableCell-body")
+              description =
+                description
+                |> Floki.children()
+                |> Enum.map_join(fn
+                  str when is_binary(str) ->
+                    String.replace(str, ~r/\s+/, " ")
 
-            name = name |> Floki.text() |> String.trim()
+                  {"a", _attrs, [text]} = link ->
+                    [href] = Floki.attribute(link, "href")
 
-            description =
-              description
-              |> Floki.children()
-              # &IO.inspect(&1, label: "#{caption}/#{name}")
-              |> Enum.map_join(fn
-                str when is_binary(str) ->
-                  # if Regex.match?(~r/^\s+$/, str), do: " ", else: String.trim(str)
-                  String.replace(str, ~r/\s+/, " ")
+                    "[#{text |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
 
-                {"a", _attrs, [text]} = link ->
-                  [href] = Floki.attribute(link, "href")
+                  {"br", _attrs, _children} ->
+                    "\n"
 
-                  "[#{text |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
+                  {"b", _attrs, [text]} = _bold ->
+                    "**#{text}**"
 
-                {"br", _attrs, _children} ->
-                  "\n"
+                  {"span", _attrs, [text]} = span ->
+                    span
+                    |> node_classes()
+                    |> Enum.member?(code_text_class)
+                    |> if(do: "`#{text}`", else: text)
+                end)
+                |> String.replace(~r/\n\s+([^[:upper:]])/, " \\1")
+                |> String.trim()
 
-                {"b", _attrs, [text]} = _bold ->
-                  "**#{text}**"
+              type =
+                type
+                |> Floki.text()
+                |> String.trim()
+                |> String.downcase()
+                |> case do
+                  "string" -> :string
+                  "number" -> :number
+                  "integer" -> :integer
+                  "array" -> :array
+                  "object" -> :object
+                  "boolean" -> :boolean
+                end
 
-                {"span", _attrs, [text]} = span ->
-                  span
-                  |> node_classes()
-                  |> Enum.member?(code_text_class)
-                  |> if(do: "`#{text}`", else: text)
-              end)
-              |> String.replace(~r/\n\s+([^[:upper:]])/, " \\1")
-              |> String.trim()
+              required =
+                required
+                |> Floki.text()
+                |> String.trim()
+                |> String.downcase()
+                |> case do
+                  "required" -> true
+                  "optional" -> false
+                end
 
-            type =
-              type
-              |> Floki.text()
-              |> String.trim()
-              |> String.downcase()
-              |> case do
-                "string" -> :string
-                "number" -> :number
-                "integer" -> :integer
-                "array" -> :array
-                "object" -> :object
-                "boolean" -> :boolean
-              end
+              options =
+                %{name: name, type: type, required: required, description: description}
+                |> case do
+                  %{name: "split_rules"} = schema ->
+                    Map.merge(schema, %{
+                      type: :array,
+                      items: %{
+                        type: :object,
+                        properties: [
+                          {"public_key",
+                           %{
+                             name: "public_key",
+                             type: :string,
+                             required: false,
+                             description: "Public key - the store identifier",
+                             block: caption
+                           }},
+                          {"amount",
+                           %{
+                             name: "amount",
+                             type: :number,
+                             required: true,
+                             description: "Payment amount",
+                             block: caption
+                           }},
+                          {"commission_payer",
+                           %{
+                             name: "commission_payer",
+                             type: :string,
+                             required: false,
+                             description: "Commission payer",
+                             default: "sender",
+                             enum: ["sender", "receiver"],
+                             block: caption
+                           }},
+                          {"server_url",
+                           %{
+                             name: "server_url",
+                             type: :string,
+                             format: :uri,
+                             required: false,
+                             description:
+                               "URL API in your store for notifications of payment status change (`server` -> `server`)",
+                             max_length: 510,
+                             block: caption
+                           }},
+                          {"description",
+                           %{
+                             name: "description",
+                             type: :string,
+                             required: false,
+                             description: "Payment description",
+                             block: caption
+                           }}
+                        ]
+                      }
+                    })
 
-            required =
-              required
-              |> Floki.text()
-              |> String.trim()
-              |> String.downcase()
-              |> case do
-                "required" -> true
-                "optional" -> false
-              end
+                  schema ->
+                    schema
+                end
+                |> parse_maximum_length_from_description()
+                |> parse_possible_values_from_description()
+                |> parse_examples_from_description()
+                |> parse_separate_example(rest)
 
-            options =
-              %{name: name, type: type, required: required, description: description}
-              |> case do
-                %{name: "split_rules"} = schema ->
-                  Map.merge(schema, %{
-                    type: :array,
-                    items: %{
-                      type: :object,
-                      properties: [
-                        {"public_key",
-                         %{
-                           name: "public_key",
-                           type: :string,
-                           required: false,
-                           description: "Public key - the store identifier",
-                           block: caption
-                         }},
-                        {"amount",
-                         %{
-                           name: "amount",
-                           type: :number,
-                           required: true,
-                           description: "Payment amount",
-                           block: caption
-                         }},
-                        {"commission_payer",
-                         %{
-                           name: "commission_payer",
-                           type: :string,
-                           required: false,
-                           description: "Commission payer",
-                           default: "sender",
-                           enum: ["sender", "receiver"],
-                           block: caption
-                         }},
-                        {"server_url",
-                         %{
-                           name: "server_url",
-                           type: :string,
-                           format: :uri,
-                           required: false,
-                           description:
-                             "URL API in your store for notifications of payment status change (`server` -> `server`)",
-                           max_length: 510,
-                           block: caption
-                         }},
-                        {"description",
-                         %{
-                           name: "description",
-                           type: :string,
-                           required: false,
-                           description: "Payment description",
-                           block: caption
-                         }}
-                      ]
-                    }
-                  })
+              {name, options}
+            end)
 
-                schema ->
-                  schema
-              end
-              |> parse_maximum_length_from_description()
-              |> parse_possible_values_from_description()
-              |> parse_examples_from_description()
-              |> parse_separate_example(rest)
-
-            {name, options}
-          end)
-
-        # end
-        [{caption, properties}]
-        # end
+          [{caption, properties}]
+        end
       end)
-
-    # |> IO.inspect(pretty: true, limit: :infinity)
-    # |> Enum.unzip()
 
     {reference_sections, properties} =
       sections
       |> Enum.map(fn {caption, properties} = _section ->
         ~r/^.*\(the\s+(\w+)\s+(\w+)\)$/
         |> Regex.scan(caption, capture: :all_but_first)
-        # |> IO.inspect(label: caption)
         |> case do
           [[type, name]] ->
             {{String.to_existing_atom(type), name}, properties}
@@ -404,13 +312,11 @@ defmodule Mix.Tasks.Generate do
       |> Enum.reduce(
         List.flatten(properties),
         fn reference_section, properties ->
-          # IO.inspect(reference_section)
           {properties_new, true} = patch_properties(properties, reference_section, false)
           properties_new
         end
       )
 
-    # standalone_examples =
     schema =
       document
       |> Floki.find(
@@ -447,7 +353,6 @@ defmodule Mix.Tasks.Generate do
         end
       end)
       |> Enum.map(&Jason.decode!/1)
-      # |> IO.inspect(label: "examples")
       |> Enum.reduce(
         %{type: :object, properties: properties_new},
         &patch_schema_examples/2
@@ -494,8 +399,7 @@ defmodule Mix.Tasks.Generate do
       }
     }
     |> Jason.encode!(pretty: true)
-    # |> IO.puts()
-    |> then(&File.write!("tmp/checkout.json", &1))
+    |> then(&File.write!(json_file, &1))
   end
 
   defp parse_separate_example(schema, []) do
@@ -556,7 +460,6 @@ defmodule Mix.Tasks.Generate do
     %{schema | items: items_new}
   end
 
-  # defp patch_schema_examples(example, %{type: type} = schema) when type in ~w(string number integer boolean)a and (is_binary(example) or is_number(example) or is_boolean(example)) do
   defp patch_schema_examples(example, schema) do
     Map.update(schema, :examples, [example], &[example | &1])
   end
@@ -719,10 +622,6 @@ defmodule Mix.Tasks.Generate do
          is_found
        ) do
     {items_new, is_found_new} = patch_properties(items, reference_section, is_found)
-    # Enum.map_reduce(
-    #   items,
-    #   is_found,
-    #   fn parameter, is_found -> patch_parameters(parameter, reference_section, is_found) end)
     property_new = %{property | items: items_new}
     {{property_name, property_new}, is_found_new}
   end
