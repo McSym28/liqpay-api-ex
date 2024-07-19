@@ -765,7 +765,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_possible_values_from_description(%{description: description} = options) do
-    ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?)([^\.\n]+)(?:\.|$)/
+    ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?)\n?([^\.\n]+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, prefix_text, values_match]] ->
