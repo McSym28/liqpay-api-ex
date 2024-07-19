@@ -522,7 +522,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(%{type: :number} = property, path)
-       when path in [["version"], ["id", [], "items", "rro_info"]] do
+       when path in [["version"], ["id", [], "items", "rro_info"], ["mpi_eci"]] do
     property
     |> Map.put(:type, :integer)
     |> initialize_property_processing(path)
@@ -537,7 +537,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(%{type: :string} = property, path)
-       when path in [["expired_date"], ["subscribe_date_start", "regular-payment"]] and
+       when path in [["expired_date"], ["subscribe_date_start", "regular-payment"], ["end_date"]] and
               not is_map_key(property, :format) do
     property
     # |> Map.put(:format, "date-time-liqpay")
@@ -568,7 +568,7 @@ defmodule Mix.Tasks.Generate do
        ) do
     [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0")
 
-    {request_schema, _response_schema} =
+    {request_schema, response_schema} =
       main_block
       |> Floki.find("div.#{Enum.join(block_classes, ".")}")
       |> Enum.reduce({nil, nil}, fn section, {request_schema, response_schema} ->
@@ -590,7 +590,7 @@ defmodule Mix.Tasks.Generate do
           else: {request_schema, section_schema_new}
       end)
 
-    request_schema =
+    request_schema_new =
       document
       |> Floki.find(
         "div.#{main_block_class}.MuiBox-root.css-0 > div.MuiBox-root > div.MuiBox-root.css-0 > div.#{standalone_code_block_class}"
@@ -626,11 +626,12 @@ defmodule Mix.Tasks.Generate do
         end
       end)
       |> Enum.map(&Jason.decode!/1)
-      |> IO.inspect(pretty: true)
       |> Enum.reduce(
         request_schema,
         &patch_schema_examples/2
       )
+
+    response_schema_new = response_schema || %{type: :object}
 
     %{
       openapi: "3.1.0",
@@ -651,7 +652,7 @@ defmodule Mix.Tasks.Generate do
             requestBody: %{
               content: %{
                 "application/json" => %{
-                  schema: request_schema
+                  schema: request_schema_new
                 }
               }
             },
@@ -660,9 +661,7 @@ defmodule Mix.Tasks.Generate do
                 description: "200",
                 content: %{
                   "application/json" => %{
-                    schema: %{
-                      type: :object
-                    }
+                    schema: response_schema_new
                   }
                 }
               }
@@ -766,7 +765,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_possible_values_from_description(%{description: description} = options) do
-    ~r/(\.\s+)?(Possible\s+values?\s*:?|Current\s+value\s*\-?)([^\.\n]+)(?:\.|$)/
+    ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?)([^\.\n]+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, prefix_text, values_match]] ->
