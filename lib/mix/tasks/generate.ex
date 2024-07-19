@@ -399,7 +399,7 @@ defmodule Mix.Tasks.Generate do
       "number" -> :number
       "array" -> :array
       "object" -> :object
-      "boolean" -> :object
+      "boolean" -> :boolean
     end
   end
 
