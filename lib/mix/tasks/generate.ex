@@ -1,8 +1,6 @@
 defmodule Mix.Tasks.Generate do
   @moduledoc "Generates library's modules"
   use Mix.Task
-  # use Wallaby.Feature
-  # use Wallaby.DSL
 
   @liqpay_base_url "https://www.liqpay.ua"
 
@@ -13,6 +11,26 @@ defmodule Mix.Tasks.Generate do
   @cash_webpage_url "https://www.liqpay.ua/en/doc/api/internet_acquiring/cash?tab=1"
   @cash_webpage_file "tmp/cash.html"
   @cash_json_file "tmp/cash.json"
+
+  require Record
+
+  Record.defrecordp(:section,
+    node: nil,
+    is_request: true,
+    update_operation: :new,
+    update_type: :object,
+    update_name: nil,
+    description: nil
+  )
+
+  Record.defrecordp(:parse_options,
+    main_block_class: nil,
+    code_text_class: nil,
+    table_class: nil,
+    standalone_code_block_class: nil,
+    section_classes: [],
+    section_caption_class: nil
+  )
 
   @requirements ["app.start"]
   @shortdoc "Generates library's modules"
@@ -28,7 +46,7 @@ defmodule Mix.Tasks.Generate do
   defp process_page(url, session, html_file, json_file) do
     with {:ok, body} <- http_request(url, session, html_file),
          [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
-         [block_title_class] =
+         [section_caption_class] =
            ~r/new_doc_possibilities_text__\w+/ |> Regex.run(body, capture: :first),
          [code_text_class] =
            ~r/new_doc_integration_code_text__\w+/ |> Regex.run(body, capture: :first),
@@ -47,16 +65,17 @@ defmodule Mix.Tasks.Generate do
                   |> Floki.find("div.#{table_class}")
                   |> Enum.empty?())
            end),
-         block_classes = node_classes(main_doc),
          {:ok, _spec} <-
            find_spec(
              document,
-             main_block_class,
-             standalone_code_block_class,
-             block_classes,
-             block_title_class,
-             table_class,
-             code_text_class,
+             parse_options(
+               main_block_class: main_block_class,
+               code_text_class: code_text_class,
+               table_class: table_class,
+               standalone_code_block_class: standalone_code_block_class,
+               section_classes: node_classes(main_doc),
+               section_caption_class: section_caption_class
+             ),
              json_file
            ) do
     end
@@ -125,202 +144,456 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
+  defp parse_section(section, parse_options(section_caption_class: section_caption_class)) do
+    caption =
+      section
+      |> Floki.find("div.#{section_caption_class}.MuiBox-root")
+      |> hd()
+      |> Floki.text()
+      |> String.trim()
+      |> String.replace(~r/\s+/, " ")
+      |> String.trim_trailing(":")
+
+    ~r/^\s*(.*)\s+\(\s*the\s+(\w+)\s+(\w+)\s*\)\s*$/
+    |> Regex.scan(caption, capture: :all_but_first)
+    |> case do
+      [[description, type, name]] ->
+        section(
+          node: section,
+          update_operation: :patch,
+          update_type: String.to_atom(type),
+          update_name: name,
+          description: description
+        )
+
+      [] ->
+        case String.downcase(caption) do
+          main
+          when main in ["main", "other parameters", "parameters of splitting the payments"] ->
+            section(node: section, update_operation: :patch, description: caption)
+
+          "sender parameters" ->
+            section(
+              node: section,
+              update_operation: :new,
+              update_name: "sender",
+              description: caption
+            )
+
+          "regular payment parameters" ->
+            section(
+              node: section,
+              update_operation: :new,
+              update_name: "regular-payment",
+              description: caption
+            )
+
+          "parameters for 1-click payment" ->
+            section(
+              node: section,
+              update_operation: :new,
+              update_name: "one-click-payment",
+              description: caption
+            )
+
+          "response parameters" ->
+            section(
+              node: section,
+              is_request: false,
+              update_operation: :patch,
+              description: caption
+            )
+        end
+    end
+  end
+
+  defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
+    {true, schema}
+  end
+
+  defp update_section_schema(
+         %{type: type} = schema,
+         section(update_type: type, update_name: nil) = section_data,
+         parse_options,
+         false,
+         path
+       ) do
+    schema_new = process_section_properties(schema, section_data, parse_options, path)
+    {true, schema_new}
+  end
+
+  defp update_section_schema(
+         %{type: type} = schema,
+         section(update_operation: :patch, update_type: type, update_name: name) = section_data,
+         parse_options,
+         false,
+         [name | _] = path
+       ) do
+    path_new = if type == :array, do: [[] | path], else: path
+    schema_new = process_section_properties(schema, section_data, parse_options, path_new)
+    {true, schema_new}
+  end
+
+  defp update_section_schema(
+         %{type: type} = schema,
+         section(update_operation: :new, update_type: type, update_name: name) = section_data,
+         parse_options,
+         false,
+         path
+       )
+       when is_binary(name) do
+    schema_new = process_section_properties(schema, section_data, parse_options, [name | path])
+    {true, schema_new}
+  end
+
+  defp update_section_schema(
+         %{type: :object, properties: properties} = schema,
+         section_data,
+         parse_options,
+         false,
+         path
+       ) do
+    {properties_new, is_processed} =
+      Enum.map_reduce(properties, false, fn {key, schema}, is_processed ->
+        {is_processed_new, schema_new} =
+          update_section_schema(schema, section_data, parse_options, is_processed, [key | path])
+
+        {{key, schema_new}, is_processed_new}
+      end)
+
+    schema_new = %{schema | properties: Map.new(properties_new)}
+    {is_processed, schema_new}
+  end
+
+  defp update_section_schema(
+         %{type: :array, items: items} = schema,
+         section_data,
+         parse_options,
+         false,
+         path
+       ) do
+    {is_processed, items_new} =
+      update_section_schema(items, section_data, parse_options, false, [[] | path])
+
+    schema_new = %{schema | items: items_new}
+    {is_processed, schema_new}
+  end
+
+  defp update_section_schema(
+         schema,
+         _section_data,
+         _parse_options,
+         false,
+         _path
+       ) do
+    {false, schema}
+  end
+
+  defp process_section_properties(
+         schema,
+         section(node: node, is_request: is_request) = section_data,
+         parse_options(table_class: table_class) = parse_options,
+         path
+       ) do
+    {properties, required} =
+      node
+      |> Floki.find(
+        "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
+      )
+      |> Enum.map_reduce([], fn property, required_list ->
+        [name, required, type, description | rest] =
+          property
+          |> Floki.find("td.MuiTableCell-root.MuiTableCell-body")
+          |> case do
+            [name, type, description | rest] when not is_request ->
+              [name, ["Optional"], type, description | rest]
+
+            full_property ->
+              full_property
+          end
+
+        name = parse_property_name(name, parse_options)
+        description = parse_property_description(description, parse_options)
+        type = parse_property_type(type, parse_options)
+        required = parse_property_required(required, parse_options)
+
+        path_new = [name | path]
+
+        property_schema =
+          %{type: type, description: description}
+          |> initialize_property_processing(path_new)
+          |> parse_maximum_length_from_description()
+          |> parse_possible_values_from_description()
+          |> parse_examples_from_description()
+          |> parse_separate_example(rest, path_new)
+
+        required_list_new = if required, do: [name | required_list], else: required_list
+        {{name, property_schema}, required_list_new}
+      end)
+
+    properties_new = Map.new(properties)
+    required_new = Enum.reverse(required)
+
+    {properties_new, required_new} =
+      case section_data do
+        section(update_operation: :new, update_name: name, description: description)
+        when is_binary(name) ->
+          schema = %{type: :object, properties: properties_new, description: description}
+
+          schema_new =
+            if Enum.empty?(required_new) do
+              schema
+            else
+              Map.put(schema, :required, required_new)
+            end
+
+          {%{name => schema_new}, []}
+
+        _ ->
+          {properties_new, required_new}
+      end
+
+    case schema do
+      %{type: :object} ->
+        schema_new =
+          Map.update(schema, :properties, properties_new, &Map.merge(&1, properties_new))
+
+        if Enum.empty?(required_new) do
+          schema_new
+        else
+          Map.update(schema_new, :required, required_new, &(&1 ++ required_new))
+        end
+
+      %{type: :array} ->
+        items_new =
+          schema
+          |> Map.fetch(:items)
+          |> case do
+            {:ok, %{type: :object} = items} -> items
+            :error -> %{type: :object}
+          end
+          |> Map.update(:properties, properties_new, &Map.merge(&1, properties_new))
+
+        items_new =
+          if Enum.empty?(required_new) do
+            items_new
+          else
+            Map.update(items_new, :required, required_new, &(&1 ++ required_new))
+          end
+
+        Map.put(schema, :items, items_new)
+    end
+  end
+
+  defp parse_property_name(str, _parse_options) do
+    str |> Floki.text() |> String.trim()
+  end
+
+  defp parse_property_type(str, _parse_options) do
+    str
+    |> Floki.text()
+    |> String.trim()
+    |> String.downcase()
+    |> case do
+      "string" -> :string
+      "number" -> :number
+      "array" -> :array
+      "object" -> :object
+      "boolean" -> :object
+    end
+  end
+
+  defp parse_property_description(
+         str,
+         parse_options(code_text_class: code_text_class) = parse_options
+       ) do
+    str
+    |> Floki.children()
+    |> Enum.map_join(fn
+      str when is_binary(str) ->
+        String.replace(str, ~r/\s+/, " ")
+
+      {"a", _attrs, [text]} = link ->
+        [href] = Floki.attribute(link, "href")
+
+        "[#{text |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
+
+      {"br", _attrs, _children} ->
+        "\n"
+
+      {"b", _attrs, [text]} = _bold ->
+        "**#{text}**"
+
+      {"span", _attrs, [text]} = span ->
+        span
+        |> node_classes()
+        |> Enum.member?(code_text_class)
+        |> if(do: "`#{text}`", else: text)
+
+      {"div", _attrs, _children} = div ->
+        parse_property_description(div, parse_options)
+    end)
+    |> String.replace(~r/\n\s+([^[:upper:]])/, " \\1")
+    |> String.trim()
+  end
+
+  defp parse_property_required(str, _parse_options) do
+    str
+    |> Floki.text()
+    |> String.trim()
+    |> String.downcase()
+    |> case do
+      "required" -> true
+      "optional" -> false
+    end
+  end
+
+  defp initialize_property_processing(%{type: :string} = property, ["split_rules"] = path) do
+    property
+    |> Map.merge(%{
+      type: :array,
+      items: %{
+        type: :object,
+        properties: %{
+          "public_key" => %{
+            type: :string,
+            description: "Public key - the store identifier"
+          },
+          "amount" => %{
+            type: :number,
+            description: "Payment amount"
+          },
+          "commission_payer" => %{
+            type: :string,
+            description: "Commission payer",
+            default: "sender",
+            enum: ["sender", "receiver"]
+          },
+          "server_url" => %{
+            type: :string,
+            format: :uri,
+            description:
+              "URL API in your store for notifications of payment status change (`server` -> `server`)",
+            maxLength: 510
+          },
+          "description" => %{
+            type: :string,
+            description: "Payment description"
+          }
+        },
+        required: [
+          "amount"
+        ]
+      }
+    })
+    |> initialize_property_processing(path)
+  end
+
+  # defp initialize_property_processing(%{type: :string} = property, [boolean_property] = path)
+  #      when boolean_property in ~w(verifycode) and
+  #             not is_map_key(property, :format) do
+  #   property
+  #   |> Map.put(:format, "string-yesno")
+  #   |> initialize_property_processing(path)
+  # end
+
+  defp initialize_property_processing(%{type: :string} = property, [boolean_property] = path)
+       when boolean_property in ~w(verifycode) and
+              not is_map_key(property, :enum) do
+    property
+    |> Map.put(:enum, ["Y"])
+    |> initialize_property_processing(path)
+  end
+
+  # defp initialize_property_processing(%{type: :string} = property, path)
+  #      when path in [["subscribe"], ["prepare"], ["recurringbytoken", "one-click-payment"]] and
+  #             not is_map_key(property, :format) do
+  #   property
+  #   |> Map.put(:format, "string-integer")
+  #   |> initialize_property_processing(path)
+  # end
+
+  defp initialize_property_processing(%{type: :string} = property, path)
+       when path in [["subscribe"], ["prepare"], ["recurringbytoken", "one-click-payment"]] and
+              not is_map_key(property, :enum) do
+    property
+    |> Map.put(:enum, ["1"])
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(%{type: :number} = property, path)
+       when path in [["version"], ["id", [], "items", "rro_info"]] do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(%{type: :string} = property, [url_property] = path)
+       when url_property in ~w(result_url server_url product_url) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, :uri)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(%{type: :string} = property, path)
+       when path in [["expired_date"], ["subscribe_date_start", "regular-payment"]] and
+              not is_map_key(property, :format) do
+    property
+    # |> Map.put(:format, "date-time-liqpay")
+    |> Map.put(:format, "date-time")
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :array} = property,
+         ["delivery_emails", "rro_info"] = path
+       )
+       when not is_map_key(property, :items) do
+    property
+    |> Map.put(:items, %{type: :string, format: :email})
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(property, _path), do: property
+
   defp find_spec(
          document,
-         main_block_class,
-         standalone_code_block_class,
-         block_classes,
-         block_title_class,
-         table_class,
-         code_text_class,
+         parse_options(
+           main_block_class: main_block_class,
+           standalone_code_block_class: standalone_code_block_class,
+           section_classes: block_classes
+         ) = parse_options,
          json_file
        ) do
     [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0")
 
-    sections =
+    {request_schema, _response_schema} =
       main_block
       |> Floki.find("div.#{Enum.join(block_classes, ".")}")
-      |> Enum.flat_map(fn section ->
-        caption =
-          section
-          |> Floki.find("div.#{block_title_class}.MuiBox-root")
-          |> Floki.text()
-          |> String.replace(~r/\s+/, " ")
-          |> String.trim_trailing(":")
-          |> Macro.underscore()
+      |> Enum.reduce({nil, nil}, fn section, {request_schema, response_schema} ->
+        section(is_request: is_request, update_operation: update_operation) =
+          section_data = parse_section(section, parse_options)
 
-        if caption |> String.downcase() |> String.contains?("response") do
-          []
-        else
-          properties =
-            section
-            |> Floki.find(
-              "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
-            )
-            |> Enum.map(fn parameter ->
-              [name, required, type, description | rest] =
-                Floki.find(parameter, "td.MuiTableCell-root.MuiTableCell-body")
+        section_schema = if is_request, do: request_schema, else: response_schema
 
-              name = name |> Floki.text() |> String.trim()
+        section_schema_new =
+          (section_schema || %{type: :object, properties: %{}})
+          |> update_section_schema(section_data, parse_options, false, [])
+          |> case do
+            {true, section_schema_new} -> section_schema_new
+            {false, section_schema_new} when update_operation != :patch -> section_schema_new
+          end
 
-              description =
-                description
-                |> Floki.children()
-                |> Enum.map_join(fn
-                  str when is_binary(str) ->
-                    String.replace(str, ~r/\s+/, " ")
-
-                  {"a", _attrs, [text]} = link ->
-                    [href] = Floki.attribute(link, "href")
-
-                    "[#{text |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
-
-                  {"br", _attrs, _children} ->
-                    "\n"
-
-                  {"b", _attrs, [text]} = _bold ->
-                    "**#{text}**"
-
-                  {"span", _attrs, [text]} = span ->
-                    span
-                    |> node_classes()
-                    |> Enum.member?(code_text_class)
-                    |> if(do: "`#{text}`", else: text)
-                end)
-                |> String.replace(~r/\n\s+([^[:upper:]])/, " \\1")
-                |> String.trim()
-
-              type =
-                type
-                |> Floki.text()
-                |> String.trim()
-                |> String.downcase()
-                |> case do
-                  "string" -> :string
-                  "number" -> :number
-                  "integer" -> :integer
-                  "array" -> :array
-                  "object" -> :object
-                  "boolean" -> :boolean
-                end
-
-              required =
-                required
-                |> Floki.text()
-                |> String.trim()
-                |> String.downcase()
-                |> case do
-                  "required" -> true
-                  "optional" -> false
-                end
-
-              options =
-                %{name: name, type: type, required: required, description: description}
-                |> case do
-                  %{name: "split_rules"} = schema ->
-                    Map.merge(schema, %{
-                      type: :array,
-                      items: %{
-                        type: :object,
-                        properties: [
-                          {"public_key",
-                           %{
-                             name: "public_key",
-                             type: :string,
-                             required: false,
-                             description: "Public key - the store identifier",
-                             block: caption
-                           }},
-                          {"amount",
-                           %{
-                             name: "amount",
-                             type: :number,
-                             required: true,
-                             description: "Payment amount",
-                             block: caption
-                           }},
-                          {"commission_payer",
-                           %{
-                             name: "commission_payer",
-                             type: :string,
-                             required: false,
-                             description: "Commission payer",
-                             default: "sender",
-                             enum: ["sender", "receiver"],
-                             block: caption
-                           }},
-                          {"server_url",
-                           %{
-                             name: "server_url",
-                             type: :string,
-                             format: :uri,
-                             required: false,
-                             description:
-                               "URL API in your store for notifications of payment status change (`server` -> `server`)",
-                             max_length: 510,
-                             block: caption
-                           }},
-                          {"description",
-                           %{
-                             name: "description",
-                             type: :string,
-                             required: false,
-                             description: "Payment description",
-                             block: caption
-                           }}
-                        ]
-                      }
-                    })
-
-                  schema ->
-                    schema
-                end
-                |> parse_maximum_length_from_description()
-                |> parse_possible_values_from_description()
-                |> parse_examples_from_description()
-                |> parse_separate_example(rest)
-
-              {name, options}
-            end)
-
-          [{caption, properties}]
-        end
+        if is_request,
+          do: {section_schema_new, response_schema},
+          else: {request_schema, section_schema_new}
       end)
 
-    {reference_sections, properties} =
-      sections
-      |> Enum.map(fn {caption, properties} = _section ->
-        ~r/^.*\(the\s+(\w+)\s+(\w+)\)$/
-        |> Regex.scan(caption, capture: :all_but_first)
-        |> case do
-          [[type, name]] ->
-            {{String.to_existing_atom(type), name}, properties}
-
-          [] ->
-            Enum.map(properties, fn {key, property} ->
-              {key, Map.put(property, :block, caption)}
-            end)
-        end
-      end)
-      |> Enum.split_with(fn
-        {{_type, _name}, _properties} -> true
-        _properties -> false
-      end)
-
-    properties_new =
-      reference_sections
-      |> Enum.reduce(
-        List.flatten(properties),
-        fn reference_section, properties ->
-          {properties_new, true} = patch_properties(properties, reference_section, false)
-          properties_new
-        end
-      )
-
-    schema =
+    request_schema =
       document
       |> Floki.find(
-        "div.#{main_block_class}.MuiBox-root.css-0 > div.MuiBox-root.css-0 > div.MuiBox-root.css-0 > div.#{standalone_code_block_class}"
+        "div.#{main_block_class}.MuiBox-root.css-0 > div.MuiBox-root > div.MuiBox-root.css-0 > div.#{standalone_code_block_class}"
       )
       |> Enum.flat_map(fn code_div ->
         code_div
@@ -353,11 +626,11 @@ defmodule Mix.Tasks.Generate do
         end
       end)
       |> Enum.map(&Jason.decode!/1)
+      |> IO.inspect(pretty: true)
       |> Enum.reduce(
-        %{type: :object, properties: properties_new},
+        request_schema,
         &patch_schema_examples/2
       )
-      |> process_property_spec([])
 
     %{
       openapi: "3.1.0",
@@ -378,7 +651,7 @@ defmodule Mix.Tasks.Generate do
             requestBody: %{
               content: %{
                 "application/json" => %{
-                  schema: schema
+                  schema: request_schema
                 }
               }
             },
@@ -402,13 +675,17 @@ defmodule Mix.Tasks.Generate do
     |> then(&File.write!(json_file, &1))
   end
 
-  defp parse_separate_example(schema, []) do
+  defp parse_separate_example(schema, [], _path) do
     schema
   end
 
-  defp parse_separate_example(%{name: name, description: description} = schema, [
-         {"code", _, _} = code
-       ]) do
+  defp parse_separate_example(
+         %{description: description} = schema,
+         [
+           {"code", _, _} = code
+         ],
+         [name | _] = _path
+       ) do
     case name do
       "dae" ->
         description_new =
@@ -428,8 +705,8 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_separate_example(schema, [{_, _, _} = node]) do
-    parse_separate_example(schema, Floki.find(node, "code.language-json"))
+  defp parse_separate_example(schema, [{_, _, _} = node], path) do
+    parse_separate_example(schema, Floki.find(node, "code.language-json"), path)
   end
 
   defp patch_schema_examples(example, %{type: :object, properties: properties} = schema)
@@ -439,9 +716,7 @@ defmodule Mix.Tasks.Generate do
         example,
         properties,
         fn {key, value}, properties ->
-          {_, property} = List.keyfind!(properties, key, 0)
-          property_new = patch_schema_examples(value, property)
-          List.keyreplace(properties, key, 0, {key, property_new})
+          Map.update!(properties, key, &patch_schema_examples(value, &1))
         end
       )
 
@@ -461,190 +736,9 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp patch_schema_examples(example, schema) do
-    Map.update(schema, :examples, [example], &[example | &1])
+    example_new = parse_schema_value(example, schema)
+    Map.update(schema, :examples, [example_new], &Enum.uniq([example_new | &1]))
   end
-
-  # defp process_property_spec(%{type: :string} = property, [boolean_property] = path)
-  #      when boolean_property in ~w(verifycode) do
-  #   property_new = Map.merge(property, %{type: :boolean, format: "string-yesno"})
-  #   process_property_spec(property_new, path)
-  # end
-
-  defp process_property_spec(%{type: :number} = property, [integer_property] = path)
-       when integer_property in ~w(version) do
-    property_new = %{property | type: :integer}
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :number} = property, ["id", [], "items", "rro_info"] = path) do
-    property_new = %{property | type: :integer}
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :string} = property, [url_property] = path)
-       when url_property in ~w(result_url server_url product_url) and
-              not is_map_key(property, :format) do
-    property_new = Map.put(property, :format, :uri)
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :string} = property, [datetime_property] = path)
-       when datetime_property in ~w(subscribe_date_start expired_date) and
-              not is_map_key(property, :format) do
-    property_new = Map.put(property, :format, "date-time")
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :array} = property, ["delivery_emails", "rro_info"] = path)
-       when not is_map_key(property, :items) do
-    property_new = Map.put(property, :items, %{type: :string, format: :email})
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :object, properties: properties} = property, path)
-       when not is_map_key(property, :processed) do
-    {properties_new, required} =
-      properties
-      |> Enum.map(fn {name, property} ->
-        property_new = process_property_spec(property, [name | path])
-        required = property[:required] && (path != [] || property[:block] == "main")
-        {{name, property_new}, if(required, do: [name], else: [])}
-      end)
-      |> Enum.unzip()
-
-    property_new =
-      Map.merge(property, %{
-        properties: Map.new(properties_new),
-        required: List.flatten(required),
-        processed: true
-      })
-
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :array, items: items} = property, path)
-       when not is_map_key(property, :processed) do
-    items_new = process_property_spec(items, [[] | path])
-    property_new = Map.merge(property, %{items: items_new, processed: true})
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: :string, max_length: max_length} = property, path)
-       when not is_map_key(property, :maxLength) do
-    property_new = Map.put(property, :maxLength, max_length)
-    process_property_spec(property_new, path)
-  end
-
-  defp process_property_spec(%{type: type} = property, _path) do
-    property
-    |> Map.replace_lazy(
-      :enum,
-      &Enum.map(&1, fn value ->
-        {:ok, value_decoded} =
-          OpenAPIClient.Client.TypedDecoder.decode(
-            value,
-            type,
-            [],
-            OpenAPIClient.Client.TypedDecoder
-          )
-
-        value_decoded
-      end)
-    )
-    |> Map.replace_lazy(
-      :examples,
-      &(&1
-        |> Enum.map(fn value ->
-          {:ok, value_decoded} =
-            OpenAPIClient.Client.TypedDecoder.decode(
-              value,
-              type,
-              [],
-              OpenAPIClient.Client.TypedDecoder
-            )
-
-          value_decoded
-        end)
-        |> Enum.uniq())
-    )
-    |> Map.replace_lazy(:default, fn value ->
-      {:ok, value_decoded} =
-        OpenAPIClient.Client.TypedDecoder.decode(
-          value,
-          type,
-          [],
-          OpenAPIClient.Client.TypedDecoder
-        )
-
-      value_decoded
-    end)
-    |> Map.take(
-      ~w(type enum default format properties required items maxLength description examples)a
-    )
-    |> case do
-      %{type: :object, required: [_ | _]} = schema -> schema
-      schema -> Map.delete(schema, :required)
-    end
-  end
-
-  defp patch_properties(item, _reference_section, true), do: {item, true}
-
-  defp patch_properties(
-         {property_name, %{type: :array} = property},
-         {{:array, property_name}, reference_properties},
-         _is_found
-       ) do
-    property_new =
-      Map.update(
-        property,
-        :items,
-        %{type: :object, properties: reference_properties},
-        fn property -> update_in(property, [:properties], &(&1 ++ reference_properties)) end
-      )
-
-    {{property_name, property_new}, true}
-  end
-
-  defp patch_properties(
-         {property_name, %{type: :object} = property},
-         {{:object, property_name}, reference_properties},
-         _is_found
-       ) do
-    property_new =
-      Map.update(property, :properties, reference_properties, &(&1 ++ reference_properties))
-
-    {{property_name, property_new}, true}
-  end
-
-  defp patch_properties(
-         {property_name, %{type: :array, items: items} = property},
-         reference_section,
-         is_found
-       ) do
-    {items_new, is_found_new} = patch_properties(items, reference_section, is_found)
-    property_new = %{property | items: items_new}
-    {{property_name, property_new}, is_found_new}
-  end
-
-  defp patch_properties(
-         {property_name, %{type: :object, properties: properties} = property},
-         reference_section,
-         is_found
-       ) do
-    {properties_new, is_found_new} = patch_properties(properties, reference_section, is_found)
-    property_new = %{property | properties: properties_new}
-    {{property_name, property_new}, is_found_new}
-  end
-
-  defp patch_properties(properties, reference_section, is_found) when is_list(properties) do
-    Enum.map_reduce(
-      properties,
-      is_found,
-      fn property, is_found -> patch_properties(property, reference_section, is_found) end
-    )
-  end
-
-  defp patch_properties(item, _reference_section, is_found), do: {item, is_found}
 
   defp parse_maximum_length_from_description(%{description: description} = options) do
     ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+symbols/
@@ -654,7 +748,7 @@ defmodule Mix.Tasks.Generate do
         description_new = String.replace(description, full_match, "")
 
         Map.merge(options, %{
-          max_length: String.to_integer(max_length),
+          maxLength: String.to_integer(max_length),
           description: description_new
         })
 
@@ -662,7 +756,7 @@ defmodule Mix.Tasks.Generate do
         description_new = String.replace(description, full_match, "")
 
         Map.merge(options, %{
-          max_length: String.to_integer(max_length),
+          maxLength: String.to_integer(max_length),
           description: description_new
         })
 
@@ -703,14 +797,20 @@ defmodule Mix.Tasks.Generate do
 
         options_new =
           Map.merge(options, %{
-            enum: Enum.map(enum_options, fn {key, _} -> key end),
+            enum:
+              enum_options
+              |> Enum.map(fn {key, _} ->
+                parse_schema_value(key, options)
+              end)
+              |> Enum.uniq(),
             description: description_new
           })
 
         if not has_descriptions and length(enum_options) == 1 and
              prefix_text |> String.replace(~r/\s+/, " ") |> String.starts_with?("Current value") do
           [{default, _}] = enum_options
-          Map.put(options_new, :default, default)
+          default_new = parse_schema_value(default, options)
+          Map.put(options_new, :default, default_new)
         else
           options_new
         end
@@ -721,20 +821,20 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_examples_from_description(%{description: description} = options) do
-    ~r/(?:\.\s+)?For\s+example:?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
+    ~r/(?:\.\s+)?(?:For\s+example|^):?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, examples_match]] ->
         process_examples_match_in_description(options, full_match, examples_match)
 
       [] ->
-        ~r/(?<!following\sformat|following\sformat )((?:\s*`[^`]+?`,?)+)$/
+        ~r/(?:Customer's\s+language)((?:\s*`[^`]+?`,?)+)$/
         |> Regex.scan(description)
         |> case do
-          [[full_match, examples_match]] ->
+          [[_full_match, examples_match]] ->
             process_examples_match_in_description(
               options,
-              full_match,
+              examples_match,
               examples_match
             )
 
@@ -751,7 +851,6 @@ defmodule Mix.Tasks.Generate do
        ) do
     examples =
       ~r/`([^`]+?)`/
-      # ~r/(`)?([^`]+?)(?(1)\1|)/
       |> Regex.scan(match, capture: :all_but_first)
       |> Enum.map(fn [example] ->
         ~r/^«(.+)»$/s
@@ -760,7 +859,9 @@ defmodule Mix.Tasks.Generate do
           [[stripped_example]] -> stripped_example
           [] -> example
         end
+        |> parse_schema_value(options)
       end)
+      |> Enum.uniq()
 
     description_new =
       description
@@ -775,5 +876,17 @@ defmodule Mix.Tasks.Generate do
     |> Floki.attribute("class")
     |> Enum.flat_map(&String.split/1)
     |> Enum.uniq()
+  end
+
+  defp parse_schema_value(value, %{type: type} = _schema) do
+    {:ok, value_decoded} =
+      OpenAPIClient.Client.TypedDecoder.decode(
+        value,
+        type,
+        [],
+        OpenAPIClient.Client.TypedDecoder
+      )
+
+    value_decoded
   end
 end
