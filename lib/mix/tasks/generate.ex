@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Generate do
   @moduledoc "Generates library's modules"
   use Mix.Task
+  alias Jason.OrderedObject
 
   @liqpay_base_url "https://www.liqpay.ua"
 
@@ -153,7 +154,7 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_section(section, parse_options(section_caption_class: section_caption_class)) do
+  defp parse_section(section, parse_options(section_caption_class: section_caption_class) = parse_options) do
     caption =
       section
       |> Floki.find("div.#{section_caption_class}.MuiBox-root")
@@ -170,8 +171,8 @@ defmodule Mix.Tasks.Generate do
         section(
           node: section,
           update_operation: :patch,
-          update_type: String.to_atom(type),
-          update_name: name,
+          update_type: parse_property_type([type], parse_options),
+          update_name: parse_property_name([name], parse_options),
           description: description
         )
 
@@ -270,7 +271,7 @@ defmodule Mix.Tasks.Generate do
         {{key, schema_new}, is_processed_new}
       end)
 
-    schema_new = %{schema | properties: Map.new(properties_new)}
+    schema_new = %{schema | properties: OrderedObject.new(properties_new)}
     {is_processed, schema_new}
   end
 
@@ -312,7 +313,7 @@ defmodule Mix.Tasks.Generate do
       |> Floki.find(
         "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
       )
-      |> Enum.map_reduce([], fn property, required_list ->
+      |> Enum.map(fn property ->
         [name, required, type, description | rest] =
           property
           |> Floki.find("td.MuiTableCell-root.MuiTableCell-body")
@@ -339,12 +340,12 @@ defmodule Mix.Tasks.Generate do
           |> parse_examples_from_description()
           |> parse_separate_example(rest, path_new)
 
-        required_list_new = if required, do: [name | required_list], else: required_list
-        {{name, property_schema}, required_list_new}
+        {{name, property_schema}, if(required, do: [name], else: [])}
       end)
+      |> Enum.unzip()
 
-    properties_new = Map.new(properties)
-    required_new = Enum.reverse(required)
+    properties_new = OrderedObject.new(properties)
+    required_new = List.flatten(required)
 
     properties_new =
       with true <- is_binary(table_standalone_code_block_class),
@@ -374,7 +375,7 @@ defmodule Mix.Tasks.Generate do
               Map.put(schema, :required, required_new)
             end
 
-          {%{name => schema_new}, []}
+          {OrderedObject.new([{name, schema_new}]), []}
 
         _ ->
           {properties_new, required_new}
@@ -383,7 +384,7 @@ defmodule Mix.Tasks.Generate do
     case schema do
       %{type: :object} ->
         schema_new =
-          Map.update(schema, :properties, properties_new, &Map.merge(&1, properties_new))
+          Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values} -> OrderedObject.new(values ++ properties_new.values) end)
 
         if Enum.empty?(required_new) do
           schema_new
@@ -399,7 +400,7 @@ defmodule Mix.Tasks.Generate do
             {:ok, %{type: :object} = items} -> items
             :error -> %{type: :object}
           end
-          |> Map.update(:properties, properties_new, &Map.merge(&1, properties_new))
+          |> Map.update(:properties, properties_new, fn %OrderedObject{values: values} -> OrderedObject.new(values ++ properties_new.values) end)
 
         items_new =
           if Enum.empty?(required_new) do
@@ -490,33 +491,33 @@ defmodule Mix.Tasks.Generate do
       type: :array,
       items: %{
         type: :object,
-        properties: %{
-          "public_key" => %{
+        properties: OrderedObject.new([{
+          "public_key", %{
             type: :string,
             description: "Public key - the store identifier"
-          },
-          "amount" => %{
+          }},
+          {"amount", %{
             type: :number,
             description: "Payment amount"
-          },
-          "commission_payer" => %{
+          }},
+          {"commission_payer", %{
             type: :string,
             description: "Commission payer",
             default: "sender",
             enum: ["sender", "receiver"]
-          },
-          "server_url" => %{
+          }},
+          {"server_url", %{
             type: :string,
             format: :uri,
             description:
               "URL API in your store for notifications of payment status change (`server` -> `server`)",
             maxLength: 510
-          },
-          "description" => %{
+          }},
+          {"description", %{
             type: :string,
             description: "Payment description"
-          }
-        },
+          }}
+        ]),
         required: [
           "amount"
         ]
@@ -614,7 +615,7 @@ defmodule Mix.Tasks.Generate do
         section_schema = if is_request, do: request_schema, else: response_schema
 
         section_schema_new =
-          (section_schema || %{type: :object, properties: %{}})
+          (section_schema || %{type: :object, properties: OrderedObject.new([])})
           |> update_section_schema(section_data, parse_options, false, [])
           |> case do
             {true, section_schema_new} -> section_schema_new
@@ -751,7 +752,7 @@ defmodule Mix.Tasks.Generate do
         example,
         properties,
         fn {key, value}, properties ->
-          Map.update!(properties, key, &patch_schema_examples(value, &1))
+          update_in(properties, [key], &patch_schema_examples(value, &1))
         end
       )
 
