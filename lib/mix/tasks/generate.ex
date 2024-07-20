@@ -154,7 +154,10 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_section(section, parse_options(section_caption_class: section_caption_class) = parse_options) do
+  defp parse_section(
+         section,
+         parse_options(section_caption_class: section_caption_class) = parse_options
+       ) do
     caption =
       section
       |> Floki.find("div.#{section_caption_class}.MuiBox-root")
@@ -384,7 +387,9 @@ defmodule Mix.Tasks.Generate do
     case schema do
       %{type: :object} ->
         schema_new =
-          Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values} -> OrderedObject.new(values ++ properties_new.values) end)
+          Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values} ->
+            OrderedObject.new(values ++ properties_new.values)
+          end)
 
         if Enum.empty?(required_new) do
           schema_new
@@ -400,7 +405,9 @@ defmodule Mix.Tasks.Generate do
             {:ok, %{type: :object} = items} -> items
             :error -> %{type: :object}
           end
-          |> Map.update(:properties, properties_new, fn %OrderedObject{values: values} -> OrderedObject.new(values ++ properties_new.values) end)
+          |> Map.update(:properties, properties_new, fn %OrderedObject{values: values} ->
+            OrderedObject.new(values ++ properties_new.values)
+          end)
 
         items_new =
           if Enum.empty?(required_new) do
@@ -491,33 +498,41 @@ defmodule Mix.Tasks.Generate do
       type: :array,
       items: %{
         type: :object,
-        properties: OrderedObject.new([{
-          "public_key", %{
-            type: :string,
-            description: "Public key - the store identifier"
-          }},
-          {"amount", %{
-            type: :number,
-            description: "Payment amount"
-          }},
-          {"commission_payer", %{
-            type: :string,
-            description: "Commission payer",
-            default: "sender",
-            enum: ["sender", "receiver"]
-          }},
-          {"server_url", %{
-            type: :string,
-            format: :uri,
-            description:
-              "URL API in your store for notifications of payment status change (`server` -> `server`)",
-            maxLength: 510
-          }},
-          {"description", %{
-            type: :string,
-            description: "Payment description"
-          }}
-        ]),
+        properties:
+          OrderedObject.new([
+            {
+              "public_key",
+              %{
+                type: :string,
+                description: "Public key - the store identifier"
+              }
+            },
+            {"amount",
+             %{
+               type: :number,
+               description: "Payment amount"
+             }},
+            {"commission_payer",
+             %{
+               type: :string,
+               description: "Commission payer",
+               default: "sender",
+               enum: ["sender", "receiver"]
+             }},
+            {"server_url",
+             %{
+               type: :string,
+               format: :uri,
+               description:
+                 "URL API in your store for notifications of payment status change (`server` -> `server`)",
+               maxLength: 510
+             }},
+            {"description",
+             %{
+               type: :string,
+               description: "Payment description"
+             }}
+          ]),
         required: [
           "amount"
         ]
@@ -736,7 +751,6 @@ defmodule Mix.Tasks.Generate do
         code
         |> extract_code()
         |> Jason.decode!()
-        |> Enum.reverse()
         |> patch_schema_examples(%{schema | description: description_new})
     end
   end
@@ -773,7 +787,7 @@ defmodule Mix.Tasks.Generate do
 
   defp patch_schema_examples(example, schema) do
     example_new = parse_schema_value(example, schema)
-    Map.update(schema, :examples, [example_new], &Enum.uniq([example_new | &1]))
+    Map.update(schema, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
   end
 
   defp parse_maximum_length_from_description(%{description: description} = options) do
@@ -873,7 +887,7 @@ defmodule Mix.Tasks.Generate do
           key_new = parse_schema_value(key, options)
 
           options
-          |> Map.update(:enum, [key_new], &[key_new | &1])
+          |> Map.update(:enum, [key_new], &Enum.uniq([key_new] ++ &1))
           |> Map.put(:description, description_new)
         end)
     end
