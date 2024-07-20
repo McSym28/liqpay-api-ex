@@ -338,10 +338,10 @@ defmodule Mix.Tasks.Generate do
         property_schema =
           %{type: type, description: description}
           |> initialize_property_processing(path_new)
-          |> parse_maximum_length_from_description()
-          |> parse_possible_values_from_description()
-          |> parse_examples_from_description()
-          |> parse_separate_example(rest, path_new)
+          |> parse_property_maximum_length()
+          |> parse_property_enum()
+          |> parse_property_examples()
+          |> parse_property_separate_example(rest, path_new)
 
         {{name, property_schema}, if(required, do: [name], else: [])}
       end)
@@ -726,11 +726,11 @@ defmodule Mix.Tasks.Generate do
     |> then(&File.write!(json_file, &1))
   end
 
-  defp parse_separate_example(schema, [], _path) do
+  defp parse_property_separate_example(schema, [], _path) do
     schema
   end
 
-  defp parse_separate_example(
+  defp parse_property_separate_example(
          %{description: description} = schema,
          [
            {"code", _, _} = code
@@ -755,8 +755,8 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_separate_example(schema, [{_, _, _} = node], path) do
-    parse_separate_example(schema, Floki.find(node, "code.language-json"), path)
+  defp parse_property_separate_example(schema, [{_, _, _} = node], path) do
+    parse_property_separate_example(schema, Floki.find(node, "code.language-json"), path)
   end
 
   defp patch_schema_examples(example, %{type: :object, properties: properties} = schema)
@@ -790,14 +790,14 @@ defmodule Mix.Tasks.Generate do
     Map.update(schema, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
   end
 
-  defp parse_maximum_length_from_description(%{description: description} = options) do
+  defp parse_property_maximum_length(%{description: description} = property) do
     ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+symbols/
     |> Regex.scan(description)
     |> case do
       [[full_match, max_length]] ->
         description_new = String.replace(description, full_match, "")
 
-        Map.merge(options, %{
+        Map.merge(property, %{
           maxLength: String.to_integer(max_length),
           description: description_new
         })
@@ -805,17 +805,17 @@ defmodule Mix.Tasks.Generate do
       [[full_match, "**", max_length]] ->
         description_new = String.replace(description, full_match, "")
 
-        Map.merge(options, %{
+        Map.merge(property, %{
           maxLength: String.to_integer(max_length),
           description: description_new
         })
 
       [] ->
-        options
+        property
     end
   end
 
-  defp parse_possible_values_from_description(%{description: description} = options) do
+  defp parse_property_enum(%{description: description} = property) do
     ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?|^Customer's\s+language)\n?([^\.\n]+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
@@ -857,12 +857,12 @@ defmodule Mix.Tasks.Generate do
         enum =
           enum_options
           |> Enum.map(fn {key, _} ->
-            parse_schema_value(key, options)
+            parse_schema_value(key, property)
           end)
           |> Enum.uniq()
 
-        options_new =
-          Map.merge(options, %{
+        property_new =
+          Map.merge(property, %{
             enum: enum,
             description: description_new
           })
@@ -870,10 +870,10 @@ defmodule Mix.Tasks.Generate do
         if not has_descriptions and length(enum_options) == 1 and
              prefix_text |> String.replace(~r/\s+/, " ") |> String.starts_with?("Current value") do
           [{default, _}] = enum_options
-          default_new = parse_schema_value(default, options)
-          Map.put(options_new, :default, default_new)
+          default_new = parse_schema_value(default, property_new)
+          Map.put(property_new, :default, default_new)
         else
-          options_new
+          property_new
         end
 
       [] ->
@@ -886,20 +886,20 @@ defmodule Mix.Tasks.Generate do
             |> Enum.flat_map(fn [str] -> String.split(str, ",") end)
             |> Enum.map(&String.trim/1)
 
-          options
+          property
           |> Map.update(:enum, enum, &Enum.uniq(&1 ++ enum))
           |> Map.delete(:description)
         else
           ~r/^\s*`([^`]+)`\s*-\s*(.+)$/m
           |> Regex.scan(description)
-          |> Enum.reduce(options, fn [full_match, key, key_description],
-                                     %{description: description} = options ->
+          |> Enum.reduce(property, fn [full_match, key, key_description],
+                                      %{description: description} = property_new ->
             description_new =
               String.replace(description, full_match, "* `#{key}` - #{key_description}")
 
-            key_new = parse_schema_value(key, options)
+            key_new = parse_schema_value(key, property_new)
 
-            options
+            property_new
             |> Map.update(:enum, [key_new], &Enum.uniq(&1 ++ [key_new]))
             |> Map.put(:description, description_new)
           end)
@@ -907,22 +907,22 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_examples_from_description(%{description: description} = options) do
+  defp parse_property_examples(%{description: description} = property) do
     ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, examples_match]] ->
-        process_examples_match_in_description(options, full_match, examples_match)
+        process_examples_match_in_description(property, full_match, examples_match)
 
       [] ->
-        options
+        property
     end
   end
 
-  defp parse_examples_from_description(options), do: options
+  defp parse_property_examples(property), do: property
 
   defp process_examples_match_in_description(
-         %{description: description} = options,
+         %{description: description} = property,
          full_match,
          match
        ) do
@@ -936,7 +936,7 @@ defmodule Mix.Tasks.Generate do
           [[stripped_example]] -> stripped_example
           [] -> example
         end
-        |> parse_schema_value(options)
+        |> parse_schema_value(property)
       end)
       |> Enum.uniq()
 
@@ -945,7 +945,7 @@ defmodule Mix.Tasks.Generate do
       |> String.replace(full_match, "")
       |> String.trim()
 
-    Map.merge(options, %{examples: examples, description: description_new})
+    Map.merge(property, %{examples: examples, description: description_new})
   end
 
   defp node_classes(node) do
