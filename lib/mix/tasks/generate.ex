@@ -27,6 +27,7 @@ defmodule Mix.Tasks.Generate do
     main_block_class: nil,
     code_text_class: nil,
     table_class: nil,
+    table_standalone_code_block_class: nil,
     standalone_code_block_class: nil,
     section_classes: [],
     section_caption_class: nil
@@ -52,6 +53,13 @@ defmodule Mix.Tasks.Generate do
            ~r/new_doc_integration_code_text__\w+/ |> Regex.run(body, capture: :first),
          [table_class] =
            ~r/new_doc_table_scroll__\w+/ |> Regex.run(body, capture: :first),
+         table_standalone_code_block_class =
+           ~r/new_doc_table_code__\w+/
+           |> Regex.run(body, capture: :first)
+           |> (case do
+                 [class] -> class
+                 nil -> nil
+               end),
          [standalone_code_block_class] =
            ~r/new_doc_page_content__\w+/ |> Regex.run(body, capture: :first),
          {:ok, document} <- parse_document(body),
@@ -72,6 +80,7 @@ defmodule Mix.Tasks.Generate do
                main_block_class: main_block_class,
                code_text_class: code_text_class,
                table_class: table_class,
+               table_standalone_code_block_class: table_standalone_code_block_class,
                standalone_code_block_class: standalone_code_block_class,
                section_classes: node_classes(main_doc),
                section_caption_class: section_caption_class
@@ -292,7 +301,10 @@ defmodule Mix.Tasks.Generate do
   defp process_section_properties(
          schema,
          section(node: node, is_request: is_request) = section_data,
-         parse_options(table_class: table_class) = parse_options,
+         parse_options(
+           table_class: table_class,
+           table_standalone_code_block_class: table_standalone_code_block_class
+         ) = parse_options,
          path
        ) do
     {properties, required} =
@@ -333,6 +345,21 @@ defmodule Mix.Tasks.Generate do
 
     properties_new = Map.new(properties)
     required_new = Enum.reverse(required)
+
+    properties_new =
+      with true <- is_binary(table_standalone_code_block_class),
+           [code] <-
+             Floki.find(node, "div.#{table_standalone_code_block_class} code.language-json") do
+        %{properties: properties_new} =
+          code
+          |> extract_code()
+          |> Jason.decode!()
+          |> patch_schema_examples(%{type: :object, properties: properties_new})
+
+        properties_new
+      else
+        _ -> properties_new
+      end
 
     {properties_new, required_new} =
       case section_data do
