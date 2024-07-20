@@ -792,7 +792,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_possible_values_from_description(%{description: description} = options) do
-    ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?)\n?([^\.\n]+)(?:\.|$)/
+    ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?|^Customer's\s+language)\n?([^\.\n]+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, prefix_text, values_match]] ->
@@ -804,6 +804,13 @@ defmodule Mix.Tasks.Generate do
             [key, description], _has_descriptions -> {{key, description}, true}
           end)
 
+        {full_match_new, prefix_new} =
+          if prefix_text == "Customer's language" do
+            {values_match, "#{prefix}\n"}
+          else
+            {full_match, prefix}
+          end
+
         description_new =
           if has_descriptions do
             enum_options
@@ -814,21 +821,25 @@ defmodule Mix.Tasks.Generate do
                 {key, description} -> "* `#{key}` - #{description}"
               end
             )
-            |> then(&String.replace(description, full_match, "#{prefix}Possible values:\n#{&1}"))
+            |> then(
+              &String.replace(description, full_match_new, "#{prefix_new}Possible values:\n#{&1}")
+            )
           else
             description
-            |> String.replace(full_match, "")
+            |> String.replace(full_match_new, "")
             |> String.replace(~r/^\s*\.\s*/, "")
           end
 
+        enum =
+          enum_options
+          |> Enum.map(fn {key, _} ->
+            parse_schema_value(key, options)
+          end)
+          |> Enum.uniq()
+
         options_new =
           Map.merge(options, %{
-            enum:
-              enum_options
-              |> Enum.map(fn {key, _} ->
-                parse_schema_value(key, options)
-              end)
-              |> Enum.uniq(),
+            enum: enum,
             description: description_new
           })
 
@@ -854,19 +865,7 @@ defmodule Mix.Tasks.Generate do
         process_examples_match_in_description(options, full_match, examples_match)
 
       [] ->
-        ~r/(?:Customer's\s+language)((?:\s*`[^`]+?`,?)+)$/
-        |> Regex.scan(description)
-        |> case do
-          [[_full_match, examples_match]] ->
-            process_examples_match_in_description(
-              options,
-              examples_match,
-              examples_match
-            )
-
-          [] ->
-            options
-        end
+        options
     end
   end
 
