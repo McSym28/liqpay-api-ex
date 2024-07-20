@@ -877,24 +877,38 @@ defmodule Mix.Tasks.Generate do
         end
 
       [] ->
-        ~r/^\s*`([^`]+)`\s*-\s*(.*)$/m
-        |> Regex.scan(description)
-        |> Enum.reduce(options, fn [full_match, key, key_description],
-                                   %{description: description} = options ->
-          description_new =
-            String.replace(description, full_match, "* `#{key}` - #{key_description}")
-
-          key_new = parse_schema_value(key, options)
+        ~r/^((?:\s*`[^`]+?`,?)+)$/
+        |> Regex.match?(description)
+        |> if do
+          enum =
+            ~r/`([^`]+?)`/
+            |> Regex.scan(description, capture: :all_but_first)
+            |> Enum.flat_map(fn [str] -> String.split(str, ",") end)
+            |> Enum.map(&String.trim/1)
 
           options
-          |> Map.update(:enum, [key_new], &Enum.uniq([key_new] ++ &1))
-          |> Map.put(:description, description_new)
-        end)
+          |> Map.update(:enum, enum, &Enum.uniq(&1 ++ enum))
+          |> Map.delete(:description)
+        else
+          ~r/^\s*`([^`]+)`\s*-\s*(.+)$/m
+          |> Regex.scan(description)
+          |> Enum.reduce(options, fn [full_match, key, key_description],
+                                     %{description: description} = options ->
+            description_new =
+              String.replace(description, full_match, "* `#{key}` - #{key_description}")
+
+            key_new = parse_schema_value(key, options)
+
+            options
+            |> Map.update(:enum, [key_new], &Enum.uniq(&1 ++ [key_new]))
+            |> Map.put(:description, description_new)
+          end)
+        end
     end
   end
 
   defp parse_examples_from_description(%{description: description} = options) do
-    ~r/(?:\.\s+)?(?:For\s+example|^):?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
+    ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, examples_match]] ->
@@ -904,6 +918,8 @@ defmodule Mix.Tasks.Generate do
         options
     end
   end
+
+  defp parse_examples_from_description(options), do: options
 
   defp process_examples_match_in_description(
          %{description: description} = options,
