@@ -438,7 +438,13 @@ defmodule Mix.Tasks.Generate do
     |> Floki.children()
     |> Enum.map_join(fn
       str when is_binary(str) ->
-        String.replace(str, ~r/\s+/, " ")
+        result = String.replace(str, ~r/\s+/, " ")
+
+        if result == " " and String.contains?(str, "\n") do
+          "\n"
+        else
+          result
+        end
 
       {"a", _attrs, [text]} = link ->
         [href] = Floki.attribute(link, "href")
@@ -458,9 +464,12 @@ defmodule Mix.Tasks.Generate do
         |> if(do: "`#{text}`", else: text)
 
       {"div", _attrs, _children} = div ->
-        parse_property_description(div, parse_options)
+        div
+        |> parse_property_description(parse_options)
+        |> String.trim_trailing()
+        |> Kernel.<>("\n")
     end)
-    |> String.replace(~r/\n\s+([^[:upper:]])/, " \\1")
+    |> String.replace(~r/\n\s+([^[:upper:]`])/, " \\1")
     |> String.trim()
   end
 
@@ -853,7 +862,19 @@ defmodule Mix.Tasks.Generate do
         end
 
       [] ->
-        options
+        ~r/^\s*`([^`]+)`\s*-\s*(.*)$/m
+        |> Regex.scan(description)
+        |> Enum.reduce(options, fn [full_match, key, key_description],
+                                   %{description: description} = options ->
+          description_new =
+            String.replace(description, full_match, "* `#{key}` - #{key_description}")
+
+          key_new = parse_schema_value(key, options)
+
+          options
+          |> Map.update(:enum, [key_new], &[key_new | &1])
+          |> Map.put(:description, description_new)
+        end)
     end
   end
 
