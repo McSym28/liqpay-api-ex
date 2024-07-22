@@ -20,14 +20,13 @@ defmodule Mix.Tasks.Generate do
   )
 
   Record.defrecordp(:parse_options,
-    main_block_class: nil,
-    code_text_class: nil,
-    table_class: nil,
+    inline_code_text_class: nil,
+    table_classes: MapSet.new(),
     table_standalone_code_block_class: nil,
     standalone_code_block_class: nil,
-    section_classes: [],
+    code_block_class: nil,
     section_title_class: nil,
-    section_subtitle_class: nil
+    section_subtitle_classes: MapSet.new()
   )
 
   Record.defrecordp(:menu_item,
@@ -66,7 +65,8 @@ defmodule Mix.Tasks.Generate do
 
       :error ->
         with [tab] <- Floki.find(document, "div.base-TabsList-root"),
-             [_tab_label] = ~r/new_doc_tab_lable__\w+/ |> Regex.run(body, capture: :first),
+             [_tab_label] =
+               ~r/(?<!\w)new_doc_tab_lable__\w+(?!\w)/ |> Regex.run(body, capture: :first),
              [_ | _] = tab_items = Floki.find(tab, "button") do
           %URI{query: query} = uri = URI.new!(url)
           decoded_query = URI.decode_query(query)
@@ -113,13 +113,13 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_menu_page(body, document, session, path) do
     with [menu_item_class] <-
-           ~r/new_doc_doc_menu_content__\w+/ |> Regex.run(body, capture: :first),
+           ~r/(?<!\w)new_doc_doc_menu_content__\w+(?!\w)/ |> Regex.run(body, capture: :first),
          menu_item_title_class when is_binary(menu_item_title_class) <-
-           ~r/new_doc_doc_list_title__\w+/
+           ~r/(?<!\w)new_doc_doc_list_title__\w+(?!\w)/
            |> Regex.run(body, capture: :first)
            |> (case do
                  nil ->
-                   ~r/new_doc_doc_title_link__\w+/
+                   ~r/(?<!\w)new_doc_doc_title_link__\w+(?!\w)/
                    |> Regex.run(body, capture: :first)
                    |> case do
                      nil -> nil
@@ -158,7 +158,8 @@ defmodule Mix.Tasks.Generate do
           menu_item(title: title, id: id, url: URI.to_string(%URI{uri | query: query_new}))
         end)
         |> Enum.map(fn
-          menu_item(id: "p2pdebit" = id, url: url) = menu_item ->
+          menu_item(id: id, url: url) = menu_item
+          when id == "confirmation" or hd(path) == "confirmation" ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -173,34 +174,40 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp process_page(body, document, path) do
-    with [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
+    with [main_block_class] =
+           ~r/(?<!\w)new_doc_page_doc__\w+(?!\w)/ |> Regex.run(body, capture: :first),
          [section_title_class] =
-           ~r/new_doc_integration_titles__\w+/ |> Regex.run(body, capture: :first),
-         [section_subtitle_class] =
-           ~r/new_doc_possibilities_text__\w+/ |> Regex.run(body, capture: :first),
-         [code_text_class] =
-           ~r/new_doc_integration_code_text__\w+/ |> Regex.run(body, capture: :first),
-         [table_class] =
-           ~r/new_doc_table_scroll__\w+/ |> Regex.run(body, capture: :first),
+           ~r/(?<!\w)new_doc_integration_titles__\w+(?!\w)/ |> Regex.run(body, capture: :first),
+         section_subtitle_classes =
+           ~r/(?<!\w)(?:new_doc_possibilities_(?:text|subtitle)|doc_page_index_indent)__\w+(?!\w)/
+           |> Regex.scan(body)
+           |> Enum.map(fn [class] -> class end)
+           |> MapSet.new(),
+         [inline_code_text_class] =
+           ~r/(?<!\w)new_doc_integration_code_text__\w+(?!\w)/ |> Regex.run(body, capture: :first),
+         table_classes =
+           ~r/(?<!\w)new_doc_table_scroll(?:_\w+)?__\w+(?!\w)/
+           |> Regex.scan(body)
+           |> Enum.map(fn [class] -> class end)
+           |> Enum.uniq()
+           |> MapSet.new(),
+         ~r/(?<!\w)\w+(?!\w)/ |> Regex.run(body, capture: :first),
          table_standalone_code_block_class =
-           ~r/new_doc_table_code__\w+/
+           ~r/(?<!\w)new_doc_table_code__\w+(?!\w)/
            |> Regex.run(body, capture: :first)
            |> (case do
                  [class] -> class
                  nil -> nil
                end),
          [standalone_code_block_class] =
-           ~r/new_doc_page_content__\w+/ |> Regex.run(body, capture: :first),
-         main_doc =
-           document
-           |> Floki.find(
-             "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
-           )
-           |> Enum.find(fn potential_block ->
-             not (potential_block
-                  |> Floki.find("div.#{table_class}")
-                  |> Enum.empty?())
-           end),
+           ~r/(?<!\w)new_doc_page_content__\w+(?!\w)/ |> Regex.run(body, capture: :first),
+         code_block_class =
+           ~r/(?<!\w)doc_code_style__\w+(?!\w)/
+           |> Regex.run(body, capture: :first)
+           |> (case do
+                 [class] -> class
+                 nil -> nil
+               end),
          json_file =
            path
            |> List.update_at(0, &"#{&1}.json")
@@ -209,17 +216,19 @@ defmodule Mix.Tasks.Generate do
            |> then(&["specs" | &1])
            |> Path.join(),
          :ok <-
-           find_spec(
-             document,
+           document
+           |> Floki.find(
+             "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
+           )
+           |> find_spec(
              parse_options(
-               main_block_class: main_block_class,
-               code_text_class: code_text_class,
-               table_class: table_class,
+               inline_code_text_class: inline_code_text_class,
+               table_classes: table_classes,
                table_standalone_code_block_class: table_standalone_code_block_class,
                standalone_code_block_class: standalone_code_block_class,
-               section_classes: node_classes(main_doc),
+               code_block_class: code_block_class,
                section_title_class: section_title_class,
-               section_subtitle_class: section_subtitle_class
+               section_subtitle_classes: section_subtitle_classes
              ),
              json_file
            ) do
@@ -261,6 +270,15 @@ defmodule Mix.Tasks.Generate do
       |> Enum.map_join(fn
         str when is_binary(str) ->
           str
+          |> then(&Regex.scan(~r/^\s*(['"])(.*)\1\s*$/s, &1, capture: :all_but_first))
+          |> case do
+            [[_quote, string]] ->
+              string_new = String.replace(string, "\n", "\\n")
+              ~s<"#{string_new}">
+
+            [] ->
+              str
+          end
 
         {"span", _, _} = span ->
           classes = span |> node_classes() |> MapSet.new()
@@ -310,22 +328,32 @@ defmodule Mix.Tasks.Generate do
          section,
          parse_options(
            section_title_class: section_title_class,
-           section_subtitle_class: section_subtitle_class
-         )
+           section_subtitle_classes: section_subtitle_classes
+         ) = parse_options
        ) do
     {
-      parse_section_title(section, section_title_class),
-      parse_section_title(section, section_subtitle_class)
+      parse_section_title(section, parse_options, [section_title_class]),
+      parse_section_title(section, parse_options, section_subtitle_classes)
     }
   end
 
-  defp parse_section_title(section, class) do
-    section
-    |> Floki.find("div.#{class}.MuiBox-root")
-    |> Enum.take(1)
-    |> Floki.text()
-    |> String.trim()
-    |> String.replace(~r/\s+/, " ")
+  defp parse_section_title(section, parse_options, classes) do
+    Enum.find_value(
+      classes,
+      fn class ->
+        section
+        |> Floki.find("div.#{class}")
+        |> case do
+          [div | _] -> parse_section_title_text(div, parse_options)
+          [] -> nil
+        end
+      end
+    )
+  end
+
+  defp parse_section_title_text(div, parse_options) do
+    div
+    |> parse_property_description(parse_options)
     |> String.trim_trailing(":")
   end
 
@@ -342,7 +370,7 @@ defmodule Mix.Tasks.Generate do
     do: process_section_title(title, section, parse_options, was_regexed)
 
   defp process_section_title(title, section, parse_options, false) when is_binary(title) do
-    ~r/^\s*(.*)\s+\(\s*the\s+(\w+)\s+(\w+)\s*\)\s*$/
+    ~r/^\s*(.*)\s+\(\s*(?:the\s+)?(object|array)\s+(\w+)\s*\)\s*$/i
     |> Regex.scan(title, capture: :all_but_first)
     |> case do
       [] ->
@@ -555,16 +583,20 @@ defmodule Mix.Tasks.Generate do
          schema,
          section(node: node, is_request: is_request) = section_data,
          parse_options(
-           table_class: table_class,
+           table_classes: table_classes,
            table_standalone_code_block_class: table_standalone_code_block_class
          ) = parse_options,
          path
        ) do
     {properties, required} =
-      node
-      |> Floki.find(
-        "div.#{table_class}.MuiBox-root table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root"
-      )
+      table_classes
+      |> Enum.find_value(fn class ->
+        case Floki.find(node, "div.#{class}.MuiBox-root") do
+          [table] -> table
+          [] -> nil
+        end
+      end)
+      |> Floki.find("table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root")
       |> Enum.map(fn property ->
         [name, required, type, description | rest] =
           property
@@ -689,7 +721,7 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_description(
          str,
-         parse_options(code_text_class: code_text_class) = parse_options
+         parse_options(inline_code_text_class: inline_code_text_class) = parse_options
        ) do
     str
     |> Floki.children()
@@ -717,7 +749,7 @@ defmodule Mix.Tasks.Generate do
       {"span", _attrs, [text]} = span ->
         span
         |> node_classes()
-        |> Enum.member?(code_text_class)
+        |> Enum.member?(inline_code_text_class)
         |> if(do: "`#{text}`", else: text)
 
       {"div", _attrs, _children} = div ->
@@ -864,52 +896,65 @@ defmodule Mix.Tasks.Generate do
   defp initialize_property_processing(property, _path), do: property
 
   defp find_spec(
-         document,
+         blocks,
          parse_options(
-           main_block_class: main_block_class,
            standalone_code_block_class: standalone_code_block_class,
-           section_classes: block_classes
+           table_classes: table_classes
          ) = parse_options,
          json_file
        ) do
-    [main_block] = document |> Floki.find("div.#{main_block_class}.MuiBox-root.css-0")
-
-    {request_schema, response_schema} =
-      main_block
-      |> Floki.find("div.#{Enum.join(block_classes, ".")}")
-      |> Enum.reduce({nil, nil}, fn section, {request_schema, response_schema} ->
+    {request_schema, response_schema, code_blocks} =
+      blocks
+      |> Enum.reduce({nil, nil, []}, fn section, {request_schema, response_schema, code_blocks} ->
+        classes = node_classes(section)
         was_request = is_nil(response_schema)
 
-        section(is_request: is_request, update_operation: update_operation) =
-          section_data = parse_section(section, parse_options, was_request)
+        if Enum.member?(classes, standalone_code_block_class) do
+          {title, subtitle} = parse_section_title(section, parse_options)
+          code_blocks_new = [{title, subtitle, section} | code_blocks]
+          {request_schema, response_schema, code_blocks_new}
+        else
+          table =
+            Enum.find_value(table_classes, fn class ->
+              case Floki.find(section, "div.#{class}.MuiBox-root") do
+                [table] -> table
+                [] -> nil
+              end
+            end)
 
-        section_schema = if is_request, do: request_schema, else: response_schema
+          if table do
+            section(is_request: is_request, update_operation: update_operation) =
+              section_data = parse_section(section, parse_options, was_request)
 
-        section_schema_new =
-          (section_schema || %{type: :object, properties: OrderedObject.new([])})
-          |> update_section_schema(section_data, parse_options, false, [])
-          |> case do
-            {true, section_schema_new} -> section_schema_new
-            {false, section_schema_new} when update_operation != :patch -> section_schema_new
+            section_schema = if is_request, do: request_schema, else: response_schema
+
+            section_schema_new =
+              (section_schema || %{type: :object, properties: OrderedObject.new([])})
+              |> update_section_schema(section_data, parse_options, false, [])
+              |> case do
+                {true, section_schema_new} -> section_schema_new
+                {false, section_schema_new} when update_operation != :patch -> section_schema_new
+              end
+
+            if is_request,
+              do: {section_schema_new, response_schema, code_blocks},
+              else: {request_schema, section_schema_new, code_blocks}
+          else
+            {_, _, code_blocks_new} =
+              search_code_blocks(section, parse_options, {nil, nil, code_blocks})
+
+            {request_schema, response_schema, code_blocks_new}
           end
-
-        if is_request,
-          do: {section_schema_new, response_schema},
-          else: {request_schema, section_schema_new}
+        end
       end)
 
     {request_schema_new, response_schema_new} =
-      document
-      |> Floki.find(
-        "div.#{main_block_class}.MuiBox-root.css-0 > div.MuiBox-root > div.MuiBox-root.css-0 > div.#{standalone_code_block_class}"
-      )
-      |> Enum.flat_map(fn code_div ->
+      code_blocks
+      |> Enum.flat_map(fn {title, subtitle, code_div} ->
         is_request =
-          not (code_div
-               |> parse_section_title(parse_options)
-               |> then(fn {title, subtitle} -> "#{title}. #{subtitle}" end)
+          not ("#{title}. #{subtitle}"
                |> String.downcase()
-               |> String.match?(~r/(^|\s+)response(\s+|$)/))
+               |> String.match?(~r/(^|[^\w])response([^\w]|$)/))
 
         code_div
         |> Floki.find("code.language-json")
@@ -940,7 +985,7 @@ defmodule Mix.Tasks.Generate do
             end
         end
       end)
-      # |> Enum.map(&Jason.decode!/1)
+      |> Enum.reverse()
       |> Enum.reduce({request_schema, response_schema}, fn
         {is_request, example_string}, {request_schema, response_schema} ->
           example = Jason.decode!(example_string)
@@ -995,6 +1040,43 @@ defmodule Mix.Tasks.Generate do
     |> Jason.encode!(pretty: true)
     |> then(&File.write!(json_file, &1))
   end
+
+  defp search_code_blocks(
+         {"div", _, _} = div,
+         parse_options(
+           section_title_class: section_title_class,
+           section_subtitle_classes: section_subtitle_classes,
+           code_block_class: code_block_class
+         ) = parse_options,
+         {title, subtitle, code_blocks}
+       ) do
+    classes =
+      div
+      |> node_classes()
+      |> MapSet.new()
+
+    cond do
+      MapSet.member?(classes, section_title_class) ->
+        title_new = parse_section_title_text(div, parse_options)
+        {title_new, subtitle, code_blocks}
+
+      not (classes
+           |> MapSet.intersection(section_subtitle_classes)
+           |> Enum.empty?()) ->
+        subtitle_new = parse_section_title_text(div, parse_options)
+        {title, subtitle_new, code_blocks}
+
+      MapSet.member?(classes, code_block_class) ->
+        {title, nil, [{title, subtitle, div} | code_blocks]}
+
+      :else ->
+        div
+        |> Floki.children()
+        |> Enum.reduce({title, subtitle, code_blocks}, &search_code_blocks(&1, parse_options, &2))
+    end
+  end
+
+  defp search_code_blocks(_node, _parse_options, acc), do: acc
 
   defp parse_property_separate_example(schema, [], _path) do
     schema

@@ -23,13 +23,13 @@
                   "version",
                   "public_key",
                   "action",
-                  "amount",
-                  "currency",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
                   "description",
                   "ip",
-                  "order_id",
-                  "receiver_card",
-                  "receiver_card_token"
+                  "order_id"
                 ],
                 "properties": {
                   "version": {
@@ -38,10 +38,7 @@
                     "enum": [
                       3
                     ],
-                    "description": "Version API",
-                    "examples": [
-                      3
-                    ]
+                    "description": "Version API"
                   },
                   "public_key": {
                     "type": "string",
@@ -50,39 +47,34 @@
                   "action": {
                     "type": "string",
                     "enum": [
-                      "p2pcredit"
-                    ],
-                    "examples": [
-                      "p2pcredit"
+                      "cardverification"
                     ]
                   },
-                  "amount": {
-                    "type": "number",
-                    "description": "Payment amount",
-                    "examples": [
-                      5.0,
-                      7.34,
-                      1.0
-                    ]
-                  },
-                  "currency": {
+                  "card": {
                     "type": "string",
-                    "enum": [
-                      "USD",
-                      "EUR",
-                      "UAH"
-                    ],
-                    "description": "Payment currency",
+                    "description": "Card number of the payer"
+                  },
+                  "card_cvv": {
+                    "type": "string",
+                    "description": "CVV/CVV2"
+                  },
+                  "card_exp_month": {
+                    "type": "string",
+                    "description": "Expiry month of the payer's card. This parameter is required if the card number or an unencrypted token is being passed",
                     "examples": [
-                      "USD"
+                      "08"
+                    ]
+                  },
+                  "card_exp_year": {
+                    "type": "string",
+                    "description": "Expiry year of the payer's card. This parameter is required if the card number or an unencrypted token is being passed",
+                    "examples": [
+                      "19"
                     ]
                   },
                   "description": {
                     "type": "string",
-                    "description": "Payment description",
-                    "examples": [
-                      "description text"
-                    ]
+                    "description": "Payment description"
                   },
                   "ip": {
                     "type": "string",
@@ -91,10 +83,7 @@
                   "order_id": {
                     "type": "string",
                     "description": "Unique purchase ID in your shop",
-                    "maxLength": 255,
-                    "examples": [
-                      "order_id_1"
-                    ]
+                    "maxLength": 255
                   },
                   "language": {
                     "type": "string",
@@ -104,116 +93,12 @@
                     ],
                     "description": "Customer's language"
                   },
-                  "server_url": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/doc/api/callback/)",
-                    "maxLength": 510
-                  },
-                  "taxed": {
+                  "verifycode": {
                     "type": "string",
                     "enum": [
-                      "Income is not subject to tax"
+                      "Y"
                     ],
-                    "description": "Sign of payment of taxes from the payment"
-                  },
-                  "receiver_account": {
-                    "type": "object",
-                    "description": "Parameters for transfer to the current account",
-                    "required": [
-                      "receiver_account",
-                      "receiver_mfo",
-                      "receiver_okpo",
-                      "receiver_company"
-                    ],
-                    "properties": {
-                      "receiver_account": {
-                        "type": "string",
-                        "description": "Recipient's account number."
-                      },
-                      "receiver_mfo": {
-                        "type": "string",
-                        "description": "Recipient's account MFI."
-                      },
-                      "receiver_okpo": {
-                        "type": "string",
-                        "description": "Recipient's account OKPO."
-                      },
-                      "receiver_company": {
-                        "type": "string",
-                        "description": "Name of recipient's current account."
-                      }
-                    }
-                  },
-                  "receiver_card": {
-                    "type": "string",
-                    "description": "Recipient's card number.",
-                    "examples": [
-                      "4731195301524633"
-                    ]
-                  },
-                  "receiver_card_token": {
-                    "type": "string",
-                    "description": "Recipient's card token",
-                    "examples": [
-                      "B5BВB0D00B88B00ED00A00D0D"
-                    ]
-                  },
-                  "sender": {
-                    "type": "object",
-                    "description": "Sender parameters",
-                    "properties": {
-                      "sender_first_name": {
-                        "type": "string",
-                        "description": "Sender's first name"
-                      },
-                      "sender_last_name": {
-                        "type": "string",
-                        "description": "Sender's last name"
-                      },
-                      "sender_country_code": {
-                        "type": "string",
-                        "description": "Country code of the sender. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)"
-                      },
-                      "sender_city": {
-                        "type": "string",
-                        "description": "Sender's city"
-                      },
-                      "sender_address": {
-                        "type": "string",
-                        "description": "Sender's address"
-                      },
-                      "sender_postal_code": {
-                        "type": "string",
-                        "description": "Sender's zip code"
-                      }
-                    }
-                  },
-                  "receiver_first_name": {
-                    "type": "string",
-                    "description": "Recipient first name.",
-                    "examples": [
-                      "FirstName"
-                    ]
-                  },
-                  "receiver_last_name": {
-                    "type": "string",
-                    "description": "Recipient last name.",
-                    "examples": [
-                      "LastName"
-                    ]
-                  },
-                  "customer": {
-                    "type": "string",
-                    "description": "Unique customer ID in your shop",
-                    "maxLength": 100
-                  },
-                  "info": {
-                    "type": "string",
-                    "description": "Information to add details to payment",
-                    "examples": [
-                      "External information for payments"
-                    ]
+                    "description": " Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
                   }
                 }
               }
@@ -237,18 +122,9 @@
                     },
                     "action": {
                       "type": "string",
-                      "enum": [
-                        "pay",
-                        "hold",
-                        "paysplit",
-                        "subscribe",
-                        "paydonate",
-                        "auth",
-                        "regular"
-                      ],
-                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "description": "cardverification",
                       "examples": [
-                        "p2pcredit"
+                        "cardverification"
                       ]
                     },
                     "agent_commission": {
@@ -262,7 +138,7 @@
                       "type": "number",
                       "description": "Payment amount",
                       "examples": [
-                        0.1
+                        0
                       ]
                     },
                     "amount_bonus": {
@@ -276,14 +152,25 @@
                       "type": "number",
                       "description": "Payment amount for credit in currency of `currency_credit`",
                       "examples": [
-                        0.1
+                        0
                       ]
                     },
                     "amount_debit": {
                       "type": "number",
                       "description": "Payment amount for debit in currency of `currency_debit`",
                       "examples": [
-                        0.1
+                        0
+                      ]
+                    },
+                    "authcode_credit": {
+                      "type": "string",
+                      "description": "Authorization code for transaction of credit"
+                    },
+                    "authcode_debit": {
+                      "type": "string",
+                      "description": "Authorization code for transaction of debit",
+                      "examples": [
+                        "559310"
                       ]
                     },
                     "commission_credit": {
@@ -304,7 +191,7 @@
                       "type": "string",
                       "description": "Date of payment creation",
                       "examples": [
-                        1501687336377
+                        1501687647977
                       ]
                     },
                     "currency": {
@@ -332,7 +219,7 @@
                       "type": "string",
                       "description": "Payment description",
                       "examples": [
-                        "description text"
+                        "тест"
                       ]
                     },
                     "end_date": {
@@ -340,8 +227,12 @@
                       "format": "date-time",
                       "description": "Date of payment edition/end",
                       "examples": [
-                        1501687336377
+                        1501687647977
                       ]
+                    },
+                    "ip": {
+                      "type": "string",
+                      "description": "Sender's IP address"
                     },
                     "is_3ds": {
                       "type": "boolean",
@@ -384,7 +275,21 @@
                       "type": "number",
                       "description": "Payment id in LiqPay system",
                       "examples": [
-                        165189
+                        165192
+                      ]
+                    },
+                    "paytype": {
+                      "type": "string",
+                      "enum": [
+                        "card",
+                        "privat24",
+                        "moment_part",
+                        "invoice",
+                        "qr"
+                      ],
+                      "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `invoice` - to email\n* `qr` - qr code scanning",
+                      "examples": [
+                        "card"
                       ]
                     },
                     "public_key": {
@@ -394,6 +299,13 @@
                         "i000000000"
                       ]
                     },
+                    "confirm_phone": {
+                      "type": "string",
+                      "description": "Phone number used to send the verifycode",
+                      "examples": [
+                        "380950000001"
+                      ]
+                    },
                     "receiver_commission": {
                       "type": "number",
                       "description": "Receiver comission in payment currency",
@@ -401,15 +313,39 @@
                         0.0
                       ]
                     },
-                    "redirect_to": {
-                      "type": "string",
-                      "description": "The link to which a customer has to be redirected to confirm the payment with 3D-Secure"
-                    },
                     "sender_bonus": {
                       "type": "number",
                       "description": "Sender's bonus in the payment currency",
                       "examples": [
                         0.0
+                      ]
+                    },
+                    "sender_card_bank": {
+                      "type": "string",
+                      "description": "Sender's card bank",
+                      "examples": [
+                        "pb"
+                      ]
+                    },
+                    "sender_card_country": {
+                      "type": "string",
+                      "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                      "examples": [
+                        804
+                      ]
+                    },
+                    "sender_card_mask2": {
+                      "type": "string",
+                      "description": "Sender's card",
+                      "examples": [
+                        "414962*99"
+                      ]
+                    },
+                    "sender_card_type": {
+                      "type": "string",
+                      "description": "Sender's card type MC/Visa",
+                      "examples": [
+                        "visa"
                       ]
                     },
                     "sender_commission": {
@@ -419,14 +355,30 @@
                         0.0
                       ]
                     },
+                    "sender_first_name": {
+                      "type": "string",
+                      "description": "Sender's first name"
+                    },
+                    "sender_last_name": {
+                      "type": "string",
+                      "description": "Sender's last name"
+                    },
+                    "sender_phone": {
+                      "type": "string",
+                      "description": "Sender's phone number",
+                      "examples": [
+                        "380950000001"
+                      ]
+                    },
                     "status": {
                       "type": "string",
                       "enum": [
                         "error",
                         "failure",
-                        "success"
+                        "success",
+                        "3ds_verify"
                       ],
-                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment",
+                      "description": "Verification status.\nAvailable values:\nFinal verification statuses\n* `error` - Failed verification. Data is incorrect\n* `failure` - Failed verification\n* `success` - Successful verification\nStatuses that required verification confirmation\n* `3ds_verify` - 3DS verification is required. To finish the verification you will require a [3ds_verify](https://www.liqpay.ua/en/doc/api/confirmation/3ds)",
                       "examples": [
                         "success"
                       ]
@@ -435,15 +387,12 @@
                       "type": "number",
                       "description": "Id transactions in the LiqPay system",
                       "examples": [
-                        165189
+                        165192
                       ]
                     },
                     "type": {
                       "type": "string",
-                      "description": "Payment type",
-                      "examples": [
-                        "p2pcredit"
-                      ]
+                      "description": "Payment type"
                     },
                     "version": {
                       "type": "integer",
@@ -453,6 +402,16 @@
                       "description": "Version API",
                       "examples": [
                         3
+                      ]
+                    },
+                    "verifycode": {
+                      "type": "string",
+                      "enum": [
+                        "Y"
+                      ],
+                      "description": "Dynamic verification code",
+                      "examples": [
+                        "S8SBQM"
                       ]
                     }
                   }

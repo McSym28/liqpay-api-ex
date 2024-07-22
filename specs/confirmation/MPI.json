@@ -1,0 +1,318 @@
+{
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
+                  "currency",
+                  "description",
+                  "ip",
+                  "order_id",
+                  "threeDSInfo"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "mpi"
+                    ],
+                    "examples": [
+                      "mpi"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "examples": [
+                      5.0,
+                      7.34,
+                      1.0
+                    ]
+                  },
+                  "card": {
+                    "type": "string",
+                    "description": "Card number of the payer",
+                    "examples": [
+                      "4731195301524634"
+                    ]
+                  },
+                  "card_cvv": {
+                    "type": "string",
+                    "description": "CVV/CVV2",
+                    "examples": [
+                      "111"
+                    ]
+                  },
+                  "card_exp_month": {
+                    "type": "string",
+                    "description": "Expiry month of the payer's card",
+                    "examples": [
+                      "08",
+                      "03"
+                    ]
+                  },
+                  "card_exp_year": {
+                    "type": "string",
+                    "description": "Expiry year of the payer's card",
+                    "examples": [
+                      "19",
+                      "22"
+                    ]
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "USD",
+                      "EUR",
+                      "UAH"
+                    ],
+                    "description": "Payment currency",
+                    "examples": [
+                      "USD"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Payment description",
+                    "examples": [
+                      "description text"
+                    ]
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "E-mail payer"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "description": "Client IP"
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255,
+                    "examples": [
+                      "order_id_1"
+                    ]
+                  },
+                  "action_payment": {
+                    "type": "string",
+                    "enum": [
+                      "pay",
+                      "hold",
+                      "subscribe",
+                      "paydonate",
+                      "auth",
+                      "p2p",
+                      "p2pdebit"
+                    ],
+                    "description": "A parameter defining the payment type. Pass the value of the action parameter of the payment, which will be carried out after passing 3DS. Possible values:\n* `pay` - payment\n* `hold` - blocking funds on the sender’s account\n* `subscribe` - regular payment\n* `paydonate` - donation\n* `auth` - card preauthorization\n* `p2p` - transfer from card to card\n* `p2pdebit` - payment using p2p debit Default value is pay - `pay`"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  },
+                  "sender_first_name": {
+                    "type": "string",
+                    "description": "Payer’s first name"
+                  },
+                  "sender_last_name": {
+                    "type": "string",
+                    "description": "Payer’s last name"
+                  },
+                  "threeDSInfo": {
+                    "type": "object",
+                    "description": "Additional data to check a transaction",
+                    "required": [
+                      "notificationURL",
+                      "browserLanguage",
+                      "threeDSRequestorURL",
+                      "browserScreenHeight",
+                      "browserColorDepth",
+                      "browserScreenWidth",
+                      "browserAcceptHeader",
+                      "browserTZ",
+                      "browserUserAgent"
+                    ],
+                    "properties": {
+                      "notificationURL": {
+                        "type": "string",
+                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified.\nThe maximum length is 256 characters."
+                      },
+                      "browserLanguage": {
+                        "type": "string",
+                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser. For example, en-US.\nThe maximum length is 8 characters."
+                      },
+                      "threeDSRequestorURL": {
+                        "type": "string",
+                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information.\nThe maximum length is 2048 characters."
+                      },
+                      "browserScreenHeight": {
+                        "type": "string",
+                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser.\nThe maximum length is 6 characters."
+                      },
+                      "browserColorDepth": {
+                        "type": "string",
+                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nThe maximum length is 2 characters.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits."
+                      },
+                      "browserJavascriptEnabled": {
+                        "type": "boolean",
+                        "description": "Parameter describing whether the payer's browser can perform JavaScript. Default `true`"
+                      },
+                      "browserJavaEnabled": {
+                        "type": "boolean",
+                        "description": "A parameter describing whether the payer's browser can perform Java. Default `false`"
+                      },
+                      "browserScreenWidth": {
+                        "type": "string",
+                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser.\nThe maximum length is 6 characters."
+                      },
+                      "browserAcceptHeader": {
+                        "type": "string",
+                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part."
+                      },
+                      "browserTZ": {
+                        "type": "string",
+                        "description": "Time zone offset between Greenwich and the payer's local time, in minutes. Example of time zone offset values in minutes:\n- if UTC is –5 hours, then the value is 300,\n- if UTC +5 hours, then the value is –300."
+                      },
+                      "browserUserAgent": {
+                        "type": "string",
+                        "description": "The precise content of the user-agent HTTP header.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mpi_req_md": {
+                      "type": "string",
+                      "description": "Parameter required for sender authentification on ACS page",
+                      "examples": [
+                        "MGUyZDYxMjYDfhKOC00MDI2LWFhMWUOpDFJjNzIyMmDffShZjli"
+                      ]
+                    },
+                    "mpi_req_pareq": {
+                      "type": "string",
+                      "description": "Parameter required for sender authentification on ACS page",
+                      "examples": [
+                        "eJxVUe1OwjAUfRWyB1jbMWAjlybIjJI4J1454B/TlKuUsA+6zTCf3lvYRPvrnJN72tNz4XlrEZMn\n1I1FCSlWlfrgdnMvNX8fTyKAx7xwJOwmj/iQcIX2soUuRQ+9wNgPSWj1VV1xKUPlwt10Uowng8\nBNZRyNAuEyl4d2IRjfgI2FmGXGUovQ/jATtB0EWT17aVEQ+B9QQ7ld5fbui6rKWOoi4zcGv29OZSq\n9Rt10VhWGorn5oFdsq0ahyq6/2g2Mr15ad+S9ret0l34/LDhPk2Vw93o9A+YmYKNqlAEXEx4J\nMRBiOpMQ4p90kFlLpjkPhf00T0r0xPxOS/1Kgki3mupVxxOlbPQM8lkWNEGZfzGwS9zFrStW\n19RVvxNX7UlwbkPtiLGL0ETFgzsK6rbFur4T+7fsHPamnMg=="
+                      ]
+                    },
+                    "mpi_req_url": {
+                      "type": "string",
+                      "description": "Issuer bank page url (ACS page) to which customer should be redirected to confirm payment with 3D-Secure",
+                      "examples": [
+                        "https://acs.bankname.com/mpi"
+                      ]
+                    },
+                    "mpi_status": {
+                      "type": "string",
+                      "enum": [
+                        "C",
+                        "N",
+                        "U",
+                        "Y"
+                      ],
+                      "description": "Values for 3DS version 2.0:`Y, A` - additional client verification is not required,\n* `C` - additional client verification is required, \n* `N` - failed to verify the client. Payment performance is not recommended. The client can be checked with 3DS 1.0, \n* `U` - failed to verify the card for participation, client redirection is not required to pass 3-D Secure.\nValues for 3DS version 1.0:`N` - card does not participate, client redirection for 3D-Secure is not required,\n* `U` - failed to verify the card for participation, client redirection for 3D-Secure is not required, \n* `Y` - card supports the 3D-Secure service and there will be page of issuing bank in `mpi_req_url` parameter where `mpi_req_pareq` and `mpi_req_md` parameters should be transferred by `POST` method int he next form:\nwhere `TermUrl` - page address to which issuer will return the answer with PaRes and MD parameters. To make a payment with already passed 3DS you need to transfer `mpi_pares` and `mpi_md`, parameters with PaRes and MD values which were received from issuer bank ACS while payment is created.",
+                      "examples": [
+                        "Y",
+                        "C",
+                        "A"
+                      ]
+                    },
+                    "mpi_version": {
+                      "type": "string",
+                      "description": "Returned when the card supports 3DS version 2.0. Value `\"2.0\"`",
+                      "examples": [
+                        "2.0"
+                      ]
+                    },
+                    "mpi_form": {
+                      "type": "string",
+                      "description": "Returned when the card supports 3DS version 2.0. The form to which the client should be sent for authentication. The encrypted verification result will be returned by the issuer to notificationURL in the parameter: `cres`. To make a payment with passed 3DS, when creating a payment, you need to pass parameter - `cres` with the cres value that was received from the issuing bank",
+                      "examples": [
+                        "< form action = 'https://acs4.privatbank.ua/acs/creq' method = 'post' > < input type = 'hidden' name = 'creq' value = 'eyJhY3NUcmFuc0lEIjoiNDJlYmRkOWMtNzU0Zi00YzMwLTg5NDMtNDJhODQzMDY4ZTMwIiwibWVzc2FnZVR5cGUiOiJDUmVxIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiZTc1YmEyOGItNjE0YS00NDE5LWFjMzQtNzkxZDlmMjkwZjE3IiwiY2hhbGxlbmdlV2luZG93U2l6ZSI6IjAyIn0=' / > < /form>",
+                        "null"
+                      ]
+                    },
+                    "mpi_cres": {
+                      "type": "string",
+                      "description": "Parameter required for the sender's authentication. Returned when receiving status `Y` or `N`",
+                      "examples": [
+                        null,
+                        "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "failure",
+                        "success"
+                      ],
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `failure` - Failed payment\n* `success` - Successful payment",
+                      "examples": [
+                        "success"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
