@@ -77,7 +77,7 @@ defmodule Mix.Tasks.Generate do
 
           tab_count = Enum.count(tab_items)
 
-          if tab_count < 2 or tab_index != 1 do
+          if tab_count <= 2 or tab_index != 1 do
             process_page(body, document, path)
           else
             results =
@@ -157,7 +157,7 @@ defmodule Mix.Tasks.Generate do
           menu_item(title: title, id: id, url: URI.to_string(%URI{uri | query: query_new}))
         end)
         |> Enum.map(fn
-          menu_item(id: "tokens" = id, url: url) = menu_item ->
+          menu_item(id: "transferring_to_card" = id, url: url) = menu_item ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -323,7 +323,10 @@ defmodule Mix.Tasks.Generate do
                  "main",
                  "other parameters",
                  "parameters of splitting the payments",
-                 "parameters for tokenization within the token connect control"
+                 "parameters for tokenization within the token connect control",
+                 "parameters for transfer to the card",
+                 "parameters for transfer to the card's token",
+                 "receiver parameters"
                ] ->
             section(
               node: section,
@@ -384,6 +387,15 @@ defmodule Mix.Tasks.Generate do
               update_operation: :patch,
               description: caption
             )
+
+          "parameters for transfer to the current account" ->
+            section(
+              node: section,
+              is_request: was_request,
+              update_operation: :new,
+              update_name: "receiver_account",
+              description: caption
+            )
         end
     end
   end
@@ -394,7 +406,7 @@ defmodule Mix.Tasks.Generate do
        ) do
     section
     |> Floki.find("div.#{section_caption_class}.MuiBox-root")
-    |> hd()
+    |> Enum.take(1)
     |> Floki.text()
     |> String.trim()
     |> String.replace(~r/\s+/, " ")
@@ -1019,7 +1031,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum(%{description: description} = property) do
-    ~r/(\.\s+)?((?:Possible|Present)\s+values?\s*:?|Current\s+value\s*\-?|^Customer's\s+language)\n?([^\.\n]+)(?:\.|$)/
+    ~r/(\.\s+)?((?:Possible|Present|Valid)\s+values?\s*:?|Current\s+value\s*\-?|^Customer's\s+language)\n?([^\.\n]+)(?:\.|$)/i
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, prefix_text, values_match]] ->
