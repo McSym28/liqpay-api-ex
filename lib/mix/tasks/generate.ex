@@ -1,17 +1,12 @@
 defmodule Mix.Tasks.Generate do
   @moduledoc "Generates library's modules"
   use Mix.Task
+  alias OpenAPIClient.Client.TypedDecoder
   alias Jason.OrderedObject
 
   @liqpay_base_url "https://www.liqpay.ua"
 
-  @checkout_webpage_url "#{@liqpay_base_url}/en/doc/api/internet_acquiring/checkout?tab=1"
-  @checkout_webpage_file "tmp/checkout.html"
-  @checkout_json_file "tmp/checkout.json"
-
-  @cash_webpage_url "https://www.liqpay.ua/en/doc/api/internet_acquiring/cash?tab=1"
-  @cash_webpage_file "tmp/cash.html"
-  @cash_json_file "tmp/cash.json"
+  @api_url "https://www.liqpay.ua/en/doc/api"
 
   require Record
 
@@ -34,6 +29,13 @@ defmodule Mix.Tasks.Generate do
     section_caption_class: nil
   )
 
+  Record.defrecordp(:menu_item,
+    title: nil,
+    id: nil,
+    children: [],
+    url: nil
+  )
+
   @requirements ["app.start"]
   @shortdoc "Generates library's modules"
   def run(_) do
@@ -41,13 +43,136 @@ defmodule Mix.Tasks.Generate do
 
     {:ok, session} = Wallaby.start_session()
 
-    process_page(@checkout_webpage_url, session, @checkout_webpage_file, @checkout_json_file)
-    process_page(@cash_webpage_url, session, @cash_webpage_file, @cash_json_file)
+    process_url(@api_url, session, ["api"])
   end
 
-  defp process_page(url, session, html_file, json_file) do
-    with {:ok, body} <- http_request(url, session, html_file),
-         [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
+  defp process_url(url, session, path) do
+    IO.puts("Fetching `#{url}`")
+
+    file =
+      path
+      |> List.update_at(0, &"#{&1}.html")
+      |> Enum.reverse()
+      |> then(&["tmp" | &1])
+      |> Path.join()
+
+    {:ok, body} = http_request(url, file, session)
+    {:ok, document} = parse_document(body)
+
+    case parse_menu_page(body, document, session, path) do
+      {:ok, menu_items} ->
+        {:ok, menu_items}
+
+      :error ->
+        with [tab] <- Floki.find(document, "div.base-TabsList-root"),
+             [_tab_label] = ~r/new_doc_tab_lable__\w+/ |> Regex.run(body, capture: :first),
+             [_ | _] = tab_items = Floki.find(tab, "button") do
+          %URI{query: query} = uri = URI.new!(url)
+          decoded_query = URI.decode_query(query)
+
+          tab_index =
+            decoded_query
+            |> Map.fetch!("tab")
+            |> parse_schema_value(%{type: :integer})
+
+          tab_count = Enum.count(tab_items)
+
+          if tab_count < 2 or tab_index != 1 do
+            process_page(body, document, path)
+          else
+            results =
+              Enum.map(
+                1..(tab_count - 1),
+                fn
+                  1 ->
+                    {:ok, result} =
+                      process_page(body, document, [Integer.to_string(tab_index) | path])
+
+                    result
+
+                  other_index ->
+                    other_index_string = Integer.to_string(other_index)
+
+                    query_new =
+                      decoded_query |> Map.put("tab", other_index_string) |> URI.encode_query()
+
+                    url_new = %URI{uri | query: query_new} |> URI.to_string()
+                    {:ok, result} = process_url(url_new, session, [other_index_string | path])
+                    result
+                end
+              )
+
+            {:ok, results}
+          end
+        else
+          _ -> :error
+        end
+    end
+  end
+
+  defp parse_menu_page(body, document, session, path) do
+    with [menu_item_class] <-
+           ~r/new_doc_doc_menu_content__\w+/ |> Regex.run(body, capture: :first),
+         menu_item_title_class when is_binary(menu_item_title_class) <-
+           ~r/new_doc_doc_list_title__\w+/
+           |> Regex.run(body, capture: :first)
+           |> (case do
+                 nil ->
+                   ~r/new_doc_doc_title_link__\w+/
+                   |> Regex.run(body, capture: :first)
+                   |> case do
+                     nil -> nil
+                     [class] -> class
+                   end
+
+                 [class] ->
+                   class
+               end) do
+      menu_items =
+        document
+        |> Floki.find("a.#{menu_item_class}")
+        |> Enum.map(fn link ->
+          [url] = Floki.attribute(link, "href")
+
+          title =
+            link
+            |> Floki.find("div.#{menu_item_title_class} > div:first-child")
+            |> Floki.text()
+            |> String.replace(~r/\s+/, " ")
+            |> String.trim()
+
+          uri =
+            @liqpay_base_url
+            |> URI.merge(url)
+            |> URI.new!()
+
+          id = uri.path |> Path.split() |> List.last()
+
+          query_new =
+            (uri.query || "")
+            |> URI.decode_query()
+            |> Map.put("tab", "1")
+            |> URI.encode_query()
+
+          menu_item(title: title, id: id, url: URI.to_string(%URI{uri | query: query_new}))
+        end)
+        |> Enum.map(fn
+          menu_item(id: "tokens" = id, url: url) = menu_item ->
+            {:ok, children} = process_url(url, session, [id | path])
+            menu_item(menu_item, children: children)
+
+          menu_item ->
+            menu_item
+        end)
+
+      {:ok, menu_items}
+    else
+      _ -> :error
+    end
+  end
+
+  defp process_page(body, document, path) do
+    with [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
          [section_caption_class] =
            ~r/new_doc_possibilities_text__\w+/ |> Regex.run(body, capture: :first),
          [code_text_class] =
@@ -63,7 +188,6 @@ defmodule Mix.Tasks.Generate do
                end),
          [standalone_code_block_class] =
            ~r/new_doc_page_content__\w+/ |> Regex.run(body, capture: :first),
-         {:ok, document} <- parse_document(body),
          main_doc =
            document
            |> Floki.find(
@@ -74,7 +198,13 @@ defmodule Mix.Tasks.Generate do
                   |> Floki.find("div.#{table_class}")
                   |> Enum.empty?())
            end),
-         {:ok, _spec} <-
+         json_file =
+           path
+           |> List.update_at(0, &"#{&1}.json")
+           |> Enum.reverse()
+           |> then(&["tmp" | &1])
+           |> Path.join(),
+         :ok <-
            find_spec(
              document,
              parse_options(
@@ -88,10 +218,15 @@ defmodule Mix.Tasks.Generate do
              ),
              json_file
            ) do
+      {:ok, :ok}
     end
   end
 
-  defp http_request(url, session, file) do
+  defp http_request(url, file, session) do
+    file
+    |> Path.dirname()
+    |> File.mkdir_p!()
+
     if File.exists?(file) do
       File.read(file)
     else
@@ -152,29 +287,31 @@ defmodule Mix.Tasks.Generate do
       [["\"", name, value]] -> ~s<{"#{name}": #{value}}>
       [] -> code
     end
+    |> String.replace(~r/"([\s\n]+)"/s, "\",\\1\"")
+    |> String.replace(~r/^\s*(\{[^\{\[]+\[\{[^\]\}]+)\]\}([^\}\]]+\})\s*$/s, "\\1}]\\2")
   end
 
-  defp parse_section(
-         section,
-         parse_options(section_caption_class: section_caption_class) = parse_options
-       ) do
-    caption =
-      section
-      |> Floki.find("div.#{section_caption_class}.MuiBox-root")
-      |> hd()
-      |> Floki.text()
-      |> String.trim()
-      |> String.replace(~r/\s+/, " ")
-      |> String.trim_trailing(":")
+  defp parse_section(section, parse_options, was_request) do
+    caption = parse_section_caption(section, parse_options)
 
     ~r/^\s*(.*)\s+\(\s*the\s+(\w+)\s+(\w+)\s*\)\s*$/
     |> Regex.scan(caption, capture: :all_but_first)
     |> case do
+      [] ->
+        ~r/^\s*Parameters(\s*)(\s*)\s+(\w+)\s*$/
+        |> Regex.scan(caption, capture: :all_but_first)
+
+      other ->
+        other
+    end
+    |> case do
       [[description, type, name]] ->
         section(
           node: section,
+          is_request: was_request,
           update_operation: :patch,
-          update_type: parse_property_type([type], parse_options),
+          update_type:
+            if(type == "", do: :object, else: parse_property_type([type], parse_options)),
           update_name: parse_property_name([name], parse_options),
           description: description
         )
@@ -182,12 +319,23 @@ defmodule Mix.Tasks.Generate do
       [] ->
         case String.downcase(caption) do
           main
-          when main in ["main", "other parameters", "parameters of splitting the payments"] ->
-            section(node: section, update_operation: :patch, description: caption)
+          when main in [
+                 "main",
+                 "other parameters",
+                 "parameters of splitting the payments",
+                 "parameters for tokenization within the token connect control"
+               ] ->
+            section(
+              node: section,
+              is_request: was_request,
+              update_operation: :patch,
+              description: caption
+            )
 
           "sender parameters" ->
             section(
               node: section,
+              is_request: was_request,
               update_operation: :new,
               update_name: "sender",
               description: caption
@@ -196,6 +344,7 @@ defmodule Mix.Tasks.Generate do
           "regular payment parameters" ->
             section(
               node: section,
+              is_request: was_request,
               update_operation: :new,
               update_name: "regular-payment",
               description: caption
@@ -204,8 +353,27 @@ defmodule Mix.Tasks.Generate do
           "parameters for 1-click payment" ->
             section(
               node: section,
+              is_request: was_request,
               update_operation: :new,
               update_name: "one-click-payment",
+              description: caption
+            )
+
+          "parameters for tokenization within the visa cards enrollment hub (vceh)" ->
+            section(
+              node: section,
+              is_request: was_request,
+              update_operation: :new,
+              update_name: "vceh_tokenization",
+              description: caption
+            )
+
+          "parameters for tokenization by card number" ->
+            section(
+              node: section,
+              is_request: was_request,
+              update_operation: :new,
+              update_name: "card_tokenization",
               description: caption
             )
 
@@ -218,6 +386,19 @@ defmodule Mix.Tasks.Generate do
             )
         end
     end
+  end
+
+  defp parse_section_caption(
+         section,
+         parse_options(section_caption_class: section_caption_class)
+       ) do
+    section
+    |> Floki.find("div.#{section_caption_class}.MuiBox-root")
+    |> hd()
+    |> Floki.text()
+    |> String.trim()
+    |> String.replace(~r/\s+/, " ")
+    |> String.trim_trailing(":")
   end
 
   defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
@@ -624,8 +805,10 @@ defmodule Mix.Tasks.Generate do
       main_block
       |> Floki.find("div.#{Enum.join(block_classes, ".")}")
       |> Enum.reduce({nil, nil}, fn section, {request_schema, response_schema} ->
+        was_request = is_nil(response_schema)
+
         section(is_request: is_request, update_operation: update_operation) =
-          section_data = parse_section(section, parse_options)
+          section_data = parse_section(section, parse_options, was_request)
 
         section_schema = if is_request, do: request_schema, else: response_schema
 
@@ -642,24 +825,30 @@ defmodule Mix.Tasks.Generate do
           else: {request_schema, section_schema_new}
       end)
 
-    request_schema_new =
+    {request_schema_new, response_schema_new} =
       document
       |> Floki.find(
         "div.#{main_block_class}.MuiBox-root.css-0 > div.MuiBox-root > div.MuiBox-root.css-0 > div.#{standalone_code_block_class}"
       )
       |> Enum.flat_map(fn code_div ->
+        is_request =
+          not (code_div
+               |> parse_section_caption(parse_options)
+               |> String.downcase()
+               |> String.match?(~r/(^|\s+)response(\s+|$)/))
+
         code_div
         |> Floki.find("code.language-json")
         |> case do
           [code] ->
-            [extract_code(code)]
+            [{is_request, extract_code(code)}]
 
           [] ->
             code_div
             |> Floki.find("code.language-javascript")
             |> case do
               [code] ->
-                [code_string] =
+                [[code_string]] =
                   code
                   |> extract_code()
                   |> then(
@@ -670,20 +859,27 @@ defmodule Mix.Tasks.Generate do
                     )
                   )
 
-                code_string
+                [{is_request, code_string}]
 
               [] ->
                 []
             end
         end
       end)
-      |> Enum.map(&Jason.decode!/1)
-      |> Enum.reduce(
-        request_schema,
-        &patch_schema_examples/2
-      )
+      # |> Enum.map(&Jason.decode!/1)
+      |> Enum.reduce({request_schema, response_schema}, fn
+        {is_request, example_string}, {request_schema, response_schema} ->
+          example = Jason.decode!(example_string)
+          schema = if is_request, do: request_schema, else: response_schema
+          schema_new = patch_schema_examples(example, schema)
+          if is_request, do: {schema_new, response_schema}, else: {request_schema, schema_new}
+      end)
 
-    response_schema_new = response_schema || %{type: :object}
+    response_schema_new = response_schema_new || %{type: :object}
+
+    json_file
+    |> Path.dirname()
+    |> File.mkdir_p!()
 
     %{
       openapi: "3.1.0",
@@ -766,7 +962,14 @@ defmodule Mix.Tasks.Generate do
         example,
         properties,
         fn {key, value}, properties ->
-          update_in(properties, [key], &patch_schema_examples(value, &1))
+          case get_in(properties, [key]) do
+            nil ->
+              IO.inspect(value, label: "Unused example (#{key})")
+              properties
+
+            current ->
+              put_in(properties, [key], patch_schema_examples(value, current))
+          end
         end
       )
 
@@ -957,11 +1160,11 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_schema_value(value, %{type: type} = _schema) do
     {:ok, value_decoded} =
-      OpenAPIClient.Client.TypedDecoder.decode(
+      TypedDecoder.decode(
         value,
         type,
         [],
-        OpenAPIClient.Client.TypedDecoder
+        TypedDecoder
       )
 
     value_decoded
