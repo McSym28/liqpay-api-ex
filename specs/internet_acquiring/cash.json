@@ -1,0 +1,484 @@
+{
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "ip",
+                  "order_id",
+                  "phone"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "paycash"
+                    ],
+                    "examples": [
+                      "paycash"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "examples": [
+                      5.0,
+                      7.34,
+                      1.0
+                    ]
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "USD",
+                      "EUR",
+                      "UAH"
+                    ],
+                    "description": "Payment currency",
+                    "examples": [
+                      "USD"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Payment description",
+                    "examples": [
+                      "description text"
+                    ]
+                  },
+                  "ip": {
+                    "type": "string",
+                    "description": "Client IP"
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255,
+                    "examples": [
+                      "order_id_1"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Payer's phone number. The OTP-password will be sent to this telephone number to confirm your payment, and the linked payer's LiqPay cabinet. The telephone number should be indicated in the international format (Ukraine `+380`). For example: +380950000001 (with +) or 380950000001 (without +)",
+                    "examples": [
+                      "380950000001"
+                    ]
+                  },
+                  "expired_date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  },
+                  "prepare": {
+                    "type": "string",
+                    "enum": [
+                      "1"
+                    ],
+                    "description": "The preliminary preparation of the payment. This mode allows you to determine whether all data is complete, whether 3DS is required to check the card, whether the limit is exceeded. The funds are not debited from the payer's card. To activate the mode, you need to transfer the value of `1`"
+                  },
+                  "server_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
+                    "maxLength": 510
+                  },
+                  "split_rules": {
+                    "type": "array",
+                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "amount"
+                      ],
+                      "properties": {
+                        "public_key": {
+                          "type": "string",
+                          "description": "Public key - the store identifier",
+                          "examples": [
+                            "i000000001",
+                            "i000000002"
+                          ]
+                        },
+                        "amount": {
+                          "type": "number",
+                          "description": "Payment amount",
+                          "examples": [
+                            1,
+                            2
+                          ]
+                        },
+                        "commission_payer": {
+                          "default": "sender",
+                          "type": "string",
+                          "enum": [
+                            "sender",
+                            "receiver"
+                          ],
+                          "description": "Commission payer",
+                          "examples": [
+                            "sender",
+                            "receiver"
+                          ]
+                        },
+                        "server_url": {
+                          "type": "string",
+                          "format": "uri",
+                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
+                          "maxLength": 510,
+                          "examples": [
+                            "https://server1/callback",
+                            "https://server2/callback"
+                          ]
+                        },
+                        "description": {
+                          "type": "string",
+                          "description": "Payment description"
+                        }
+                      }
+                    }
+                  },
+                  "customer": {
+                    "type": "string",
+                    "description": "Unique customer ID in your shop.",
+                    "maxLength": 100
+                  },
+                  "dae": {
+                    "type": "string",
+                    "description": "Detail Addenda.\n\nPossible `JSON` object:\n```\n{\n  \"airLine\": \"Avia\", // airline abbreviation, max 4 symbols.\n  \"ticketNumber\": \"ACSFD12354SA\", // ticket number, max 15 symbols. \n  \"passengerName\": \"John Doe\", // passenger name, max 29 symbols.\n  \"flightNumber\": \"742\", // flight number, max 5 number.\n  \"originCity\": \"DP\", // departure city/airport code, max 5 symbols.\n  \"destinationCity\": \"NY\", // arrival city/airport code, max 5 symbols.\n  \"departureDate\": \"100514\" // departure date in format YYMMDD, max 6 number.\n}\n```"
+                  },
+                  "info": {
+                    "type": "string",
+                    "description": "Information to add details to payment",
+                    "examples": [
+                      "External information for payments"
+                    ]
+                  },
+                  "product_category": {
+                    "type": "string",
+                    "description": "Product category in your shop",
+                    "maxLength": 25
+                  },
+                  "product_description": {
+                    "type": "string",
+                    "description": "Product description in your shop",
+                    "maxLength": 500
+                  },
+                  "product_name": {
+                    "type": "string",
+                    "description": "Product name in your shop",
+                    "maxLength": 100
+                  },
+                  "product_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Product page address",
+                    "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acq_id": {
+                      "type": "number",
+                      "description": "Acquirer ID",
+                      "examples": [
+                        414963
+                      ]
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "pay",
+                        "hold",
+                        "paysplit",
+                        "subscribe",
+                        "paydonate",
+                        "auth",
+                        "regular"
+                      ],
+                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "examples": [
+                        "paycash"
+                      ]
+                    },
+                    "agent_commission": {
+                      "type": "number",
+                      "description": "Agent comission in payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Payment amount",
+                      "examples": [
+                        0.1
+                      ]
+                    },
+                    "amount_bonus": {
+                      "type": "number",
+                      "description": "Payer bonus amount in payment currency debit",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "amount_credit": {
+                      "type": "number",
+                      "description": "Payment amount for credit in currency of `currency_credit`",
+                      "examples": [
+                        0.1
+                      ]
+                    },
+                    "amount_debit": {
+                      "type": "number",
+                      "description": "Payment amount for debit in currency of `currency_debit`",
+                      "examples": [
+                        0.1
+                      ]
+                    },
+                    "commission_credit": {
+                      "type": "number",
+                      "description": "Commission from the receiver in `currency_credit`",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "commission_debit": {
+                      "type": "number",
+                      "description": "Commission from the sender in `currency_debit`",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "currency": {
+                      "type": "string",
+                      "description": "Payment currency",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "currency_credit": {
+                      "type": "string",
+                      "description": "Transaction currency of credit",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "currency_debit": {
+                      "type": "string",
+                      "description": "Transaction currency of debit",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Payment description",
+                      "examples": [
+                        "description"
+                      ]
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Date of payment edition/end"
+                    },
+                    "ip": {
+                      "type": "string",
+                      "description": "Sender's IP address"
+                    },
+                    "is_3ds": {
+                      "type": "boolean",
+                      "enum": [
+                        true,
+                        false
+                      ],
+                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS",
+                      "examples": [
+                        false
+                      ]
+                    },
+                    "liqpay_order_id": {
+                      "type": "string",
+                      "description": "Payment order_id in LiqPay system",
+                      "examples": [
+                        "NYMK3AE61501685438251925"
+                      ]
+                    },
+                    "mpi_eci": {
+                      "type": "integer",
+                      "enum": [
+                        5,
+                        6,
+                        7
+                      ],
+                      "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure",
+                      "examples": [
+                        7
+                      ]
+                    },
+                    "order_id": {
+                      "type": "string",
+                      "description": "Order_id payment",
+                      "examples": [
+                        "98R1U1OV1485849059893399"
+                      ]
+                    },
+                    "payment_id": {
+                      "type": "number",
+                      "description": "Payment id in LiqPay system",
+                      "examples": [
+                        165168
+                      ]
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Shop public key",
+                      "examples": [
+                        "i000000000"
+                      ]
+                    },
+                    "receiver_commission": {
+                      "type": "number",
+                      "description": "Receiver comission in payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "sender_bonus": {
+                      "type": "number",
+                      "description": "Sender's bonus in the payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "sender_commission": {
+                      "type": "number",
+                      "description": "Commission from the sender in the payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "sender_first_name": {
+                      "type": "string",
+                      "description": "Sender's first name",
+                      "examples": [
+                        "first name"
+                      ]
+                    },
+                    "sender_last_name": {
+                      "type": "string",
+                      "description": "Sender's last name",
+                      "examples": [
+                        "last name"
+                      ]
+                    },
+                    "sender_phone": {
+                      "type": "string",
+                      "description": "Sender's phone number",
+                      "examples": [
+                        "380950000001"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "failure",
+                        "success",
+                        "cash_wait"
+                      ],
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `cash_wait` - Waiting for payment in self-service terminal",
+                      "examples": [
+                        "cash_wait"
+                      ]
+                    },
+                    "transaction_id": {
+                      "type": "number",
+                      "description": "Id transactions in the LiqPay system",
+                      "examples": [
+                        165168
+                      ]
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Payment type",
+                      "examples": [
+                        "cash"
+                      ]
+                    },
+                    "version": {
+                      "type": "integer",
+                      "enum": [
+                        3
+                      ],
+                      "description": "Version API",
+                      "examples": [
+                        3
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

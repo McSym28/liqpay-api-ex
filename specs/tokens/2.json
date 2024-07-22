@@ -1,0 +1,119 @@
+{
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "card_token",
+                  "card_token_action"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "token_update"
+                    ]
+                  },
+                  "card_token": {
+                    "type": "string",
+                    "description": "A token to update"
+                  },
+                  "card_token_action": {
+                    "type": "string",
+                    "enum": [
+                      "SUSPEND",
+                      "UNSUSPEND",
+                      "DELETE"
+                    ],
+                    "description": "Action to be done with the token. Possible values:\n* `SUSPEND` - to suspend a token\n* `UNSUSPEND` - to resume a token\n* `DELETE` - to delete a token"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Status of tokenization performance"
+                    },
+                    "card_token": {
+                      "type": "string",
+                      "description": "A token of the LiqPay system"
+                    },
+                    "card_token_info": {
+                      "type": "object",
+                      "description": "Information about a token of Mastercard and Visa payment systems",
+                      "properties": {
+                        "tokenRef": {
+                          "type": "string",
+                          "description": "Token reference"
+                        },
+                        "tokenSuffix": {
+                          "type": "string",
+                          "description": "The last 4 digits of the token"
+                        },
+                        "tokenExpDate": {
+                          "type": "string",
+                          "description": "Token expiration date"
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "INACTIVE",
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "DELETED"
+                          ],
+                          "description": "Token status"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

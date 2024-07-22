@@ -202,7 +202,8 @@ defmodule Mix.Tasks.Generate do
            path
            |> List.update_at(0, &"#{&1}.json")
            |> Enum.reverse()
-           |> then(&["tmp" | &1])
+           |> Enum.drop(1)
+           |> then(&["specs" | &1])
            |> Path.join(),
          :ok <-
            find_spec(

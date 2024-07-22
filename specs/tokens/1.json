@@ -1,0 +1,216 @@
+{
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "is_debit",
+                  "is_credit",
+                  "pushAccountReceipt"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "token_create",
+                      "token_create_unique"
+                    ],
+                    "description": "Transaction type. Possible values:\n* `token_create` - to create a token\n* `token_create_unique` - to create a token unique within the store (when the card is re-tokenized"
+                  },
+                  "is_debit": {
+                    "type": "boolean",
+                    "enum": [
+                      true,
+                      false
+                    ],
+                    "description": "Possible values:\n* `true` - a token will be used to debit funds from a card\n* `false` - a token will not be used to debit funds from a card"
+                  },
+                  "is_credit": {
+                    "type": "boolean",
+                    "enum": [
+                      true,
+                      false
+                    ],
+                    "description": "Possible values:\n* `true` - a token will be used for payments to a card\n* `false` - a token will not be used for payments to a card"
+                  },
+                  "pushAccountReceipt": {
+                    "type": "string",
+                    "description": "A string identifier that is used to tokenize a card in the Mastercard international payment system. It lasts 30 minutes."
+                  },
+                  "vceh_tokenization": {
+                    "type": "object",
+                    "description": "Parameters for tokenization within the Visa cards enrollment hub (VCEH)",
+                    "required": [
+                      "pushdata",
+                      "customer"
+                    ],
+                    "properties": {
+                      "pushdata": {
+                        "type": "string",
+                        "description": "A string with encrypted data to tokenize a card in the Visa international payment system"
+                      },
+                      "customer": {
+                        "type": "string",
+                        "description": "Unique client identifier on the merchant's website. It is required for tokenization in the Visa international payment system"
+                      }
+                    }
+                  },
+                  "card_tokenization": {
+                    "type": "object",
+                    "description": "Parameters for tokenization by card number",
+                    "required": [
+                      "card",
+                      "card_cvv",
+                      "card_exp_month",
+                      "card_exp_year"
+                    ],
+                    "properties": {
+                      "card": {
+                        "type": "string",
+                        "description": "Card number"
+                      },
+                      "card_cvv": {
+                        "type": "string",
+                        "description": "CVV/CVV2"
+                      },
+                      "card_exp_month": {
+                        "type": "string",
+                        "description": "Expiry month of the payer's card",
+                        "examples": [
+                          "08"
+                        ]
+                      },
+                      "card_exp_year": {
+                        "type": "string",
+                        "description": "Expiry year of the payer's card",
+                        "examples": [
+                          "19"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "description": "Status of tokenization performance",
+                      "examples": [
+                        "success"
+                      ]
+                    },
+                    "card_token": {
+                      "type": "string",
+                      "description": "A token of the LiqPay system",
+                      "examples": [
+                        "4F27B5BAA01C1FEC8E695855A53329B6EFCDF176",
+                        "8B3B6147725CAFD4E93DDBAED3FA8D90D1262AC8"
+                      ]
+                    },
+                    "card_token_info": {
+                      "type": "object",
+                      "description": "Information about a token of Mastercard and Visa payment systems",
+                      "properties": {
+                        "tokenRef": {
+                          "type": "string",
+                          "description": "Token reference",
+                          "examples": [
+                            "DM4MMC0000129713c08c30d279db433584d5b7b0d406c654",
+                            "7354755087b7f975e8ed105a769d7802"
+                          ]
+                        },
+                        "tokenSuffix": {
+                          "type": "string",
+                          "description": "The last 4 digits of the token",
+                          "examples": [
+                            "1234"
+                          ]
+                        },
+                        "tokenExpDate": {
+                          "type": "string",
+                          "description": "Token expiration date",
+                          "examples": [
+                            "0822",
+                            "1024"
+                          ]
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "INACTIVE",
+                            "ACTIVE",
+                            "SUSPENDED",
+                            "DELETED"
+                          ],
+                          "description": "Token status",
+                          "examples": [
+                            "ACTIVE"
+                          ]
+                        },
+                        "decision": {
+                          "type": "string",
+                          "enum": [
+                            "APPROVED",
+                            "REQUIRE_ADDITIONAL_AUTHENTICATION",
+                            "DECLINED",
+                            "CANCELLED",
+                            "ERROR"
+                          ],
+                          "description": "Solution by payment system about card digitization. Only relevant for cards issued by the Mastercard payment system. Possible values:\n* `APPROVED` - approved\n* `REQUIRE_ADDITIONAL_AUTHENTICATION` - approved\n* `DECLINED` - rejected\n* `CANCELLED` - canceled\n* `ERROR` - error",
+                          "examples": [
+                            "APPROVED"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
