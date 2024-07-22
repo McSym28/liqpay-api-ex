@@ -26,7 +26,8 @@ defmodule Mix.Tasks.Generate do
     table_standalone_code_block_class: nil,
     standalone_code_block_class: nil,
     section_classes: [],
-    section_caption_class: nil
+    section_title_class: nil,
+    section_subtitle_class: nil
   )
 
   Record.defrecordp(:menu_item,
@@ -157,7 +158,7 @@ defmodule Mix.Tasks.Generate do
           menu_item(title: title, id: id, url: URI.to_string(%URI{uri | query: query_new}))
         end)
         |> Enum.map(fn
-          menu_item(id: "transferring_to_card" = id, url: url) = menu_item ->
+          menu_item(id: "p2pdebit" = id, url: url) = menu_item ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -173,7 +174,9 @@ defmodule Mix.Tasks.Generate do
 
   defp process_page(body, document, path) do
     with [main_block_class] = ~r/new_doc_page_doc__\w+/ |> Regex.run(body, capture: :first),
-         [section_caption_class] =
+         [section_title_class] =
+           ~r/new_doc_integration_titles__\w+/ |> Regex.run(body, capture: :first),
+         [section_subtitle_class] =
            ~r/new_doc_possibilities_text__\w+/ |> Regex.run(body, capture: :first),
          [code_text_class] =
            ~r/new_doc_integration_code_text__\w+/ |> Regex.run(body, capture: :first),
@@ -215,7 +218,8 @@ defmodule Mix.Tasks.Generate do
                table_standalone_code_block_class: table_standalone_code_block_class,
                standalone_code_block_class: standalone_code_block_class,
                section_classes: node_classes(main_doc),
-               section_caption_class: section_caption_class
+               section_title_class: section_title_class,
+               section_subtitle_class: section_subtitle_class
              ),
              json_file
            ) do
@@ -293,23 +297,64 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_section(section, parse_options, was_request) do
-    caption = parse_section_caption(section, parse_options)
+    section
+    |> parse_section_title(parse_options)
+    |> process_section_title(
+      section(node: section, is_request: was_request),
+      parse_options,
+      false
+    )
+  end
 
+  defp parse_section_title(
+         section,
+         parse_options(
+           section_title_class: section_title_class,
+           section_subtitle_class: section_subtitle_class
+         )
+       ) do
+    {
+      parse_section_title(section, section_title_class),
+      parse_section_title(section, section_subtitle_class)
+    }
+  end
+
+  defp parse_section_title(section, class) do
+    section
+    |> Floki.find("div.#{class}.MuiBox-root")
+    |> Enum.take(1)
+    |> Floki.text()
+    |> String.trim()
+    |> String.replace(~r/\s+/, " ")
+    |> String.trim_trailing(":")
+  end
+
+  defp process_section_title({"", subtitle}, section, parse_options, was_regexed),
+    do: process_section_title({nil, subtitle}, section, parse_options, was_regexed)
+
+  defp process_section_title({title, ""}, section, parse_options, was_regexed),
+    do: process_section_title({title, nil}, section, parse_options, was_regexed)
+
+  defp process_section_title({nil, subtitle}, section, parse_options, was_regexed),
+    do: process_section_title(subtitle, section, parse_options, was_regexed)
+
+  defp process_section_title({title, nil}, section, parse_options, was_regexed),
+    do: process_section_title(title, section, parse_options, was_regexed)
+
+  defp process_section_title(title, section, parse_options, false) when is_binary(title) do
     ~r/^\s*(.*)\s+\(\s*the\s+(\w+)\s+(\w+)\s*\)\s*$/
-    |> Regex.scan(caption, capture: :all_but_first)
+    |> Regex.scan(title, capture: :all_but_first)
     |> case do
       [] ->
         ~r/^\s*Parameters(\s*)(\s*)\s+(\w+)\s*$/
-        |> Regex.scan(caption, capture: :all_but_first)
+        |> Regex.scan(title, capture: :all_but_first)
 
       other ->
         other
     end
     |> case do
       [[description, type, name]] ->
-        section(
-          node: section,
-          is_request: was_request,
+        section(section,
           update_operation: :patch,
           update_type:
             if(type == "", do: :object, else: parse_property_type([type], parse_options)),
@@ -318,101 +363,111 @@ defmodule Mix.Tasks.Generate do
         )
 
       [] ->
-        case String.downcase(caption) do
-          main
-          when main in [
-                 "main",
-                 "other parameters",
-                 "parameters of splitting the payments",
-                 "parameters for tokenization within the token connect control",
-                 "parameters for transfer to the card",
-                 "parameters for transfer to the card's token",
-                 "receiver parameters"
-               ] ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :patch,
-              description: caption
-            )
-
-          "sender parameters" ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :new,
-              update_name: "sender",
-              description: caption
-            )
-
-          "regular payment parameters" ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :new,
-              update_name: "regular-payment",
-              description: caption
-            )
-
-          "parameters for 1-click payment" ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :new,
-              update_name: "one-click-payment",
-              description: caption
-            )
-
-          "parameters for tokenization within the visa cards enrollment hub (vceh)" ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :new,
-              update_name: "vceh_tokenization",
-              description: caption
-            )
-
-          "parameters for tokenization by card number" ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :new,
-              update_name: "card_tokenization",
-              description: caption
-            )
-
-          "response parameters" ->
-            section(
-              node: section,
-              is_request: false,
-              update_operation: :patch,
-              description: caption
-            )
-
-          "parameters for transfer to the current account" ->
-            section(
-              node: section,
-              is_request: was_request,
-              update_operation: :new,
-              update_name: "receiver_account",
-              description: caption
-            )
-        end
+        process_section_title(
+          String.downcase(title),
+          section(section, description: title),
+          parse_options,
+          true
+        )
     end
   end
 
-  defp parse_section_caption(
-         section,
-         parse_options(section_caption_class: section_caption_class)
-       ) do
-    section
-    |> Floki.find("div.#{section_caption_class}.MuiBox-root")
-    |> Enum.take(1)
-    |> Floki.text()
-    |> String.trim()
-    |> String.replace(~r/\s+/, " ")
-    |> String.trim_trailing(":")
+  defp process_section_title(title, section, parse_options, false) when is_binary(title),
+    do:
+      process_section_title(
+        String.downcase(title),
+        section(section, description: title),
+        parse_options,
+        true
+      )
+
+  defp process_section_title({title, subtitle}, section, parse_options, false)
+       when is_binary(title) and is_binary(subtitle) do
+    "options for generating data" = _title_downcased = String.downcase(title)
+    subtitle_downcased = String.downcase(subtitle)
+
+    process_section_title(
+      subtitle_downcased,
+      section(section, description: subtitle),
+      parse_options,
+      true
+    )
   end
+
+  defp process_section_title(nil, section, _parse_options, true),
+    do: section(section, update_operation: :patch)
+
+  defp process_section_title("main", section, parse_options, true),
+    do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title("other parameters", section, parse_options, true),
+    do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title(
+         "parameters of splitting the payments",
+         section,
+         parse_options,
+         true
+       ),
+       do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title(
+         "parameters for tokenization within the token connect control",
+         section,
+         parse_options,
+         true
+       ),
+       do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title("parameters for transfer to the card", section, parse_options, true),
+    do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title(
+         "parameters for transfer to the card's token",
+         section,
+         parse_options,
+         true
+       ),
+       do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title("receiver parameters", section, parse_options, true),
+    do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title("sender parameters", section, _parse_options, true),
+    do: section(section, update_name: "sender")
+
+  defp process_section_title("regular payment parameters", section, _parse_options, true),
+    do: section(section, update_name: "regular_payment")
+
+  defp process_section_title("parameters for 1-click payment", section, _parse_options, true),
+    do: section(section, update_name: "one_click_payment")
+
+  defp process_section_title(
+         "parameters for tokenization within the visa cards enrollment hub (vceh)",
+         section,
+         _parse_options,
+         true
+       ),
+       do: section(section, update_name: "vceh_tokenization")
+
+  defp process_section_title(
+         "parameters for tokenization by card number",
+         section,
+         _parse_options,
+         true
+       ),
+       do: section(section, update_name: "card_tokenization")
+
+  defp process_section_title("response parameters", section, _parse_options, true),
+    do: section(section, is_request: false, update_operation: :patch)
+
+  defp process_section_title(
+         "parameters for transfer to the current account",
+         section,
+         _parse_options,
+         true
+       ),
+       do: section(section, update_name: "receiver_account")
 
   defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
     {true, schema}
@@ -648,10 +703,10 @@ defmodule Mix.Tasks.Generate do
           result
         end
 
-      {"a", _attrs, [text]} = link ->
+      {"a", _attrs, _children} = link ->
         [href] = Floki.attribute(link, "href")
 
-        "[#{text |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
+        "[#{link |> Floki.text() |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
 
       {"br", _attrs, _children} ->
         "\n"
@@ -752,7 +807,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   # defp initialize_property_processing(%{type: :string} = property, path)
-  #      when path in [["subscribe"], ["prepare"], ["recurringbytoken", "one-click-payment"]] and
+  #      when path in [["subscribe"], ["prepare"], ["sandbox"], ["recurringbytoken", "one-click-payment"]] and
   #             not is_map_key(property, :format) do
   #   property
   #   |> Map.put(:format, "string-integer")
@@ -760,7 +815,12 @@ defmodule Mix.Tasks.Generate do
   # end
 
   defp initialize_property_processing(%{type: :string} = property, path)
-       when path in [["subscribe"], ["prepare"], ["recurringbytoken", "one-click-payment"]] and
+       when path in [
+              ["subscribe"],
+              ["prepare"],
+              ["sandbox"],
+              ["recurringbytoken", "one-click-payment"]
+            ] and
               not is_map_key(property, :enum) do
     property
     |> Map.put(:enum, ["1"])
@@ -846,7 +906,8 @@ defmodule Mix.Tasks.Generate do
       |> Enum.flat_map(fn code_div ->
         is_request =
           not (code_div
-               |> parse_section_caption(parse_options)
+               |> parse_section_title(parse_options)
+               |> then(fn {title, subtitle} -> "#{title}. #{subtitle}" end)
                |> String.downcase()
                |> String.match?(~r/(^|\s+)response(\s+|$)/))
 
@@ -1124,11 +1185,16 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_examples(%{description: description} = property) do
-    ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)(?:\.|$)/
+    ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?:\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, examples_match]] ->
         process_examples_match_in_description(property, full_match, examples_match)
+
+      [[full_match, examples_match, explanation]] ->
+        description_new = String.replace(description, full_match, "#{full_match}. #{explanation}")
+        property_new = %{property | description: description_new}
+        process_examples_match_in_description(property_new, full_match, examples_match)
 
       [] ->
         property

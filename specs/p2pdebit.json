@@ -1,0 +1,242 @@
+{
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
+                  "card_token",
+                  "currency",
+                  "description",
+                  "order_id",
+                  "phone",
+                  "sandbox"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "p2pdebit"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "examples": [
+                      5.0,
+                      7.34
+                    ]
+                  },
+                  "card": {
+                    "type": "string",
+                    "description": "Card number of the payer"
+                  },
+                  "card_cvv": {
+                    "type": "string",
+                    "description": "CVV/CVV2"
+                  },
+                  "card_exp_month": {
+                    "type": "string",
+                    "description": "Expiry month of the payer's card",
+                    "examples": [
+                      "08"
+                    ]
+                  },
+                  "card_exp_year": {
+                    "type": "string",
+                    "description": "Expiry year of the payer's card",
+                    "examples": [
+                      "19"
+                    ]
+                  },
+                  "card_token": {
+                    "type": "string",
+                    "description": "Sender's [card token](https://www.liqpay.ua/en/methods/token_pay). You don't need to transmit card data, when using a token",
+                    "examples": [
+                      "B5BВB0D00B88B00ED00A00D0D"
+                    ]
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "USD",
+                      "EUR",
+                      "UAH"
+                    ],
+                    "description": "Payment currency"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Payment description"
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Payer's phone number. The OTP-password will be sent to this telephone number to confirm your payment, and the linked payer's LiqPay cabinet. The telephone number should be indicated in the international format (Ukraine `+380`). For example: +380950000001 (with +) or 380950000001 (without +)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  },
+                  "prepare": {
+                    "type": "string",
+                    "enum": [
+                      "1"
+                    ],
+                    "description": "The preliminary preparation of the payment. This mode allows you to determine whether all data is complete, whether 3DS is required to check the card, whether the limit is exceeded. The funds are not debited from the payer's card. To activate the mode, you need to transfer the value of `1`, and to work with DCC (dynamic currency conversion) - the value of `tariffs`"
+                  },
+                  "recurringbytoken": {
+                    "type": "string",
+                    "description": "This parameter allows to generate payer `card_token` which you receive in callback request to `server_url`. `card_token` allows to make recurring payments without payer card requisites using API [paytoken](https://www.liqpay.ua/en/doc/api/internet_acquiring/token?tab=0). To receive `card_token` please send in request value `1`"
+                  },
+                  "result_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
+                    "maxLength": 510
+                  },
+                  "server_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
+                    "maxLength": 510
+                  },
+                  "sandbox": {
+                    "type": "string",
+                    "enum": [
+                      "1"
+                    ],
+                    "description": "Enables the testing environment for developers. Payer card will not be charged. To enable testing environment you will need to transmit value `1`. All test payments will have the status `sandbox` - successful test payment."
+                  },
+                  "sender": {
+                    "type": "object",
+                    "description": "Sender parameters",
+                    "required": [
+                      "phone",
+                      "sender_country_code",
+                      "sender_city",
+                      "sender_address",
+                      "sender_postal_code",
+                      "mpi_eci",
+                      "mpi_cres"
+                    ],
+                    "properties": {
+                      "sender_first_name": {
+                        "type": "string",
+                        "description": "Sender's first name"
+                      },
+                      "sender_last_name": {
+                        "type": "string",
+                        "description": "Sender's last name"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "description": "Payer's phone number"
+                      },
+                      "sender_email": {
+                        "type": "string",
+                        "description": "E-mail address"
+                      },
+                      "sender_country_code": {
+                        "type": "string",
+                        "description": "Country code of the sender. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)"
+                      },
+                      "sender_city": {
+                        "type": "string",
+                        "description": "Sender's city"
+                      },
+                      "sender_address": {
+                        "type": "string",
+                        "description": "Sender's address"
+                      },
+                      "sender_state": {
+                        "type": "string",
+                        "description": "Payment address. Sender's region code. Digital [ISO 3166-2 code.](https://en.wikipedia.org/wiki/ISO_3166-2)For Ukraine [ISO 3166-2:UA](https://en.wikipedia.org/wiki/ISO_3166-2:UA)"
+                      },
+                      "sender_shipping_state": {
+                        "type": "string",
+                        "description": "Shipping address. Sender's region code. Digital [ISO 3166-2 code.](https://en.wikipedia.org/wiki/ISO_3166-2)For Ukraine [ISO 3166-2:UA](https://en.wikipedia.org/wiki/ISO_3166-2:UA)"
+                      },
+                      "sender_postal_code": {
+                        "type": "string",
+                        "description": "Sender's zip code"
+                      },
+                      "mpi_eci": {
+                        "type": "number",
+                        "enum": [
+                          5.0,
+                          6.0,
+                          7.0
+                        ],
+                        "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure"
+                      },
+                      "mpi_cres": {
+                        "type": "string",
+                        "description": "The value returned to ACS by the issuer's page after cardholder authentication"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
