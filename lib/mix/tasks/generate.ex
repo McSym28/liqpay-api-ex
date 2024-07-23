@@ -159,7 +159,7 @@ defmodule Mix.Tasks.Generate do
         end)
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
-          when id == "confirmation" or hd(path) == "confirmation" ->
+          when id == "partnership" or hd(path) == "partnership" ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -508,6 +508,14 @@ defmodule Mix.Tasks.Generate do
          true
        ),
        do: section(section, update_name: "receiver_account")
+
+  defp process_section_title(
+         "parameters for aggregators",
+         section,
+         _parse_options,
+         true
+       ),
+       do: section(section, update_name: "aggregator")
 
   defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
     {true, schema}
@@ -1168,7 +1176,7 @@ defmodule Mix.Tasks.Generate do
     ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+symbols/
     |> Regex.scan(description)
     |> case do
-      [[full_match, max_length]] ->
+      [[full_match, "", max_length]] ->
         description_new = String.replace(description, full_match, "")
 
         Map.merge(property, %{
