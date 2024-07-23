@@ -286,7 +286,7 @@
                       }
                     }
                   },
-                  "regular-payment": {
+                  "regular_payment": {
                     "type": "object",
                     "description": "Regular payment parameters",
                     "required": [
@@ -317,7 +317,7 @@
                       }
                     }
                   },
-                  "one-click-payment": {
+                  "one_click_payment": {
                     "type": "object",
                     "description": "Parameters for 1-click payment",
                     "properties": {

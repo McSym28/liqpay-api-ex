@@ -53,6 +53,7 @@ defmodule Mix.Tasks.Generate do
       path
       |> List.update_at(0, &"#{&1}.html")
       |> Enum.reverse()
+      |> List.flatten()
       |> then(&["tmp" | &1])
       |> Path.join()
 
@@ -87,18 +88,18 @@ defmodule Mix.Tasks.Generate do
                 fn
                   1 ->
                     {:ok, result} =
-                      process_page(body, document, [Integer.to_string(tab_index) | path])
+                      process_page(body, document, [[tab_index] | path])
 
                     result
 
                   other_index ->
-                    other_index_string = Integer.to_string(other_index)
-
                     query_new =
-                      decoded_query |> Map.put("tab", other_index_string) |> URI.encode_query()
+                      decoded_query
+                      |> Map.put("tab", Integer.to_string(other_index))
+                      |> URI.encode_query()
 
                     url_new = %URI{uri | query: query_new} |> URI.to_string()
-                    {:ok, result} = process_url(url_new, session, [other_index_string | path])
+                    {:ok, result} = process_url(url_new, session, [[other_index] | path])
                     result
                 end
               )
@@ -159,7 +160,8 @@ defmodule Mix.Tasks.Generate do
         end)
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
-          when id == "partnership" or hd(path) == "partnership" ->
+          when id == "internet_acquiring" or
+                 (hd(path) == "internet_acquiring" and id == "checkout") ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -213,6 +215,7 @@ defmodule Mix.Tasks.Generate do
            |> List.update_at(0, &"#{&1}.json")
            |> Enum.reverse()
            |> Enum.drop(1)
+           |> List.flatten()
            |> then(&["specs" | &1])
            |> Path.join(),
          :ok <-
@@ -230,6 +233,7 @@ defmodule Mix.Tasks.Generate do
                section_title_class: section_title_class,
                section_subtitle_classes: section_subtitle_classes
              ),
+             path,
              json_file
            ) do
       {:ok, :ok}
@@ -471,6 +475,9 @@ defmodule Mix.Tasks.Generate do
        do: process_section_title(nil, section, parse_options, true)
 
   defp process_section_title("receiver parameters", section, parse_options, true),
+    do: process_section_title(nil, section, parse_options, true)
+
+  defp process_section_title("payment widget parameters", section, parse_options, true),
     do: process_section_title(nil, section, parse_options, true)
 
   defp process_section_title("sender parameters", section, _parse_options, true),
@@ -796,7 +803,10 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp initialize_property_processing(%{type: :string} = property, ["split_rules"] = path) do
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         ["split_rules", {:schema, :request} | _] = path
+       ) do
     property
     |> Map.merge(%{
       type: :array,
@@ -845,15 +855,21 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
-  # defp initialize_property_processing(%{type: :string} = property, [boolean_property] = path)
+  # defp initialize_property_processing(
+  #        %{type: :string} = property,
+  #        [boolean_property, {:schema, _schema_type} | _] = path
+  #      )
   #      when boolean_property in ~w(verifycode) and
   #             not is_map_key(property, :format) do
   #   property
-  #   |> Map.put(:format, "string-yesno")
+  #   |> Map.put(:format, "boolean-yesno")
   #   |> initialize_property_processing(path)
   # end
 
-  defp initialize_property_processing(%{type: :string} = property, [boolean_property] = path)
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [boolean_property, {:schema, _schema_type} | _] = path
+       )
        when boolean_property in ~w(verifycode) and
               not is_map_key(property, :enum) do
     property
@@ -861,35 +877,70 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
-  # defp initialize_property_processing(%{type: :string} = property, path)
-  #      when path in [["subscribe"], ["prepare"], ["sandbox"], ["recurringbytoken", "one-click-payment"]] and
+  # defp initialize_property_processing(
+  #        %{type: :string} = property,
+  #        [boolean_property, {:schema, _schema_type} | _] = path
+  #      )
+  #      when boolean_property in ~w(subscribe prepare sandbox) and
   #             not is_map_key(property, :format) do
   #   property
-  #   |> Map.put(:format, "string-integer")
+  #   |> Map.put(:format, "boolean-integer")
   #   |> initialize_property_processing(path)
   # end
 
-  defp initialize_property_processing(%{type: :string} = property, path)
-       when path in [
-              ["subscribe"],
-              ["prepare"],
-              ["sandbox"],
-              ["recurringbytoken", "one-click-payment"]
-            ] and
-              not is_map_key(property, :enum) do
+  # defp initialize_property_processing(
+  #        %{type: :string} = property,
+  #        ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+  #      )
+  #      when not is_map_key(property, :format) do
+  #   property
+  #   |> Map.put(:format, "boolean-integer")
+  #   |> initialize_property_processing(path)
+  # end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [boolean_property, {:schema, _schema_type} | _] = path
+       )
+       when boolean_property in ~w(subscribe prepare sandbox) and not is_map_key(property, :enum) do
     property
     |> Map.put(:enum, ["1"])
     |> initialize_property_processing(path)
   end
 
-  defp initialize_property_processing(%{type: :number} = property, path)
-       when path in [["version"], ["id", [], "items", "rro_info"], ["mpi_eci"]] do
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :enum) do
+    property
+    |> Map.put(:enum, ["1"])
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :number} = property,
+         [integer_property, {:schema, _schema_type} | _] = path
+       )
+       when integer_property in ~w(version mpi_eci) do
     property
     |> Map.put(:type, :integer)
     |> initialize_property_processing(path)
   end
 
-  defp initialize_property_processing(%{type: :string} = property, [url_property] = path)
+  defp initialize_property_processing(
+         %{type: :number} = property,
+         ["id", [], "items", "rro_info", {:schema, :request} | _] = path
+       ) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [url_property, {:schema, _schema_type} | _] = path
+       )
        when url_property in ~w(result_url server_url product_url) and
               not is_map_key(property, :format) do
     property
@@ -897,8 +948,11 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
-  defp initialize_property_processing(%{type: :string} = property, path)
-       when path in [["expired_date"], ["subscribe_date_start", "regular-payment"], ["end_date"]] and
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [datetime_property, {:schema, _schema_type} | _] = path
+       )
+       when datetime_property in ~w(expired_date) and
               not is_map_key(property, :format) do
     property
     # |> Map.put(:format, "date-time-liqpay")
@@ -907,8 +961,19 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(
+         %{type: :string} = property,
+         ["subscribe_date_start", "regular_payment", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    # |> Map.put(:format, "date-time-liqpay")
+    |> Map.put(:format, "date-time")
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
          %{type: :array} = property,
-         ["delivery_emails", "rro_info"] = path
+         ["delivery_emails", "rro_info", {:schema, :request} | _] = path
        )
        when not is_map_key(property, :items) do
     property
@@ -924,6 +989,7 @@ defmodule Mix.Tasks.Generate do
            standalone_code_block_class: standalone_code_block_class,
            table_classes: table_classes
          ) = parse_options,
+         path,
          json_file
        ) do
     {request_schema, response_schema, code_blocks} =
@@ -949,11 +1015,18 @@ defmodule Mix.Tasks.Generate do
             section(is_request: is_request, update_operation: update_operation) =
               section_data = parse_section(section, parse_options, was_request)
 
-            section_schema = if is_request, do: request_schema, else: response_schema
+            {section_schema_type, section_schema} =
+              if is_request do
+                {:request, request_schema}
+              else
+                {:response, response_schema}
+              end
 
             section_schema_new =
               (section_schema || %{type: :object, properties: OrderedObject.new([])})
-              |> update_section_schema(section_data, parse_options, false, [])
+              |> update_section_schema(section_data, parse_options, false, [
+                {:schema, section_schema_type} | path
+              ])
               |> case do
                 {true, section_schema_new} -> section_schema_new
                 {false, section_schema_new} when update_operation != :patch -> section_schema_new
@@ -1110,16 +1183,16 @@ defmodule Mix.Tasks.Generate do
          [
            {"code", _, _} = code
          ],
-         [name | _] = _path
+         path
        ) do
-    case name do
-      "dae" ->
+    case path do
+      ["dae", {:schema, :request} | _] ->
         description_new =
           "#{description |> String.split("\n") |> hd()}\n\nPossible `JSON` object:\n```\n#{code |> Floki.text() |> String.trim()}\n```"
 
         %{schema | description: description_new}
 
-      "split_rules" ->
+      ["split_rules", {:schema, :request} | _] ->
         description_new =
           String.replace(description, ~r/\.?\s*Example\s+(`)?JSON(?(1)\1|)\s+string:?\s*$/, "")
 
