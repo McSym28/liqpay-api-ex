@@ -374,11 +374,23 @@ defmodule Mix.Tasks.Generate do
     |> Regex.scan(title, capture: :all_but_first)
     |> case do
       [] ->
-        ~r/^\s*Parameters(\s*)(\s*)\s+(\w+)\s*$/
+        ~r/^\s*(.*)\s+\(\s*(?:the\s+)?(\w+)\s+(object|array)\s*\)\s*$/i
         |> Regex.scan(title, capture: :all_but_first)
+        |> case do
+          [[description, name, type]] ->
+            [[description, type, name]]
 
-      other ->
-        other
+          [] ->
+            ~r/^\s*Parameters\s+(\w+)\s*$/
+            |> Regex.scan(title, capture: :all_but_first)
+            |> case do
+              [[name]] -> [["", "", name]]
+              [] -> []
+            end
+        end
+
+      [[description, type, name]] ->
+        [[description, type, name]]
     end
     |> case do
       [[description, type, name]] ->
