@@ -51,9 +51,9 @@ defmodule Mix.Tasks.Generate do
 
     file =
       path
+      |> List.flatten()
       |> List.update_at(0, &"#{&1}.html")
       |> Enum.reverse()
-      |> List.flatten()
       |> then(&["tmp" | &1])
       |> Path.join()
 
@@ -161,7 +161,7 @@ defmodule Mix.Tasks.Generate do
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
           when id == "internet_acquiring" or
-                 (hd(path) == "internet_acquiring" and id == "checkout") ->
+                 (hd(path) == "internet_acquiring" and id == "card_payment") ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -212,10 +212,10 @@ defmodule Mix.Tasks.Generate do
                end),
          json_file =
            path
+           |> List.flatten()
            |> List.update_at(0, &"#{&1}.json")
            |> Enum.reverse()
            |> Enum.drop(1)
-           |> List.flatten()
            |> then(&["specs" | &1])
            |> Path.join(),
          :ok <-
@@ -540,6 +540,30 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp update_section_schema(
+         %{type: :object} = schema,
+         section(update_operation: :patch, update_type: :object, update_name: "rro_info") =
+           section_data,
+         parse_options,
+         false,
+         [{:schema, :request}, "card_payment", "internet_acquiring", "api"] = path
+       ) do
+    schema_new =
+      schema
+      |> append_schema_object_properties(
+        OrderedObject.new([
+          {"rro_info",
+           %{
+             type: :object,
+             description: "Data for fiscalization"
+           }}
+        ])
+      )
+      |> process_section_properties(section_data, parse_options, path)
+
+    {true, schema_new}
+  end
+
+  defp update_section_schema(
          %{type: type} = schema,
          section(update_operation: :patch, update_type: type, update_name: name) = section_data,
          parse_options,
@@ -694,10 +718,7 @@ defmodule Mix.Tasks.Generate do
 
     case schema do
       %{type: :object} ->
-        schema_new =
-          Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values} ->
-            OrderedObject.new(values ++ properties_new.values)
-          end)
+        schema_new = append_schema_object_properties(schema, properties_new)
 
         if Enum.empty?(required_new) do
           schema_new
@@ -713,9 +734,7 @@ defmodule Mix.Tasks.Generate do
             {:ok, %{type: :object} = items} -> items
             :error -> %{type: :object}
           end
-          |> Map.update(:properties, properties_new, fn %OrderedObject{values: values} ->
-            OrderedObject.new(values ++ properties_new.values)
-          end)
+          |> append_schema_object_properties(properties_new)
 
         items_new =
           if Enum.empty?(required_new) do
@@ -1425,5 +1444,14 @@ defmodule Mix.Tasks.Generate do
       )
 
     value_decoded
+  end
+
+  defp append_schema_object_properties(
+         schema,
+         %OrderedObject{values: values_new} = properties_new
+       ) do
+    Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values_old} ->
+      OrderedObject.new(values_old ++ values_new)
+    end)
   end
 end
