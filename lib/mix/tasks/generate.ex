@@ -25,6 +25,7 @@ defmodule Mix.Tasks.Generate do
     table_standalone_code_block_class: nil,
     standalone_code_block_class: nil,
     code_block_class: nil,
+    irrelevant_code_block_class: nil,
     section_title_class: nil,
     section_subtitle_classes: MapSet.new()
   )
@@ -161,7 +162,7 @@ defmodule Mix.Tasks.Generate do
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
           when id == "internet_acquiring" or
-                 (hd(path) == "internet_acquiring" and id == "card_payment") ->
+                 (hd(path) == "internet_acquiring" and id == "gpay") ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -201,10 +202,22 @@ defmodule Mix.Tasks.Generate do
                  [class] -> class
                  nil -> nil
                end),
-         [standalone_code_block_class] =
-           ~r/(?<!\w)new_doc_page_content__\w+(?!\w)/ |> Regex.run(body, capture: :first),
+         standalone_code_block_class =
+           ~r/(?<!\w)new_doc_page_content__\w+(?!\w)/
+           |> Regex.run(body, capture: :first)
+           |> (case do
+                 [class] -> class
+                 nil -> nil
+               end),
          code_block_class =
            ~r/(?<!\w)doc_code_style__\w+(?!\w)/
+           |> Regex.run(body, capture: :first)
+           |> (case do
+                 [class] -> class
+                 nil -> nil
+               end),
+         irrelevant_code_block_class =
+           ~r/(?<!\w)new_doc_green_page_background__\w+(?!\w)/
            |> Regex.run(body, capture: :first)
            |> (case do
                  [class] -> class
@@ -230,6 +243,7 @@ defmodule Mix.Tasks.Generate do
                table_standalone_code_block_class: table_standalone_code_block_class,
                standalone_code_block_class: standalone_code_block_class,
                code_block_class: code_block_class,
+               irrelevant_code_block_class: irrelevant_code_block_class,
                section_title_class: section_title_class,
                section_subtitle_classes: section_subtitle_classes
              ),
@@ -477,7 +491,7 @@ defmodule Mix.Tasks.Generate do
   defp process_section_title("receiver parameters", section, parse_options, true),
     do: process_section_title(nil, section, parse_options, true)
 
-  defp process_section_title("payment widget parameters", section, parse_options, true),
+  defp process_section_title("parameters for data formation", section, parse_options, true),
     do: process_section_title(nil, section, parse_options, true)
 
   defp process_section_title("sender parameters", section, _parse_options, true),
@@ -1017,20 +1031,26 @@ defmodule Mix.Tasks.Generate do
         classes = node_classes(section)
         was_request = is_nil(response_schema)
 
-        if Enum.member?(classes, standalone_code_block_class) do
-          {title, subtitle} = parse_section_title(section, parse_options)
-          code_blocks_new = [{title, subtitle, section} | code_blocks]
-          {request_schema, response_schema, code_blocks_new}
-        else
-          table =
-            Enum.find_value(table_classes, fn class ->
-              case Floki.find(section, "div.#{class}.MuiBox-root") do
-                [table] -> table
-                [] -> nil
-              end
-            end)
+        cond do
+          standalone_code_block_class && Enum.member?(classes, standalone_code_block_class) ->
+            section
+            |> parse_section_title(parse_options)
+            |> parse_standalone_example(section, path)
+            |> case do
+              {:ok, {is_request, code}} ->
+                code_blocks_new = [{is_request, code} | code_blocks]
+                {request_schema, response_schema, code_blocks_new}
 
-          if table do
+              :error ->
+                {request_schema, response_schema, code_blocks}
+            end
+
+          Enum.find_value(table_classes, fn class ->
+            case Floki.find(section, "div.#{class}.MuiBox-root") do
+              [table] -> table
+              [] -> nil
+            end
+          end) ->
             section(is_request: is_request, update_operation: update_operation) =
               section_data = parse_section(section, parse_options, was_request)
 
@@ -1054,56 +1074,20 @@ defmodule Mix.Tasks.Generate do
             if is_request,
               do: {section_schema_new, response_schema, code_blocks},
               else: {request_schema, section_schema_new, code_blocks}
-          else
+
+          :else ->
             {_, _, code_blocks_new} =
-              search_code_blocks(section, parse_options, {nil, nil, code_blocks})
+              search_code_blocks(section, parse_options, {nil, nil, code_blocks}, path)
 
             {request_schema, response_schema, code_blocks_new}
-          end
         end
       end)
 
     {request_schema_new, response_schema_new} =
       code_blocks
-      |> Enum.flat_map(fn {title, subtitle, code_div} ->
-        is_request =
-          not ("#{title}. #{subtitle}"
-               |> String.downcase()
-               |> String.match?(~r/(^|[^\w])response([^\w]|$)/))
-
-        code_div
-        |> Floki.find("code.language-json")
-        |> case do
-          [code] ->
-            [{is_request, extract_code(code)}]
-
-          [] ->
-            code_div
-            |> Floki.find("code.language-javascript")
-            |> case do
-              [code] ->
-                [[code_string]] =
-                  code
-                  |> extract_code()
-                  |> then(
-                    &Regex.scan(
-                      ~r/liqpay\.(?:cnb_form\(|api\(\s*\"request\"\s*,)\s*(\{(?:[^}{]+|(?R))*+\})/,
-                      &1,
-                      capture: :all_but_first
-                    )
-                  )
-
-                [{is_request, code_string}]
-
-              [] ->
-                []
-            end
-        end
-      end)
       |> Enum.reverse()
       |> Enum.reduce({request_schema, response_schema}, fn
-        {is_request, example_string}, {request_schema, response_schema} ->
-          example = Jason.decode!(example_string)
+        {is_request, example}, {request_schema, response_schema} ->
           schema = if is_request, do: request_schema, else: response_schema
           schema_new = patch_schema_examples(example, schema)
           if is_request, do: {schema_new, response_schema}, else: {request_schema, schema_new}
@@ -1161,9 +1145,11 @@ defmodule Mix.Tasks.Generate do
          parse_options(
            section_title_class: section_title_class,
            section_subtitle_classes: section_subtitle_classes,
-           code_block_class: code_block_class
+           code_block_class: code_block_class,
+           irrelevant_code_block_class: irrelevant_code_block_class
          ) = parse_options,
-         {title, subtitle, code_blocks}
+         {title, subtitle, code_blocks},
+         path
        ) do
     classes =
       div
@@ -1182,16 +1168,31 @@ defmodule Mix.Tasks.Generate do
         {title, subtitle_new, code_blocks}
 
       MapSet.member?(classes, code_block_class) ->
-        {title, nil, [{title, subtitle, div} | code_blocks]}
+        {title, subtitle}
+        |> parse_standalone_example(div, path)
+        |> case do
+          {:ok, {is_request, code}} ->
+            code_blocks_new = [{is_request, code} | code_blocks]
+            {title, nil, code_blocks_new}
+
+          :error ->
+            {title, subtitle, code_blocks}
+        end
+
+      irrelevant_code_block_class && MapSet.member?(classes, irrelevant_code_block_class) ->
+        {title, subtitle, code_blocks}
 
       :else ->
         div
         |> Floki.children()
-        |> Enum.reduce({title, subtitle, code_blocks}, &search_code_blocks(&1, parse_options, &2))
+        |> Enum.reduce(
+          {title, subtitle, code_blocks},
+          &search_code_blocks(&1, parse_options, &2, path)
+        )
     end
   end
 
-  defp search_code_blocks(_node, _parse_options, acc), do: acc
+  defp search_code_blocks(_node, _parse_options, acc, _path), do: acc
 
   defp parse_property_separate_example(schema, [], _path) do
     schema
@@ -1453,5 +1454,65 @@ defmodule Mix.Tasks.Generate do
     Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values_old} ->
       OrderedObject.new(values_old ++ values_new)
     end)
+  end
+
+  defp parse_standalone_example({title, nil}, div, path) when is_binary(title),
+    do: title |> String.downcase() |> parse_standalone_example(div, path)
+
+  defp parse_standalone_example({nil, subtitle}, div, path) when is_binary(subtitle),
+    do: subtitle |> String.downcase() |> parse_standalone_example(div, path)
+
+  defp parse_standalone_example({title, ""}, div, path),
+    do: parse_standalone_example({title, nil}, div, path)
+
+  defp parse_standalone_example({"", subtitle}, div, path),
+    do: parse_standalone_example({nil, subtitle}, div, path)
+
+  defp parse_standalone_example({title, subtitle}, div, path)
+       when is_binary(title) and is_binary(subtitle) do
+    "#{title}. #{subtitle}"
+    |> String.downcase()
+    |> parse_standalone_example(div, path)
+  end
+
+  defp parse_standalone_example("response example", _div, [
+         [2],
+         "gpay",
+         "internet_acquiring",
+         "api"
+       ]),
+       do: :error
+
+  defp parse_standalone_example(title, div, _path) do
+    is_request = not String.match?(title, ~r/(^|[^\w])response([^\w]|$)/)
+
+    div
+    |> Floki.find("code.language-json")
+    |> case do
+      [code_string] ->
+        {:ok, {is_request, code_string |> extract_code() |> Jason.decode!()}}
+
+      [] ->
+        div
+        |> Floki.find("code.language-javascript")
+        |> case do
+          [code] ->
+            [[code_string]] =
+              code
+              |> extract_code()
+              |> then(
+                &Regex.scan(
+                  ~r/liqpay\.(?:cnb_form\(|api\(\s*\"request\"\s*,)\s*(\{(?:[^}{]+|(?R))*+\})/,
+                  &1,
+                  capture: :all_but_first
+                )
+              )
+
+            {:ok, {is_request, Jason.decode!(code_string)}}
+
+          [] ->
+            :error
+        end
+    end
   end
 end
