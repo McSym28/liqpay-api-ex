@@ -779,9 +779,12 @@ defmodule Mix.Tasks.Generate do
     |> Floki.text()
     |> String.trim()
     |> String.downcase()
+    |> then(&Regex.scan(~r/^(required|optional)(\*)*$/, &1, capture: :all_but_first))
     |> case do
-      "required" -> true
-      "optional" -> false
+      [["required"]] -> true
+      [["optional"]] -> false
+      [["required", "*"]] -> false
+      [["optional", "*"]] -> false
     end
   end
 
