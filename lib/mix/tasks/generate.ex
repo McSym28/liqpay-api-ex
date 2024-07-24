@@ -162,9 +162,13 @@ defmodule Mix.Tasks.Generate do
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
           when id == "internet_acquiring" or
-                 (hd(path) == "internet_acquiring" and id == "invoice") ->
-            {:ok, children} = process_url(url, session, [id | path])
-            menu_item(menu_item, children: children)
+                 (hd(path) == "internet_acquiring") ->
+            url
+            |> process_url(session, [id | path])
+            |> case do
+              {:ok, children} -> menu_item(menu_item, children: children)
+              :error -> menu_item
+            end
 
           menu_item ->
             menu_item
@@ -540,6 +544,9 @@ defmodule Mix.Tasks.Generate do
        do: {:ok, section(section, update_name: "aggregator")}
 
   defp process_section_title("api invoice_units", _section, _parse_options, true), do: :error
+
+  defp process_section_title("payment widget parameters", _section, _parse_options, true),
+    do: :error
 
   defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
     {true, schema}
