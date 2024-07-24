@@ -24,6 +24,10 @@
                   "public_key",
                   "action",
                   "amount",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
                   "currency",
                   "description",
                   "ip",
@@ -49,10 +53,10 @@
                   "action": {
                     "type": "string",
                     "enum": [
-                      "paycash"
+                      "subscribe"
                     ],
                     "examples": [
-                      "paycash"
+                      "subscribe"
                     ]
                   },
                   "amount": {
@@ -62,6 +66,36 @@
                       5.0,
                       7.34,
                       1.0
+                    ]
+                  },
+                  "card": {
+                    "type": "string",
+                    "description": "Card number of the payer",
+                    "examples": [
+                      "4731195301524634"
+                    ]
+                  },
+                  "card_cvv": {
+                    "type": "string",
+                    "description": "CVV/CVV2",
+                    "examples": [
+                      "111"
+                    ]
+                  },
+                  "card_exp_month": {
+                    "type": "string",
+                    "description": "Expiry month of the payer's card",
+                    "examples": [
+                      "08",
+                      "03"
+                    ]
+                  },
+                  "card_exp_year": {
+                    "type": "string",
+                    "description": "Expiry year of the payer's card",
+                    "examples": [
+                      "19",
+                      "22"
                     ]
                   },
                   "currency": {
@@ -102,11 +136,6 @@
                       "380950000001"
                     ]
                   },
-                  "expired_date": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
-                  },
                   "language": {
                     "type": "string",
                     "enum": [
@@ -122,64 +151,82 @@
                     ],
                     "description": "The preliminary preparation of the payment. This mode allows you to determine whether all data is complete, whether 3DS is required to check the card, whether the limit is exceeded. The funds are not debited from the payer's card. To activate the mode, you need to transfer the value of `1`"
                   },
+                  "recurringbytoken": {
+                    "type": "string",
+                    "description": "This parameter allows to generate payer `card_token` which you receive in callback request to `server_url`. `card_token` allows to make recurring payments without payer card requisites using API [paytoken](https://www.liqpay.ua/en/doc/api/internet_acquiring/token). To receive `card_token` please send in request value `1`"
+                  },
+                  "recurring": {
+                    "type": "boolean",
+                    "enum": [
+                      true,
+                      false
+                    ],
+                    "description": "Token recurring payment flag. Used for payments with tokens of international payment systems (MasterCard, Visa). Possible values:\n* `true` - the operation is performed without the participation of the client\n* `false` - the operation is performed by the client"
+                  },
                   "server_url": {
                     "type": "string",
                     "format": "uri",
                     "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
                     "maxLength": 510
                   },
-                  "split_rules": {
-                    "type": "array",
-                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "amount"
-                      ],
-                      "properties": {
-                        "public_key": {
-                          "type": "string",
-                          "description": "Public key - the store identifier",
-                          "examples": [
-                            "i000000001",
-                            "i000000002"
-                          ]
-                        },
-                        "amount": {
-                          "type": "number",
-                          "description": "Payment amount",
-                          "examples": [
-                            1,
-                            2
-                          ]
-                        },
-                        "commission_payer": {
-                          "default": "sender",
-                          "type": "string",
-                          "enum": [
-                            "sender",
-                            "receiver"
-                          ],
-                          "description": "Commission payer",
-                          "examples": [
-                            "sender",
-                            "receiver"
-                          ]
-                        },
-                        "server_url": {
-                          "type": "string",
-                          "format": "uri",
-                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
-                          "maxLength": 510,
-                          "examples": [
-                            "https://server1/callback",
-                            "https://server2/callback"
-                          ]
-                        },
-                        "description": {
-                          "type": "string",
-                          "description": "Payment description"
-                        }
+                  "regular_payment": {
+                    "type": "object",
+                    "description": "Regular payment parameters",
+                    "required": [
+                      "subscribe_date_start"
+                    ],
+                    "properties": {
+                      "subscribe": {
+                        "type": "string",
+                        "enum": [
+                          "1"
+                        ],
+                        "description": "Regular payment"
+                      },
+                      "subscribe_date_start": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Date of the first payment. Time must be specified in the following format `2015-03-31 00:00:00` by `UTC`. If past date is indicated - subscription will be activated with the date and time of request"
+                      },
+                      "subscribe_periodicity": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "week",
+                          "month",
+                          "year"
+                        ],
+                        "description": "Period of payments. Possible values:\n* `day` - daily\n* `week` - weekly\n* `month` - once in a month\n* `year` - once in a year"
+                      }
+                    }
+                  },
+                  "sender": {
+                    "type": "object",
+                    "description": "Sender parameters",
+                    "properties": {
+                      "sender_address": {
+                        "type": "string",
+                        "description": "Sender's address"
+                      },
+                      "sender_city": {
+                        "type": "string",
+                        "description": "Sender's city"
+                      },
+                      "sender_country_code": {
+                        "type": "string",
+                        "description": "Country code of the sender. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)"
+                      },
+                      "sender_first_name": {
+                        "type": "string",
+                        "description": "Sender's first name"
+                      },
+                      "sender_last_name": {
+                        "type": "string",
+                        "description": "Sender's last name"
+                      },
+                      "sender_postal_code": {
+                        "type": "string",
+                        "description": "Sender's zip code"
                       }
                     }
                   },
@@ -253,7 +300,7 @@
                       ],
                       "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
                       "examples": [
-                        "paycash"
+                        "subscribe"
                       ]
                     },
                     "agent_commission": {
@@ -267,7 +314,7 @@
                       "type": "number",
                       "description": "Payment amount",
                       "examples": [
-                        0.1
+                        0.02
                       ]
                     },
                     "amount_bonus": {
@@ -281,14 +328,21 @@
                       "type": "number",
                       "description": "Payment amount for credit in currency of `currency_credit`",
                       "examples": [
-                        0.1
+                        0.02
                       ]
                     },
                     "amount_debit": {
                       "type": "number",
                       "description": "Payment amount for debit in currency of `currency_debit`",
                       "examples": [
-                        0.1
+                        0.02
+                      ]
+                    },
+                    "card_token": {
+                      "type": "string",
+                      "description": "Sender's card token",
+                      "examples": [
+                        "2DFBFE846B734166230DE81E971E948D6F260"
                       ]
                     },
                     "commission_credit": {
@@ -303,6 +357,13 @@
                       "description": "Commission from the sender in `currency_debit`",
                       "examples": [
                         0.0
+                      ]
+                    },
+                    "create_date": {
+                      "type": "string",
+                      "description": "Date of payment creation",
+                      "examples": [
+                        1501680854599
                       ]
                     },
                     "currency": {
@@ -330,16 +391,15 @@
                       "type": "string",
                       "description": "Payment description",
                       "examples": [
-                        "description"
+                        "description text"
                       ]
                     },
                     "end_date": {
                       "type": "string",
-                      "description": "Date of payment edition/end"
-                    },
-                    "ip": {
-                      "type": "string",
-                      "description": "Sender's IP address"
+                      "description": "Date of payment edition/end",
+                      "examples": [
+                        1501680854599
+                      ]
                     },
                     "is_3ds": {
                       "type": "boolean",
@@ -382,7 +442,22 @@
                       "type": "number",
                       "description": "Payment id in LiqPay system",
                       "examples": [
-                        165168
+                        165156
+                      ]
+                    },
+                    "paytype": {
+                      "type": "string",
+                      "enum": [
+                        "card",
+                        "privat24",
+                        "moment_part",
+                        "cash",
+                        "invoice",
+                        "qr"
+                      ],
+                      "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                      "examples": [
+                        "token"
                       ]
                     },
                     "public_key": {
@@ -406,25 +481,39 @@
                         0.0
                       ]
                     },
+                    "sender_card_bank": {
+                      "type": "string",
+                      "description": "Sender's card bank",
+                      "examples": [
+                        "pb"
+                      ]
+                    },
+                    "sender_card_country": {
+                      "type": "string",
+                      "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                      "examples": [
+                        804
+                      ]
+                    },
+                    "sender_card_mask2": {
+                      "type": "string",
+                      "description": "Sender's card",
+                      "examples": [
+                        "414961*99"
+                      ]
+                    },
+                    "sender_card_type": {
+                      "type": "string",
+                      "description": "Sender's card type MC/Visa",
+                      "examples": [
+                        "visa"
+                      ]
+                    },
                     "sender_commission": {
                       "type": "number",
                       "description": "Commission from the sender in the payment currency",
                       "examples": [
                         0.0
-                      ]
-                    },
-                    "sender_first_name": {
-                      "type": "string",
-                      "description": "Sender's first name",
-                      "examples": [
-                        "first name"
-                      ]
-                    },
-                    "sender_last_name": {
-                      "type": "string",
-                      "description": "Sender's last name",
-                      "examples": [
-                        "last name"
                       ]
                     },
                     "sender_phone": {
@@ -439,26 +528,26 @@
                       "enum": [
                         "error",
                         "failure",
+                        "reversed",
+                        "subscribed",
                         "success",
-                        "cash_wait"
+                        "3ds_verify",
+                        "cvv_verify",
+                        "receiver_verify",
+                        "sender_verify",
+                        "wait_accept",
+                        "wait_secure"
                       ],
-                      "description": "Payment status.\nAvailable values:\n\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment\n\nStatuses that required payment confirmation\n* `cash_wait` - Waiting for payment in self-service terminal",
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `subscribed` - Subscribed successfully framed\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `3ds_verify` - 3DS verification is required.\n To finish the payment you will require a [3ds_verify](https://www.liqpay.ua/en/doc/api/confirmation/3ds)\n* `cvv_verify` - Sender's card CVV is required. To finish the payment you will require a [cvv_verify](https://www.liqpay.ua/en/doc/api/confirmation/CVV)\n`otp_verify` OTP confirmation is required. OTP is sent to a customer phone number.\n To finish the payment you will require a [otp_verify](https://www.liqpay.ua/en/doc/api/confirmation/OTP)\n* `receiver_verify` - Receiver additional data is required. To finish the payment you will require a [receiver_verify](https://www.liqpay.ua/en/doc/api/confirmation/receiver_verify)\n* `sender_verify` - Sender's additional data is required.\n To finish the payment you will require a [sender_verify](https://www.liqpay.ua/en/doc/api/confirmation/sender_verify)\nOther payment statuses\n* `wait_accept` - Money are withdrawn from client but the store is still not verified. If the store is not activated for 60 days, payment will be automatically cancelled\n* `wait_secure` - Payment is verified",
                       "examples": [
-                        "cash_wait"
+                        "subscribed"
                       ]
                     },
                     "transaction_id": {
                       "type": "number",
                       "description": "Id transactions in the LiqPay system",
                       "examples": [
-                        165168
-                      ]
-                    },
-                    "type": {
-                      "type": "string",
-                      "description": "Payment type",
-                      "examples": [
-                        "cash"
+                        165156
                       ]
                     },
                     "version": {
