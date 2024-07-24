@@ -162,7 +162,7 @@ defmodule Mix.Tasks.Generate do
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
           when id == "internet_acquiring" or
-                 (hd(path) == "internet_acquiring" and id == "gpay") ->
+                 (hd(path) == "internet_acquiring" and id == "invoice") ->
             {:ok, children} = process_url(url, session, [id | path])
             menu_item(menu_item, children: children)
 
@@ -412,13 +412,14 @@ defmodule Mix.Tasks.Generate do
     end
     |> case do
       [[description, type, name]] ->
-        section(section,
-          update_operation: :patch,
-          update_type:
-            if(type == "", do: :object, else: parse_property_type([type], parse_options)),
-          update_name: parse_property_name([name], parse_options),
-          description: description
-        )
+        {:ok,
+         section(section,
+           update_operation: :patch,
+           update_type:
+             if(type == "", do: :object, else: parse_property_type([type], parse_options)),
+           update_name: parse_property_name([name], parse_options),
+           description: description
+         )}
 
       [] ->
         process_section_title(
@@ -453,7 +454,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp process_section_title(nil, section, _parse_options, true),
-    do: section(section, update_operation: :patch)
+    do: {:ok, section(section, update_operation: :patch)}
 
   defp process_section_title("main", section, parse_options, true),
     do: process_section_title(nil, section, parse_options, true)
@@ -495,13 +496,13 @@ defmodule Mix.Tasks.Generate do
     do: process_section_title(nil, section, parse_options, true)
 
   defp process_section_title("sender parameters", section, _parse_options, true),
-    do: section(section, update_name: "sender")
+    do: {:ok, section(section, update_name: "sender")}
 
   defp process_section_title("regular payment parameters", section, _parse_options, true),
-    do: section(section, update_name: "regular_payment")
+    do: {:ok, section(section, update_name: "regular_payment")}
 
   defp process_section_title("parameters for 1-click payment", section, _parse_options, true),
-    do: section(section, update_name: "one_click_payment")
+    do: {:ok, section(section, update_name: "one_click_payment")}
 
   defp process_section_title(
          "parameters for tokenization within the visa cards enrollment hub (vceh)",
@@ -509,7 +510,7 @@ defmodule Mix.Tasks.Generate do
          _parse_options,
          true
        ),
-       do: section(section, update_name: "vceh_tokenization")
+       do: {:ok, section(section, update_name: "vceh_tokenization")}
 
   defp process_section_title(
          "parameters for tokenization by card number",
@@ -517,10 +518,10 @@ defmodule Mix.Tasks.Generate do
          _parse_options,
          true
        ),
-       do: section(section, update_name: "card_tokenization")
+       do: {:ok, section(section, update_name: "card_tokenization")}
 
   defp process_section_title("response parameters", section, _parse_options, true),
-    do: section(section, is_request: false, update_operation: :patch)
+    do: {:ok, section(section, is_request: false, update_operation: :patch)}
 
   defp process_section_title(
          "parameters for transfer to the current account",
@@ -528,7 +529,7 @@ defmodule Mix.Tasks.Generate do
          _parse_options,
          true
        ),
-       do: section(section, update_name: "receiver_account")
+       do: {:ok, section(section, update_name: "receiver_account")}
 
   defp process_section_title(
          "parameters for aggregators",
@@ -536,7 +537,9 @@ defmodule Mix.Tasks.Generate do
          _parse_options,
          true
        ),
-       do: section(section, update_name: "aggregator")
+       do: {:ok, section(section, update_name: "aggregator")}
+
+  defp process_section_title("api invoice_units", _section, _parse_options, true), do: :error
 
   defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
     {true, schema}
@@ -1051,29 +1054,38 @@ defmodule Mix.Tasks.Generate do
               [] -> nil
             end
           end) ->
-            section(is_request: is_request, update_operation: update_operation) =
-              section_data = parse_section(section, parse_options, was_request)
+            section
+            |> parse_section(parse_options, was_request)
+            |> case do
+              {:ok,
+               section(is_request: is_request, update_operation: update_operation) = section_data} ->
+                {section_schema_type, section_schema} =
+                  if is_request do
+                    {:request, request_schema}
+                  else
+                    {:response, response_schema}
+                  end
 
-            {section_schema_type, section_schema} =
-              if is_request do
-                {:request, request_schema}
-              else
-                {:response, response_schema}
-              end
+                section_schema_new =
+                  (section_schema || %{type: :object, properties: OrderedObject.new([])})
+                  |> update_section_schema(section_data, parse_options, false, [
+                    {:schema, section_schema_type} | path
+                  ])
+                  |> case do
+                    {true, section_schema_new} ->
+                      section_schema_new
 
-            section_schema_new =
-              (section_schema || %{type: :object, properties: OrderedObject.new([])})
-              |> update_section_schema(section_data, parse_options, false, [
-                {:schema, section_schema_type} | path
-              ])
-              |> case do
-                {true, section_schema_new} -> section_schema_new
-                {false, section_schema_new} when update_operation != :patch -> section_schema_new
-              end
+                    {false, section_schema_new} when update_operation != :patch ->
+                      section_schema_new
+                  end
 
-            if is_request,
-              do: {section_schema_new, response_schema, code_blocks},
-              else: {request_schema, section_schema_new, code_blocks}
+                if is_request,
+                  do: {section_schema_new, response_schema, code_blocks},
+                  else: {request_schema, section_schema_new, code_blocks}
+
+              :error ->
+                {request_schema, response_schema, code_blocks}
+            end
 
           :else ->
             {_, _, code_blocks_new} =
@@ -1220,6 +1232,12 @@ defmodule Mix.Tasks.Generate do
         |> extract_code()
         |> Jason.decode!()
         |> patch_schema_examples(%{schema | description: description_new})
+
+      ["goods", {:schema, :request}, [1], "invoice", "internet_acquiring", "api"] ->
+        code
+        |> extract_code()
+        |> Jason.decode!()
+        |> patch_schema_examples(schema)
     end
   end
 
@@ -1502,7 +1520,7 @@ defmodule Mix.Tasks.Generate do
               |> extract_code()
               |> then(
                 &Regex.scan(
-                  ~r/liqpay\.(?:cnb_form\(|api\(\s*\"request\"\s*,)\s*(\{(?:[^}{]+|(?R))*+\})/,
+                  ~r/liqpay\.(?:cnb_form\(|api\(\s*\"request\"\s*,)\s*(\{(?:[^}{]+|(?1))*+\})/,
                   &1,
                   capture: :all_but_first
                 )

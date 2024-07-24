@@ -1,0 +1,278 @@
+{
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "openapi": "3.1.0",
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "email",
+                  "order_id",
+                  "phone"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "invoice_send"
+                    ],
+                    "examples": [
+                      "invoice_send"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "examples": [
+                      5.0,
+                      7.34,
+                      1.0
+                    ]
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "USD",
+                      "EUR",
+                      "UAH"
+                    ],
+                    "description": "Payment currency",
+                    "examples": [
+                      "USD"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Payment description"
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Customer's e-mail to send invoice (`phone` or `email` required parameters for transmission)",
+                    "examples": [
+                      "client-email@gmail.com"
+                    ]
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255,
+                    "examples": [
+                      "order_id_1"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "The phone number to which the invoice will be sent as a push notification to the Privat24 mobile application (`phone` or `email` required parameters for transmission)"
+                  },
+                  "action_payment": {
+                    "type": "string",
+                    "enum": [
+                      "pay",
+                      "hold",
+                      "subscribe"
+                    ],
+                    "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `subscribe` - regular [payment](https://wwwliqpay.ua/en/doc/api/internet_acquiring/subscription), `paydonate` - donation"
+                  },
+                  "expired_date": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
+                  },
+                  "goods": {
+                    "type": "string",
+                    "description": "Units of measurement can be passed in two ways: independently through the `unit` parameter, or using the invoice_units API reference",
+                    "examples": [
+                      [
+                        {
+                          "amount": 1,
+                          "count": 2,
+                          "name": "USB",
+                          "unit": "pcs."
+                        },
+                        {
+                          "amount": 10,
+                          "count": 1,
+                          "name": "Phone",
+                          "unit": "pcs."
+                        }
+                      ],
+                      [
+                        {
+                          "amount": 100,
+                          "count": 2,
+                          "name": "телефон",
+                          "unit": "шт."
+                        }
+                      ]
+                    ]
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  },
+                  "result_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
+                    "maxLength": 510
+                  },
+                  "server_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
+                    "maxLength": 510
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "pay",
+                        "hold",
+                        "paysplit",
+                        "subscribe",
+                        "paydonate",
+                        "auth",
+                        "regular"
+                      ],
+                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "examples": [
+                        "pay"
+                      ]
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Payment amount",
+                      "examples": [
+                        0.03
+                      ]
+                    },
+                    "currency": {
+                      "type": "string",
+                      "description": "Payment currency",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Payment description",
+                      "examples": [
+                        "Invoice"
+                      ]
+                    },
+                    "href": {
+                      "type": "string",
+                      "description": "Link to invoice",
+                      "examples": [
+                        "https://liqpay.ua/apipay/invoice/150112455893001_6480_GBe3Mxwnq2O7G0MLX4gkQLtZf2"
+                      ]
+                    },
+                    "id": {
+                      "type": "number",
+                      "description": "Payment id in LiqPay system",
+                      "examples": [
+                        6173
+                      ]
+                    },
+                    "order_id": {
+                      "type": "string",
+                      "description": "Order_id payment",
+                      "examples": [
+                        "98R1U1OV1485849059893399"
+                      ]
+                    },
+                    "receiver_type": {
+                      "type": "string",
+                      "description": "Receive channel type",
+                      "examples": [
+                        "email"
+                      ]
+                    },
+                    "receiver_value": {
+                      "type": "string",
+                      "description": "The value obtained in the parameter `receiver_type`",
+                      "examples": [
+                        "test@gmail.com"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "failure",
+                        "success",
+                        "invoice_wait"
+                      ],
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment\nOther payment statuses\n* `invoice_wait` - Invoice is created successfully, waiting for a payment",
+                      "examples": [
+                        "invoice_wait"
+                      ]
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Payment token",
+                      "examples": [
+                        "150112455893001_6480_GBe3Mxwnq2O7G0MLX4gkQLtZf2"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
