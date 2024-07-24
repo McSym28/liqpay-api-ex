@@ -1118,43 +1118,40 @@ defmodule Mix.Tasks.Generate do
     |> Path.dirname()
     |> File.mkdir_p!()
 
-    %{
+    OrderedObject.new(
       openapi: "3.1.0",
-      info: %{
-        title: "External API",
-        version: "3"
-      },
-      servers: [
-        %{
-          url: "https://liqpay.ua"
-        }
-      ],
-      paths: %{
-        "/test" => %{
-          post: %{
-            summary: "Checkout",
-            operationId: "checkout",
-            requestBody: %{
-              content: %{
-                "application/json" => %{
-                  schema: request_schema_new
-                }
-              }
-            },
-            responses: %{
-              "200" => %{
-                description: "200",
-                content: %{
-                  "application/json" => %{
-                    schema: response_schema_new
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+      info: OrderedObject.new(version: "3", title: "External API"),
+      servers: [OrderedObject.new(url: "https://liqpay.ua")],
+      paths:
+        OrderedObject.new([
+          {"/test",
+           OrderedObject.new(
+             post:
+               OrderedObject.new(
+                 summary: "Checkout",
+                 operationId: "checkout",
+                 requestBody:
+                   OrderedObject.new(
+                     content:
+                       OrderedObject.new([
+                         {"application/json", OrderedObject.new(schema: request_schema_new)}
+                       ])
+                   ),
+                 responses:
+                   OrderedObject.new([
+                     {"200",
+                      OrderedObject.new(
+                        description: "200",
+                        content:
+                          OrderedObject.new([
+                            {"application/json", OrderedObject.new(schema: response_schema_new)}
+                          ])
+                      )}
+                   ])
+               )
+           )}
+        ])
+    )
     |> Jason.encode!(pretty: true)
     |> then(&File.write!(json_file, &1))
   end
