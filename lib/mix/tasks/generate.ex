@@ -37,6 +37,14 @@ defmodule Mix.Tasks.Generate do
     url: nil
   )
 
+  Record.defrecordp(:parse_settings,
+    url: nil,
+    body: nil,
+    document: nil,
+    session: nil,
+    path: []
+  )
+
   @requirements ["app.start"]
   @shortdoc "Generates library's modules"
   def run(_) do
@@ -44,10 +52,10 @@ defmodule Mix.Tasks.Generate do
 
     {:ok, session} = Wallaby.start_session()
 
-    process_url(@api_url, session, [])
+    process_url(@api_url, parse_settings(session: session))
   end
 
-  defp process_url(url, session, path) do
+  defp process_url(url, parse_settings(session: session, path: path) = parse_settings) do
     IO.puts("Fetching `#{url}`")
 
     file =
@@ -59,205 +67,13 @@ defmodule Mix.Tasks.Generate do
       |> then(&["tmp" | &1])
       |> Path.join()
 
-    {:ok, body} = http_request(url, file, session)
+    {:ok, body} = fetch_url(url, file, session)
     {:ok, document} = parse_document(body)
 
-    case parse_menu_page(body, document, session, path) do
-      {:ok, menu_items} ->
-        {:ok, menu_items}
-
-      :error ->
-        with [tab] <- Floki.find(document, "div.base-TabsList-root"),
-             [_tab_label] =
-               ~r/(?<!\w)new_doc_tab_lable__\w+(?!\w)/ |> Regex.run(body, capture: :first),
-             [_ | _] = tab_items = Floki.find(tab, "button") do
-          %URI{query: query} = uri = URI.new!(url)
-          decoded_query = URI.decode_query(query)
-
-          tab_index =
-            decoded_query
-            |> Map.fetch!("tab")
-            |> parse_schema_value(%{type: :integer})
-
-          tab_count = Enum.count(tab_items)
-
-          if tab_count <= 2 or tab_index != 1 do
-            process_page(body, document, path)
-          else
-            results =
-              Enum.map(
-                1..(tab_count - 1),
-                fn
-                  1 ->
-                    {:ok, result} =
-                      process_page(body, document, [[tab_index] | path])
-
-                    result
-
-                  other_index ->
-                    query_new =
-                      decoded_query
-                      |> Map.put("tab", Integer.to_string(other_index))
-                      |> URI.encode_query()
-
-                    url_new = %URI{uri | query: query_new} |> URI.to_string()
-                    {:ok, result} = process_url(url_new, session, [[other_index] | path])
-                    result
-                end
-              )
-
-            {:ok, results}
-          end
-        else
-          _ -> :error
-        end
-    end
+    parse_page(parse_settings(parse_settings, url: url, body: body, document: document))
   end
 
-  defp parse_menu_page(body, document, session, path) do
-    with [menu_item_class] <-
-           ~r/(?<!\w)new_doc_doc_menu_content__\w+(?!\w)/ |> Regex.run(body, capture: :first),
-         menu_item_title_class when is_binary(menu_item_title_class) <-
-           ~r/(?<!\w)new_doc_doc_list_title__\w+(?!\w)/
-           |> Regex.run(body, capture: :first)
-           |> (case do
-                 nil ->
-                   ~r/(?<!\w)new_doc_doc_title_link__\w+(?!\w)/
-                   |> Regex.run(body, capture: :first)
-                   |> case do
-                     nil -> nil
-                     [class] -> class
-                   end
-
-                 [class] ->
-                   class
-               end) do
-      menu_items =
-        document
-        |> Floki.find("a.#{menu_item_class}")
-        |> Enum.map(fn link ->
-          [url] = Floki.attribute(link, "href")
-
-          title =
-            link
-            |> Floki.find("div.#{menu_item_title_class} > div:first-child")
-            |> parse_node_text(block_parse_settings())
-            |> String.replace(~r/\s+/, " ")
-            |> String.trim()
-
-          uri =
-            @liqpay_base_url
-            |> URI.merge(url)
-            |> URI.new!()
-
-          id = uri.path |> Path.split() |> List.last()
-
-          query_new =
-            (uri.query || "")
-            |> URI.decode_query()
-            |> Map.put("tab", "1")
-            |> URI.encode_query()
-
-          menu_item(title: title, id: id, url: URI.to_string(%URI{uri | query: query_new}))
-        end)
-        |> Enum.map(fn
-          menu_item(id: id, url: url) = menu_item
-          when id == "internet_acquiring" or
-                 hd(path) == "internet_acquiring" ->
-            url
-            |> process_url(session, [id | path])
-            |> case do
-              {:ok, children} -> menu_item(menu_item, children: children)
-              :error -> menu_item
-            end
-
-          menu_item ->
-            menu_item
-        end)
-
-      {:ok, menu_items}
-    else
-      _ -> :error
-    end
-  end
-
-  defp process_page(body, document, path) do
-    with [main_block_class] =
-           ~r/(?<!\w)new_doc_page_doc__\w+(?!\w)/ |> Regex.run(body, capture: :first),
-         [section_title_class] =
-           ~r/(?<!\w)new_doc_integration_titles__\w+(?!\w)/ |> Regex.run(body, capture: :first),
-         section_subtitle_classes =
-           ~r/(?<!\w)(?:new_doc_possibilities_(?:text|subtitle)|doc_page_index_indent)__\w+(?!\w)/
-           |> Regex.scan(body)
-           |> Enum.map(fn [class] -> class end)
-           |> MapSet.new(),
-         [inline_code_text_class] =
-           ~r/(?<!\w)new_doc_integration_code_text__\w+(?!\w)/ |> Regex.run(body, capture: :first),
-         table_classes =
-           ~r/(?<!\w)new_doc_table_scroll(?:_\w+)?__\w+(?!\w)/
-           |> Regex.scan(body)
-           |> Enum.map(fn [class] -> class end)
-           |> Enum.uniq()
-           |> MapSet.new(),
-         table_standalone_code_block_class =
-           ~r/(?<!\w)new_doc_table_code__\w+(?!\w)/
-           |> Regex.run(body, capture: :first)
-           |> (case do
-                 [class] -> class
-                 nil -> nil
-               end),
-         standalone_code_block_class =
-           ~r/(?<!\w)new_doc_page_content__\w+(?!\w)/
-           |> Regex.run(body, capture: :first)
-           |> (case do
-                 [class] -> class
-                 nil -> nil
-               end),
-         code_block_class =
-           ~r/(?<!\w)doc_code_style__\w+(?!\w)/
-           |> Regex.run(body, capture: :first)
-           |> (case do
-                 [class] -> class
-                 nil -> nil
-               end),
-         irrelevant_code_block_class =
-           ~r/(?<!\w)new_doc_green_page_background__\w+(?!\w)/
-           |> Regex.run(body, capture: :first)
-           |> (case do
-                 [class] -> class
-                 nil -> nil
-               end),
-         json_file =
-           path
-           |> List.flatten()
-           |> List.update_at(0, &"#{&1}.json")
-           |> Enum.reverse()
-           |> then(&["specs" | &1])
-           |> Path.join(),
-         :ok <-
-           document
-           |> Floki.find(
-             "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
-           )
-           |> find_spec(
-             block_parse_settings(
-               inline_code_text_class: inline_code_text_class,
-               table_classes: table_classes,
-               table_standalone_code_block_class: table_standalone_code_block_class,
-               standalone_code_block_class: standalone_code_block_class,
-               code_block_class: code_block_class,
-               irrelevant_code_block_class: irrelevant_code_block_class,
-               section_title_class: section_title_class,
-               section_subtitle_classes: section_subtitle_classes
-             ),
-             path,
-             json_file
-           ) do
-      {:ok, :ok}
-    end
-  end
-
-  defp http_request(url, file, session) do
+  defp fetch_url(url, file, session) do
     file
     |> Path.dirname()
     |> File.mkdir_p!()
@@ -282,6 +98,360 @@ defmodule Mix.Tasks.Generate do
         IO.warn("Error parsing HTML document: `#{inspect(message)}`")
         :error
     end
+  end
+
+  defp parse_page(parse_settings) do
+    parse_settings
+    |> parse_menu_page()
+    |> case do
+      {:ok, menu_items} -> {:ok, menu_items}
+      :error -> parse_doc_page(parse_settings)
+    end
+  end
+
+  defp parse_menu_page(
+         parse_settings(body: body, document: document, path: path) = parse_settings
+       ) do
+    with [menu_item_class] <-
+           Regex.run(~r/(?<!\w)new_doc_doc_menu_content__\w+(?!\w)/, body, capture: :first),
+         [_ | _] = links <- Floki.find(document, "a.#{menu_item_class}") do
+      menu_item_title_class =
+        ~r/(?<!\w)new_doc_doc_list_title__\w+(?!\w)/
+        |> Regex.run(body, capture: :first)
+        |> case do
+          nil ->
+            [class] =
+              Regex.run(~r/(?<!\w)new_doc_doc_title_link__\w+(?!\w)/, body, capture: :first)
+
+            class
+
+          [class] ->
+            class
+        end
+
+      menu_items =
+        Enum.map(links, fn link ->
+          [url] = Floki.attribute(link, "href")
+
+          title =
+            link
+            |> Floki.find("div.#{menu_item_title_class} > div:first-child")
+            |> parse_node_text(block_parse_settings())
+            |> String.replace(~r/\s+/, " ")
+            |> String.trim()
+
+          uri =
+            @liqpay_base_url
+            |> URI.merge(url)
+            |> URI.new!()
+
+          id = uri.path |> Path.split() |> List.last()
+
+          query_new =
+            (uri.query || "")
+            |> URI.decode_query()
+            |> Map.put("tab", "1")
+            |> URI.encode_query()
+
+          url_new = URI.to_string(%URI{uri | query: query_new})
+
+          menu_item = menu_item(title: title, id: id, url: url_new)
+
+          if id == "internet_acquiring" or
+               (path != [] and hd(path) == "internet_acquiring") do
+            url_new
+            |> process_url(parse_settings(parse_settings, path: [id | path]))
+            |> case do
+              {:ok, children} -> menu_item(menu_item, children: children)
+              :error -> menu_item
+            end
+          else
+            menu_item
+          end
+        end)
+
+      {:ok, menu_items}
+    else
+      _ -> :error
+    end
+  end
+
+  defp parse_doc_page(
+         parse_settings(url: url, body: body, document: document, path: path) = parse_settings
+       ) do
+    document
+    |> Floki.find("div.base-TabsList-root")
+    |> case do
+      [tab] ->
+        [_tab_label] =
+          Regex.run(~r/(?<!\w)new_doc_tab_lable__\w+(?!\w)/, body, capture: :first)
+
+        [_ | _] = tab_items = Floki.find(tab, "button")
+
+        %URI{query: query} = uri = URI.new!(url)
+        decoded_query = URI.decode_query(query)
+
+        tab_index =
+          decoded_query
+          |> Map.fetch!("tab")
+          |> parse_schema_value(%{type: :integer})
+
+        tab_count = Enum.count(tab_items)
+
+        if tab_count <= 2 or tab_index != 1 do
+          process_doc(parse_settings)
+        else
+          results =
+            Enum.map(
+              1..(tab_count - 1),
+              fn
+                1 ->
+                  {:ok, result} =
+                    parse_settings
+                    |> parse_settings(path: [[tab_index] | path])
+                    |> process_doc()
+
+                  result
+
+                other_index ->
+                  query_new =
+                    decoded_query
+                    |> Map.put("tab", Integer.to_string(other_index))
+                    |> URI.encode_query()
+
+                  url_new = %URI{uri | query: query_new} |> URI.to_string()
+
+                  {:ok, result} =
+                    process_url(
+                      url_new,
+                      parse_settings(parse_settings, path: [[other_index] | path])
+                    )
+
+                  result
+              end
+            )
+
+          {:ok, results}
+        end
+
+      [] ->
+        :error
+    end
+  end
+
+  defp process_doc(parse_settings(body: body, document: document, path: path) = _parse_settings) do
+    [main_block_class] = Regex.run(~r/(?<!\w)new_doc_page_doc__\w+(?!\w)/, body, capture: :first)
+
+    [section_title_class] =
+      Regex.run(~r/(?<!\w)new_doc_integration_titles__\w+(?!\w)/, body, capture: :first)
+
+    section_subtitle_classes =
+      ~r/(?<!\w)(?:new_doc_possibilities_(?:text|subtitle)|doc_page_index_indent)__\w+(?!\w)/
+      |> Regex.scan(body)
+      |> Enum.map(fn [class] -> class end)
+      |> MapSet.new()
+
+    [inline_code_text_class] =
+      Regex.run(~r/(?<!\w)new_doc_integration_code_text__\w+(?!\w)/, body, capture: :first)
+
+    table_classes =
+      ~r/(?<!\w)new_doc_table_scroll(?:_\w+)?__\w+(?!\w)/
+      |> Regex.scan(body)
+      |> Enum.map(fn [class] -> class end)
+      |> Enum.uniq()
+      |> MapSet.new()
+
+    table_standalone_code_block_class =
+      ~r/(?<!\w)new_doc_table_code__\w+(?!\w)/
+      |> Regex.run(body, capture: :first)
+      |> case do
+        [class] -> class
+        nil -> nil
+      end
+
+    standalone_code_block_class =
+      ~r/(?<!\w)new_doc_page_content__\w+(?!\w)/
+      |> Regex.run(body, capture: :first)
+      |> case do
+        [class] -> class
+        nil -> nil
+      end
+
+    code_block_class =
+      ~r/(?<!\w)doc_code_style__\w+(?!\w)/
+      |> Regex.run(body, capture: :first)
+      |> case do
+        [class] -> class
+        nil -> nil
+      end
+
+    irrelevant_code_block_class =
+      ~r/(?<!\w)new_doc_green_page_background__\w+(?!\w)/
+      |> Regex.run(body, capture: :first)
+      |> case do
+        [class] -> class
+        nil -> nil
+      end
+
+    json_file =
+      path
+      |> List.flatten()
+      |> List.update_at(0, &"#{&1}.json")
+      |> Enum.reverse()
+      |> then(&["specs" | &1])
+      |> Path.join()
+
+    document
+    |> Floki.find("div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root")
+    |> parse_doc(
+      block_parse_settings(
+        inline_code_text_class: inline_code_text_class,
+        table_classes: table_classes,
+        table_standalone_code_block_class: table_standalone_code_block_class,
+        standalone_code_block_class: standalone_code_block_class,
+        code_block_class: code_block_class,
+        irrelevant_code_block_class: irrelevant_code_block_class,
+        section_title_class: section_title_class,
+        section_subtitle_classes: section_subtitle_classes
+      ),
+      path,
+      json_file
+    )
+    |> case do
+      :ok -> {:ok, :ok}
+      :error -> :error
+    end
+  end
+
+  defp parse_doc(
+         blocks,
+         block_parse_settings(
+           standalone_code_block_class: standalone_code_block_class,
+           table_classes: table_classes
+         ) = block_parse_settings,
+         path,
+         json_file
+       ) do
+    {request_schema, response_schema, code_blocks} =
+      blocks
+      |> Enum.reduce({nil, nil, []}, fn section, {request_schema, response_schema, code_blocks} ->
+        classes = node_classes(section)
+        was_request = is_nil(response_schema)
+
+        cond do
+          standalone_code_block_class && Enum.member?(classes, standalone_code_block_class) ->
+            section
+            |> parse_section_title(block_parse_settings)
+            |> downcase_section_title()
+            |> parse_standalone_example(section, path)
+            |> case do
+              {:ok, {is_request, code}} ->
+                code_blocks_new = [{is_request, code} | code_blocks]
+                {request_schema, response_schema, code_blocks_new}
+
+              :error ->
+                {request_schema, response_schema, code_blocks}
+            end
+
+          Enum.find_value(table_classes, fn class ->
+            case Floki.find(section, "div.#{class}.MuiBox-root") do
+              [table] -> table
+              [] -> nil
+            end
+          end) ->
+            section
+            |> parse_section(block_parse_settings, was_request)
+            |> case do
+              {:ok,
+               section(is_request: is_request, update_operation: update_operation) = section_data} ->
+                {section_schema_type, section_schema} =
+                  if is_request do
+                    {:request, request_schema}
+                  else
+                    {:response, response_schema}
+                  end
+
+                section_schema_new =
+                  (section_schema || %{type: :object, properties: OrderedObject.new([])})
+                  |> update_section_schema(section_data, block_parse_settings, false, [
+                    {:schema, section_schema_type} | path
+                  ])
+                  |> case do
+                    {true, section_schema_new} ->
+                      section_schema_new
+
+                    {false, section_schema_new} when update_operation != :patch ->
+                      section_schema_new
+                  end
+
+                if is_request,
+                  do: {section_schema_new, response_schema, code_blocks},
+                  else: {request_schema, section_schema_new, code_blocks}
+
+              :error ->
+                {request_schema, response_schema, code_blocks}
+            end
+
+          :else ->
+            {_, _, code_blocks_new} =
+              search_code_blocks(section, block_parse_settings, {nil, nil, code_blocks}, path)
+
+            {request_schema, response_schema, code_blocks_new}
+        end
+      end)
+
+    {request_schema_new, response_schema_new} =
+      code_blocks
+      |> Enum.reverse()
+      |> Enum.reduce({request_schema, response_schema}, fn
+        {is_request, example}, {request_schema, response_schema} ->
+          schema = if is_request, do: request_schema, else: response_schema
+          schema_new = patch_schema_examples(example, schema)
+          if is_request, do: {schema_new, response_schema}, else: {request_schema, schema_new}
+      end)
+
+    response_schema_new = response_schema_new || %{type: :object}
+
+    json_file
+    |> Path.dirname()
+    |> File.mkdir_p!()
+
+    OrderedObject.new(
+      openapi: "3.1.0",
+      info: OrderedObject.new(version: "3", title: "External API"),
+      servers: [OrderedObject.new(url: "https://liqpay.ua")],
+      paths:
+        OrderedObject.new([
+          {"/test",
+           OrderedObject.new(
+             post:
+               OrderedObject.new(
+                 summary: "Checkout",
+                 operationId: "checkout",
+                 requestBody:
+                   OrderedObject.new(
+                     content:
+                       OrderedObject.new([
+                         {"application/json", OrderedObject.new(schema: request_schema_new)}
+                       ])
+                   ),
+                 responses:
+                   OrderedObject.new([
+                     {"200",
+                      OrderedObject.new(
+                        description: "200",
+                        content:
+                          OrderedObject.new([
+                            {"application/json", OrderedObject.new(schema: response_schema_new)}
+                          ])
+                      )}
+                   ])
+               )
+           )}
+        ])
+    )
+    |> Jason.encode!(pretty: true)
+    |> then(&File.write!(json_file, &1))
   end
 
   defp extract_code(code_element) do
@@ -1011,137 +1181,6 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(property, _path), do: property
-
-  defp find_spec(
-         blocks,
-         block_parse_settings(
-           standalone_code_block_class: standalone_code_block_class,
-           table_classes: table_classes
-         ) = block_parse_settings,
-         path,
-         json_file
-       ) do
-    {request_schema, response_schema, code_blocks} =
-      blocks
-      |> Enum.reduce({nil, nil, []}, fn section, {request_schema, response_schema, code_blocks} ->
-        classes = node_classes(section)
-        was_request = is_nil(response_schema)
-
-        cond do
-          standalone_code_block_class && Enum.member?(classes, standalone_code_block_class) ->
-            section
-            |> parse_section_title(block_parse_settings)
-            |> downcase_section_title()
-            |> parse_standalone_example(section, path)
-            |> case do
-              {:ok, {is_request, code}} ->
-                code_blocks_new = [{is_request, code} | code_blocks]
-                {request_schema, response_schema, code_blocks_new}
-
-              :error ->
-                {request_schema, response_schema, code_blocks}
-            end
-
-          Enum.find_value(table_classes, fn class ->
-            case Floki.find(section, "div.#{class}.MuiBox-root") do
-              [table] -> table
-              [] -> nil
-            end
-          end) ->
-            section
-            |> parse_section(block_parse_settings, was_request)
-            |> case do
-              {:ok,
-               section(is_request: is_request, update_operation: update_operation) = section_data} ->
-                {section_schema_type, section_schema} =
-                  if is_request do
-                    {:request, request_schema}
-                  else
-                    {:response, response_schema}
-                  end
-
-                section_schema_new =
-                  (section_schema || %{type: :object, properties: OrderedObject.new([])})
-                  |> update_section_schema(section_data, block_parse_settings, false, [
-                    {:schema, section_schema_type} | path
-                  ])
-                  |> case do
-                    {true, section_schema_new} ->
-                      section_schema_new
-
-                    {false, section_schema_new} when update_operation != :patch ->
-                      section_schema_new
-                  end
-
-                if is_request,
-                  do: {section_schema_new, response_schema, code_blocks},
-                  else: {request_schema, section_schema_new, code_blocks}
-
-              :error ->
-                {request_schema, response_schema, code_blocks}
-            end
-
-          :else ->
-            {_, _, code_blocks_new} =
-              search_code_blocks(section, block_parse_settings, {nil, nil, code_blocks}, path)
-
-            {request_schema, response_schema, code_blocks_new}
-        end
-      end)
-
-    {request_schema_new, response_schema_new} =
-      code_blocks
-      |> Enum.reverse()
-      |> Enum.reduce({request_schema, response_schema}, fn
-        {is_request, example}, {request_schema, response_schema} ->
-          schema = if is_request, do: request_schema, else: response_schema
-          schema_new = patch_schema_examples(example, schema)
-          if is_request, do: {schema_new, response_schema}, else: {request_schema, schema_new}
-      end)
-
-    response_schema_new = response_schema_new || %{type: :object}
-
-    json_file
-    |> Path.dirname()
-    |> File.mkdir_p!()
-
-    OrderedObject.new(
-      openapi: "3.1.0",
-      info: OrderedObject.new(version: "3", title: "External API"),
-      servers: [OrderedObject.new(url: "https://liqpay.ua")],
-      paths:
-        OrderedObject.new([
-          {"/test",
-           OrderedObject.new(
-             post:
-               OrderedObject.new(
-                 summary: "Checkout",
-                 operationId: "checkout",
-                 requestBody:
-                   OrderedObject.new(
-                     content:
-                       OrderedObject.new([
-                         {"application/json", OrderedObject.new(schema: request_schema_new)}
-                       ])
-                   ),
-                 responses:
-                   OrderedObject.new([
-                     {"200",
-                      OrderedObject.new(
-                        description: "200",
-                        content:
-                          OrderedObject.new([
-                            {"application/json", OrderedObject.new(schema: response_schema_new)}
-                          ])
-                      )}
-                   ])
-               )
-           )}
-        ])
-    )
-    |> Jason.encode!(pretty: true)
-    |> then(&File.write!(json_file, &1))
-  end
 
   defp search_code_blocks(
          {"div", _, _} = div,
