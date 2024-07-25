@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Generate do
 
     {:ok, session} = Wallaby.start_session()
 
-    process_url(@api_url, session, ["api"])
+    process_url(@api_url, session, [])
   end
 
   defp process_url(url, session, path) do
@@ -53,6 +53,7 @@ defmodule Mix.Tasks.Generate do
     file =
       path
       |> List.flatten()
+      |> List.insert_at(-1, "api")
       |> List.update_at(0, &"#{&1}.html")
       |> Enum.reverse()
       |> then(&["tmp" | &1])
@@ -232,7 +233,6 @@ defmodule Mix.Tasks.Generate do
            |> List.flatten()
            |> List.update_at(0, &"#{&1}.json")
            |> Enum.reverse()
-           |> Enum.drop(1)
            |> then(&["specs" | &1])
            |> Path.join(),
          :ok <-
@@ -579,7 +579,7 @@ defmodule Mix.Tasks.Generate do
            section_data,
          parse_options,
          false,
-         [{:schema, :request}, "card_payment", "internet_acquiring", "api"] = path
+         [{:schema, :request}, "card_payment", "internet_acquiring"] = path
        ) do
     schema_new =
       schema
@@ -1207,7 +1207,7 @@ defmodule Mix.Tasks.Generate do
         |> Jason.decode!()
         |> patch_schema_examples(%{schema | description: description_new})
 
-      ["goods", {:schema, :request}, [1], "invoice", "internet_acquiring", "api"] ->
+      ["goods", {:schema, :request}, [1], "invoice", "internet_acquiring"] ->
         code
         |> extract_code()
         |> Jason.decode!()
@@ -1448,13 +1448,8 @@ defmodule Mix.Tasks.Generate do
     end)
   end
 
-  defp parse_standalone_example("response example", _div, [
-         [2],
-         "gpay",
-         "internet_acquiring",
-         "api"
-       ]),
-       do: :error
+  defp parse_standalone_example("response example", _div, [[2], "gpay", "internet_acquiring"]),
+    do: :error
 
   defp parse_standalone_example("response example", div, path),
     do: parse_standalone_example(false, div, path)
