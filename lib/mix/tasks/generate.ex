@@ -199,7 +199,6 @@ defmodule Mix.Tasks.Generate do
            |> Enum.map(fn [class] -> class end)
            |> Enum.uniq()
            |> MapSet.new(),
-         ~r/(?<!\w)\w+(?!\w)/ |> Regex.run(body, capture: :first),
          table_standalone_code_block_class =
            ~r/(?<!\w)new_doc_table_code__\w+(?!\w)/
            |> Regex.run(body, capture: :first)
