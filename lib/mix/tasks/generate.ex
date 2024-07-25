@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Generate do
 
   @liqpay_base_url "https://www.liqpay.ua"
 
-  @api_url "https://www.liqpay.ua/en/doc/api"
+  @api_url "#{@liqpay_base_url}/en/doc/api"
 
   require Record
 
@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Generate do
     description: nil
   )
 
-  Record.defrecordp(:parse_options,
+  Record.defrecordp(:block_parse_settings,
     inline_code_text_class: nil,
     table_classes: MapSet.new(),
     table_standalone_code_block_class: nil,
@@ -141,7 +141,7 @@ defmodule Mix.Tasks.Generate do
           title =
             link
             |> Floki.find("div.#{menu_item_title_class} > div:first-child")
-            |> parse_node_text(parse_options())
+            |> parse_node_text(block_parse_settings())
             |> String.replace(~r/\s+/, " ")
             |> String.trim()
 
@@ -163,7 +163,7 @@ defmodule Mix.Tasks.Generate do
         |> Enum.map(fn
           menu_item(id: id, url: url) = menu_item
           when id == "internet_acquiring" or
-                 (hd(path) == "internet_acquiring") ->
+                 hd(path) == "internet_acquiring" ->
             url
             |> process_url(session, [id | path])
             |> case do
@@ -240,7 +240,7 @@ defmodule Mix.Tasks.Generate do
              "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
            )
            |> find_spec(
-             parse_options(
+             block_parse_settings(
                inline_code_text_class: inline_code_text_class,
                table_classes: table_classes,
                table_standalone_code_block_class: table_standalone_code_block_class,
@@ -335,41 +335,41 @@ defmodule Mix.Tasks.Generate do
     |> String.replace(~r/^\s*(\{[^\{\[]+\[\{[^\]\}]+)\]\}([^\}\]]+\})\s*$/s, "\\1}]\\2")
   end
 
-  defp parse_section(section, parse_options, was_request) do
+  defp parse_section(section, block_parse_settings, was_request) do
     section
-    |> parse_section_title(parse_options)
+    |> parse_section_title(block_parse_settings)
     |> process_section_title(
       section(node: section, is_request: was_request),
-      parse_options,
+      block_parse_settings,
       false
     )
   end
 
   defp parse_section_title(
          {_, _, _} = section,
-         parse_options(
+         block_parse_settings(
            section_title_class: section_title_class,
            section_subtitle_classes: section_subtitle_classes
-         ) = parse_options
+         ) = block_parse_settings
        ) do
-    title = parse_section_title(section, parse_options, [section_title_class])
-    subtitle = parse_section_title(section, parse_options, section_subtitle_classes)
-    parse_section_title({title, subtitle}, parse_options)
+    title = parse_section_title(section, block_parse_settings, [section_title_class])
+    subtitle = parse_section_title(section, block_parse_settings, section_subtitle_classes)
+    parse_section_title({title, subtitle}, block_parse_settings)
   end
 
-  defp parse_section_title({title, ""}, parse_options) when is_binary(title),
-    do: parse_section_title({title, nil}, parse_options)
+  defp parse_section_title({title, ""}, block_parse_settings) when is_binary(title),
+    do: parse_section_title({title, nil}, block_parse_settings)
 
-  defp parse_section_title({"", subtitle}, parse_options) when is_binary(subtitle),
-    do: parse_section_title({nil, subtitle}, parse_options)
+  defp parse_section_title({"", subtitle}, block_parse_settings) when is_binary(subtitle),
+    do: parse_section_title({nil, subtitle}, block_parse_settings)
 
-  defp parse_section_title({title, nil}, parse_options) when is_binary(title),
-    do: parse_section_title(title, parse_options)
+  defp parse_section_title({title, nil}, block_parse_settings) when is_binary(title),
+    do: parse_section_title(title, block_parse_settings)
 
-  defp parse_section_title({nil, subtitle}, parse_options) when is_binary(subtitle),
-    do: parse_section_title(subtitle, parse_options)
+  defp parse_section_title({nil, subtitle}, block_parse_settings) when is_binary(subtitle),
+    do: parse_section_title(subtitle, block_parse_settings)
 
-  defp parse_section_title({title, subtitle}, _parse_options)
+  defp parse_section_title({title, subtitle}, _block_parse_settings)
        when is_binary(title) and is_binary(subtitle) do
     {title, subtitle}
     |> downcase_section_title()
@@ -380,25 +380,25 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_section_title(title, _parse_options) when is_binary(title), do: title
+  defp parse_section_title(title, _block_parse_settings) when is_binary(title), do: title
 
-  defp parse_section_title(section, parse_options, classes) do
+  defp parse_section_title(section, block_parse_settings, classes) do
     Enum.find_value(
       classes,
       fn class ->
         section
         |> Floki.find("div.#{class}")
         |> case do
-          [div | _] -> parse_section_title_text(div, parse_options)
+          [div | _] -> parse_section_title_text(div, block_parse_settings)
           [] -> nil
         end
       end
     )
   end
 
-  defp parse_section_title_text(div, parse_options) do
+  defp parse_section_title_text(div, block_parse_settings) do
     div
-    |> parse_node_text(parse_options)
+    |> parse_node_text(block_parse_settings)
     |> String.trim_trailing(":")
   end
 
@@ -407,7 +407,7 @@ defmodule Mix.Tasks.Generate do
 
   defp downcase_section_title(title) when is_binary(title), do: String.downcase(title)
 
-  defp process_section_title(title, section, parse_options, false) when is_binary(title) do
+  defp process_section_title(title, section, block_parse_settings, false) when is_binary(title) do
     ~r/^\s*(.*)\s+\(\s*(?:the\s+)?(object|array)\s+(\w+)\s*\)\s*$/i
     |> Regex.scan(title, capture: :all_but_first)
     |> case do
@@ -438,9 +438,9 @@ defmodule Mix.Tasks.Generate do
            update_type:
              if(type == "",
                do: :object,
-               else: parse_property_type({"div", [], [type]}, parse_options)
+               else: parse_property_type({"div", [], [type]}, block_parse_settings)
              ),
-           update_name: parse_property_name({"div", [], [name]}, parse_options),
+           update_name: parse_property_name({"div", [], [name]}, block_parse_settings),
            description: description
          )}
 
@@ -449,78 +449,93 @@ defmodule Mix.Tasks.Generate do
         |> downcase_section_title()
         |> process_section_title(
           section(section, description: title),
-          parse_options,
+          block_parse_settings,
           true
         )
     end
   end
 
-  # defp process_section_title({title, subtitle}, section, parse_options, false)
+  # defp process_section_title({title, subtitle}, section, block_parse_settings, false)
   #      when is_binary(title) and is_binary(subtitle) do
   #   {title, subtitle}
   #   |> downcase_section_title()
   #   |> process_section_title(
   #     section(section, description: subtitle),
-  #     parse_options,
+  #     block_parse_settings,
   #     true
   #   )
   # end
 
-  defp process_section_title(nil, section, _parse_options, true),
+  defp process_section_title(nil, section, _block_parse_settings, true),
     do: {:ok, section(section, update_operation: :patch)}
 
-  defp process_section_title("main", section, parse_options, true),
-    do: process_section_title(nil, section, parse_options, true)
+  defp process_section_title("main", section, block_parse_settings, true),
+    do: process_section_title(nil, section, block_parse_settings, true)
 
-  defp process_section_title("other parameters", section, parse_options, true),
-    do: process_section_title(nil, section, parse_options, true)
+  defp process_section_title("other parameters", section, block_parse_settings, true),
+    do: process_section_title(nil, section, block_parse_settings, true)
 
   defp process_section_title(
          "parameters of splitting the payments",
          section,
-         parse_options,
+         block_parse_settings,
          true
        ),
-       do: process_section_title(nil, section, parse_options, true)
+       do: process_section_title(nil, section, block_parse_settings, true)
 
   defp process_section_title(
          "parameters for tokenization within the token connect control",
          section,
-         parse_options,
+         block_parse_settings,
          true
        ),
-       do: process_section_title(nil, section, parse_options, true)
+       do: process_section_title(nil, section, block_parse_settings, true)
 
-  defp process_section_title("parameters for transfer to the card", section, parse_options, true),
-    do: process_section_title(nil, section, parse_options, true)
+  defp process_section_title(
+         "parameters for transfer to the card",
+         section,
+         block_parse_settings,
+         true
+       ),
+       do: process_section_title(nil, section, block_parse_settings, true)
 
   defp process_section_title(
          "parameters for transfer to the card's token",
          section,
-         parse_options,
+         block_parse_settings,
          true
        ),
-       do: process_section_title(nil, section, parse_options, true)
+       do: process_section_title(nil, section, block_parse_settings, true)
 
-  defp process_section_title("receiver parameters", section, parse_options, true),
-    do: process_section_title(nil, section, parse_options, true)
+  defp process_section_title("receiver parameters", section, block_parse_settings, true),
+    do: process_section_title(nil, section, block_parse_settings, true)
 
-  defp process_section_title("parameters for data formation", section, parse_options, true),
-    do: process_section_title(nil, section, parse_options, true)
+  defp process_section_title(
+         "parameters for data formation",
+         section,
+         block_parse_settings,
+         true
+       ),
+       do: process_section_title(nil, section, block_parse_settings, true)
 
-  defp process_section_title("sender parameters", section, _parse_options, true),
+  defp process_section_title("sender parameters", section, _block_parse_settings, true),
     do: {:ok, section(section, update_name: "sender")}
 
-  defp process_section_title("regular payment parameters", section, _parse_options, true),
+  defp process_section_title("regular payment parameters", section, _block_parse_settings, true),
     do: {:ok, section(section, update_name: "regular_payment")}
 
-  defp process_section_title("parameters for 1-click payment", section, _parse_options, true),
-    do: {:ok, section(section, update_name: "one_click_payment")}
+  defp process_section_title(
+         "parameters for 1-click payment",
+         section,
+         _block_parse_settings,
+         true
+       ),
+       do: {:ok, section(section, update_name: "one_click_payment")}
 
   defp process_section_title(
          "parameters for tokenization within the visa cards enrollment hub (vceh)",
          section,
-         _parse_options,
+         _block_parse_settings,
          true
        ),
        do: {:ok, section(section, update_name: "vceh_tokenization")}
@@ -528,18 +543,18 @@ defmodule Mix.Tasks.Generate do
   defp process_section_title(
          "parameters for tokenization by card number",
          section,
-         _parse_options,
+         _block_parse_settings,
          true
        ),
        do: {:ok, section(section, update_name: "card_tokenization")}
 
-  defp process_section_title("response parameters", section, _parse_options, true),
+  defp process_section_title("response parameters", section, _block_parse_settings, true),
     do: {:ok, section(section, is_request: false, update_operation: :patch)}
 
   defp process_section_title(
          "parameters for transfer to the current account",
          section,
-         _parse_options,
+         _block_parse_settings,
          true
        ),
        do: {:ok, section(section, update_name: "receiver_account")}
@@ -547,28 +562,29 @@ defmodule Mix.Tasks.Generate do
   defp process_section_title(
          "parameters for aggregators",
          section,
-         _parse_options,
+         _block_parse_settings,
          true
        ),
        do: {:ok, section(section, update_name: "aggregator")}
 
-  defp process_section_title("api invoice_units", _section, _parse_options, true), do: :error
-
-  defp process_section_title("payment widget parameters", _section, _parse_options, true),
+  defp process_section_title("api invoice_units", _section, _block_parse_settings, true),
     do: :error
 
-  defp update_section_schema(schema, _section_data, _parse_options, true, _path) do
+  defp process_section_title("payment widget parameters", _section, _block_parse_settings, true),
+    do: :error
+
+  defp update_section_schema(schema, _section_data, _block_parse_settings, true, _path) do
     {true, schema}
   end
 
   defp update_section_schema(
          %{type: type} = schema,
          section(update_type: type, update_name: nil) = section_data,
-         parse_options,
+         block_parse_settings,
          false,
          path
        ) do
-    schema_new = process_section_properties(schema, section_data, parse_options, path)
+    schema_new = process_section_properties(schema, section_data, block_parse_settings, path)
     {true, schema_new}
   end
 
@@ -576,7 +592,7 @@ defmodule Mix.Tasks.Generate do
          %{type: :object} = schema,
          section(update_operation: :patch, update_type: :object, update_name: "rro_info") =
            section_data,
-         parse_options,
+         block_parse_settings,
          false,
          [{:schema, :request}, "card_payment", "internet_acquiring"] = path
        ) do
@@ -591,7 +607,7 @@ defmodule Mix.Tasks.Generate do
            }}
         ])
       )
-      |> process_section_properties(section_data, parse_options, path)
+      |> process_section_properties(section_data, block_parse_settings, path)
 
     {true, schema_new}
   end
@@ -599,38 +615,42 @@ defmodule Mix.Tasks.Generate do
   defp update_section_schema(
          %{type: type} = schema,
          section(update_operation: :patch, update_type: type, update_name: name) = section_data,
-         parse_options,
+         block_parse_settings,
          false,
          [name | _] = path
        ) do
     path_new = if type == :array, do: [[] | path], else: path
-    schema_new = process_section_properties(schema, section_data, parse_options, path_new)
+    schema_new = process_section_properties(schema, section_data, block_parse_settings, path_new)
     {true, schema_new}
   end
 
   defp update_section_schema(
          %{type: type} = schema,
          section(update_operation: :new, update_type: type, update_name: name) = section_data,
-         parse_options,
+         block_parse_settings,
          false,
          path
        )
        when is_binary(name) do
-    schema_new = process_section_properties(schema, section_data, parse_options, [name | path])
+    schema_new =
+      process_section_properties(schema, section_data, block_parse_settings, [name | path])
+
     {true, schema_new}
   end
 
   defp update_section_schema(
          %{type: :object, properties: properties} = schema,
          section_data,
-         parse_options,
+         block_parse_settings,
          false,
          path
        ) do
     {properties_new, is_processed} =
       Enum.map_reduce(properties, false, fn {key, schema}, is_processed ->
         {is_processed_new, schema_new} =
-          update_section_schema(schema, section_data, parse_options, is_processed, [key | path])
+          update_section_schema(schema, section_data, block_parse_settings, is_processed, [
+            key | path
+          ])
 
         {{key, schema_new}, is_processed_new}
       end)
@@ -642,12 +662,12 @@ defmodule Mix.Tasks.Generate do
   defp update_section_schema(
          %{type: :array, items: items} = schema,
          section_data,
-         parse_options,
+         block_parse_settings,
          false,
          path
        ) do
     {is_processed, items_new} =
-      update_section_schema(items, section_data, parse_options, false, [[] | path])
+      update_section_schema(items, section_data, block_parse_settings, false, [[] | path])
 
     schema_new = %{schema | items: items_new}
     {is_processed, schema_new}
@@ -656,7 +676,7 @@ defmodule Mix.Tasks.Generate do
   defp update_section_schema(
          schema,
          _section_data,
-         _parse_options,
+         _block_parse_settings,
          false,
          _path
        ) do
@@ -666,10 +686,10 @@ defmodule Mix.Tasks.Generate do
   defp process_section_properties(
          schema,
          section(node: node, is_request: is_request) = section_data,
-         parse_options(
+         block_parse_settings(
            table_classes: table_classes,
            table_standalone_code_block_class: table_standalone_code_block_class
-         ) = parse_options,
+         ) = block_parse_settings,
          path
        ) do
     {properties, required} =
@@ -693,10 +713,10 @@ defmodule Mix.Tasks.Generate do
               full_property
           end
 
-        name = parse_property_name(name, parse_options)
-        description = parse_node_text(description, parse_options)
-        type = parse_property_type(type, parse_options)
-        required = parse_property_required(required, parse_options)
+        name = parse_property_name(name, block_parse_settings)
+        description = parse_node_text(description, block_parse_settings)
+        type = parse_property_type(type, block_parse_settings)
+        required = parse_property_required(required, block_parse_settings)
 
         path_new = [name | path]
 
@@ -780,13 +800,13 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_name(str, parse_options) do
-    str |> parse_node_text(parse_options) |> String.trim()
+  defp parse_property_name(str, block_parse_settings) do
+    str |> parse_node_text(block_parse_settings) |> String.trim()
   end
 
-  defp parse_property_type(str, parse_options) do
+  defp parse_property_type(str, block_parse_settings) do
     str
-    |> parse_node_text(parse_options)
+    |> parse_node_text(block_parse_settings)
     |> String.trim()
     |> String.downcase()
     |> case do
@@ -798,9 +818,9 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_required(str, parse_options) do
+  defp parse_property_required(str, block_parse_settings) do
     str
-    |> parse_node_text(parse_options)
+    |> parse_node_text(block_parse_settings)
     |> String.trim()
     |> String.downcase()
     |> then(&Regex.scan(~r/^(required|optional)(\*)*$/, &1, capture: :all_but_first))
@@ -994,10 +1014,10 @@ defmodule Mix.Tasks.Generate do
 
   defp find_spec(
          blocks,
-         parse_options(
+         block_parse_settings(
            standalone_code_block_class: standalone_code_block_class,
            table_classes: table_classes
-         ) = parse_options,
+         ) = block_parse_settings,
          path,
          json_file
        ) do
@@ -1010,7 +1030,7 @@ defmodule Mix.Tasks.Generate do
         cond do
           standalone_code_block_class && Enum.member?(classes, standalone_code_block_class) ->
             section
-            |> parse_section_title(parse_options)
+            |> parse_section_title(block_parse_settings)
             |> downcase_section_title()
             |> parse_standalone_example(section, path)
             |> case do
@@ -1029,7 +1049,7 @@ defmodule Mix.Tasks.Generate do
             end
           end) ->
             section
-            |> parse_section(parse_options, was_request)
+            |> parse_section(block_parse_settings, was_request)
             |> case do
               {:ok,
                section(is_request: is_request, update_operation: update_operation) = section_data} ->
@@ -1042,7 +1062,7 @@ defmodule Mix.Tasks.Generate do
 
                 section_schema_new =
                   (section_schema || %{type: :object, properties: OrderedObject.new([])})
-                  |> update_section_schema(section_data, parse_options, false, [
+                  |> update_section_schema(section_data, block_parse_settings, false, [
                     {:schema, section_schema_type} | path
                   ])
                   |> case do
@@ -1063,7 +1083,7 @@ defmodule Mix.Tasks.Generate do
 
           :else ->
             {_, _, code_blocks_new} =
-              search_code_blocks(section, parse_options, {nil, nil, code_blocks}, path)
+              search_code_blocks(section, block_parse_settings, {nil, nil, code_blocks}, path)
 
             {request_schema, response_schema, code_blocks_new}
         end
@@ -1125,12 +1145,12 @@ defmodule Mix.Tasks.Generate do
 
   defp search_code_blocks(
          {"div", _, _} = div,
-         parse_options(
+         block_parse_settings(
            section_title_class: section_title_class,
            section_subtitle_classes: section_subtitle_classes,
            code_block_class: code_block_class,
            irrelevant_code_block_class: irrelevant_code_block_class
-         ) = parse_options,
+         ) = block_parse_settings,
          {title, subtitle, code_blocks},
          path
        ) do
@@ -1141,18 +1161,18 @@ defmodule Mix.Tasks.Generate do
 
     cond do
       MapSet.member?(classes, section_title_class) ->
-        title_new = parse_section_title_text(div, parse_options)
+        title_new = parse_section_title_text(div, block_parse_settings)
         {title_new, subtitle, code_blocks}
 
       not (classes
            |> MapSet.intersection(section_subtitle_classes)
            |> Enum.empty?()) ->
-        subtitle_new = parse_section_title_text(div, parse_options)
+        subtitle_new = parse_section_title_text(div, block_parse_settings)
         {title, subtitle_new, code_blocks}
 
       MapSet.member?(classes, code_block_class) ->
         {title, subtitle}
-        |> parse_section_title(parse_options)
+        |> parse_section_title(block_parse_settings)
         |> downcase_section_title()
         |> parse_standalone_example(div, path)
         |> case do
@@ -1172,12 +1192,12 @@ defmodule Mix.Tasks.Generate do
         |> Floki.children()
         |> Enum.reduce(
           {title, subtitle, code_blocks},
-          &search_code_blocks(&1, parse_options, &2, path)
+          &search_code_blocks(&1, block_parse_settings, &2, path)
         )
     end
   end
 
-  defp search_code_blocks(_node, _parse_options, acc, _path), do: acc
+  defp search_code_blocks(_node, _block_parse_settings, acc, _path), do: acc
 
   defp parse_property_separate_example(schema, [], _path) do
     schema
@@ -1487,11 +1507,13 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_node_text([node], parse_options), do: parse_node_text(node, parse_options)
+  defp parse_node_text([node], block_parse_settings),
+    do: parse_node_text(node, block_parse_settings)
 
   defp parse_node_text(
          node,
-         parse_options(inline_code_text_class: inline_code_text_class) = parse_options
+         block_parse_settings(inline_code_text_class: inline_code_text_class) =
+           block_parse_settings
        ) do
     node
     |> Floki.children()
@@ -1508,7 +1530,7 @@ defmodule Mix.Tasks.Generate do
       {"a", _attrs, _children} = link ->
         [href] = Floki.attribute(link, "href")
 
-        "[#{link |> parse_node_text(parse_options) |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
+        "[#{link |> parse_node_text(block_parse_settings) |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
 
       {"br", _attrs, _children} ->
         "\n"
@@ -1524,7 +1546,7 @@ defmodule Mix.Tasks.Generate do
 
       {"div", _attrs, _children} = div ->
         div
-        |> parse_node_text(parse_options)
+        |> parse_node_text(block_parse_settings)
         |> String.trim_trailing()
         |> Kernel.<>("\n")
     end)
