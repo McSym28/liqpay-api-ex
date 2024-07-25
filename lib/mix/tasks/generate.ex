@@ -140,7 +140,7 @@ defmodule Mix.Tasks.Generate do
           title =
             link
             |> Floki.find("div.#{menu_item_title_class} > div:first-child")
-            |> Floki.text()
+            |> parse_node_text(parse_options())
             |> String.replace(~r/\s+/, " ")
             |> String.trim()
 
@@ -347,17 +347,41 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_section_title(
-         section,
+         {_, _, _} = section,
          parse_options(
            section_title_class: section_title_class,
            section_subtitle_classes: section_subtitle_classes
          ) = parse_options
        ) do
-    {
-      parse_section_title(section, parse_options, [section_title_class]),
-      parse_section_title(section, parse_options, section_subtitle_classes)
-    }
+    title = parse_section_title(section, parse_options, [section_title_class])
+    subtitle = parse_section_title(section, parse_options, section_subtitle_classes)
+    parse_section_title({title, subtitle}, parse_options)
   end
+
+  defp parse_section_title({title, ""}, parse_options) when is_binary(title),
+    do: parse_section_title({title, nil}, parse_options)
+
+  defp parse_section_title({"", subtitle}, parse_options) when is_binary(subtitle),
+    do: parse_section_title({nil, subtitle}, parse_options)
+
+  defp parse_section_title({title, nil}, parse_options) when is_binary(title),
+    do: parse_section_title(title, parse_options)
+
+  defp parse_section_title({nil, subtitle}, parse_options) when is_binary(subtitle),
+    do: parse_section_title(subtitle, parse_options)
+
+  defp parse_section_title({title, subtitle}, _parse_options)
+       when is_binary(title) and is_binary(subtitle) do
+    {title, subtitle}
+    |> downcase_section_title()
+    |> case do
+      {"options for generating data", _subtitle_downcase} -> subtitle
+      {_title_downcase, "options for generating data"} -> title
+      _ -> {title, subtitle}
+    end
+  end
+
+  defp parse_section_title(title, _parse_options) when is_binary(title), do: title
 
   defp parse_section_title(section, parse_options, classes) do
     Enum.find_value(
@@ -375,21 +399,14 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_section_title_text(div, parse_options) do
     div
-    |> parse_property_description(parse_options)
+    |> parse_node_text(parse_options)
     |> String.trim_trailing(":")
   end
 
-  defp process_section_title({"", subtitle}, section, parse_options, was_regexed),
-    do: process_section_title({nil, subtitle}, section, parse_options, was_regexed)
+  defp downcase_section_title({title, subtitle}) when is_binary(title) and is_binary(subtitle),
+    do: {String.downcase(title), String.downcase(subtitle)}
 
-  defp process_section_title({title, ""}, section, parse_options, was_regexed),
-    do: process_section_title({title, nil}, section, parse_options, was_regexed)
-
-  defp process_section_title({nil, subtitle}, section, parse_options, was_regexed),
-    do: process_section_title(subtitle, section, parse_options, was_regexed)
-
-  defp process_section_title({title, nil}, section, parse_options, was_regexed),
-    do: process_section_title(title, section, parse_options, was_regexed)
+  defp downcase_section_title(title) when is_binary(title), do: String.downcase(title)
 
   defp process_section_title(title, section, parse_options, false) when is_binary(title) do
     ~r/^\s*(.*)\s+\(\s*(?:the\s+)?(object|array)\s+(\w+)\s*\)\s*$/i
@@ -420,14 +437,18 @@ defmodule Mix.Tasks.Generate do
          section(section,
            update_operation: :patch,
            update_type:
-             if(type == "", do: :object, else: parse_property_type([type], parse_options)),
-           update_name: parse_property_name([name], parse_options),
+             if(type == "",
+               do: :object,
+               else: parse_property_type({"div", [], [type]}, parse_options)
+             ),
+           update_name: parse_property_name({"div", [], [name]}, parse_options),
            description: description
          )}
 
       [] ->
-        process_section_title(
-          String.downcase(title),
+        title
+        |> downcase_section_title()
+        |> process_section_title(
           section(section, description: title),
           parse_options,
           true
@@ -435,27 +456,16 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp process_section_title(title, section, parse_options, false) when is_binary(title),
-    do:
-      process_section_title(
-        String.downcase(title),
-        section(section, description: title),
-        parse_options,
-        true
-      )
-
-  defp process_section_title({title, subtitle}, section, parse_options, false)
-       when is_binary(title) and is_binary(subtitle) do
-    "options for generating data" = _title_downcased = String.downcase(title)
-    subtitle_downcased = String.downcase(subtitle)
-
-    process_section_title(
-      subtitle_downcased,
-      section(section, description: subtitle),
-      parse_options,
-      true
-    )
-  end
+  # defp process_section_title({title, subtitle}, section, parse_options, false)
+  #      when is_binary(title) and is_binary(subtitle) do
+  #   {title, subtitle}
+  #   |> downcase_section_title()
+  #   |> process_section_title(
+  #     section(section, description: subtitle),
+  #     parse_options,
+  #     true
+  #   )
+  # end
 
   defp process_section_title(nil, section, _parse_options, true),
     do: {:ok, section(section, update_operation: :patch)}
@@ -678,14 +688,14 @@ defmodule Mix.Tasks.Generate do
           |> Floki.find("td.MuiTableCell-root.MuiTableCell-body")
           |> case do
             [name, type, description | rest] when not is_request ->
-              [name, ["Optional"], type, description | rest]
+              [name, {"div", [], ["Optional"]}, type, description | rest]
 
             full_property ->
               full_property
           end
 
         name = parse_property_name(name, parse_options)
-        description = parse_property_description(description, parse_options)
+        description = parse_node_text(description, parse_options)
         type = parse_property_type(type, parse_options)
         required = parse_property_required(required, parse_options)
 
@@ -771,13 +781,13 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_name(str, _parse_options) do
-    str |> Floki.text() |> String.trim()
+  defp parse_property_name(str, parse_options) do
+    str |> parse_node_text(parse_options) |> String.trim()
   end
 
-  defp parse_property_type(str, _parse_options) do
+  defp parse_property_type(str, parse_options) do
     str
-    |> Floki.text()
+    |> parse_node_text(parse_options)
     |> String.trim()
     |> String.downcase()
     |> case do
@@ -789,52 +799,9 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_description(
-         str,
-         parse_options(inline_code_text_class: inline_code_text_class) = parse_options
-       ) do
+  defp parse_property_required(str, parse_options) do
     str
-    |> Floki.children()
-    |> Enum.map_join(fn
-      str when is_binary(str) ->
-        result = String.replace(str, ~r/\s+/, " ")
-
-        if result == " " and String.contains?(str, "\n") do
-          "\n"
-        else
-          result
-        end
-
-      {"a", _attrs, _children} = link ->
-        [href] = Floki.attribute(link, "href")
-
-        "[#{link |> Floki.text() |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
-
-      {"br", _attrs, _children} ->
-        "\n"
-
-      {"b", _attrs, [text]} = _bold ->
-        "**#{text}**"
-
-      {"span", _attrs, [text]} = span ->
-        span
-        |> node_classes()
-        |> Enum.member?(inline_code_text_class)
-        |> if(do: "`#{text}`", else: text)
-
-      {"div", _attrs, _children} = div ->
-        div
-        |> parse_property_description(parse_options)
-        |> String.trim_trailing()
-        |> Kernel.<>("\n")
-    end)
-    |> String.replace(~r/\n\s+([^[:upper:]`])/, " \\1")
-    |> String.trim()
-  end
-
-  defp parse_property_required(str, _parse_options) do
-    str
-    |> Floki.text()
+    |> parse_node_text(parse_options)
     |> String.trim()
     |> String.downcase()
     |> then(&Regex.scan(~r/^(required|optional)(\*)*$/, &1, capture: :all_but_first))
@@ -1045,6 +1012,7 @@ defmodule Mix.Tasks.Generate do
           standalone_code_block_class && Enum.member?(classes, standalone_code_block_class) ->
             section
             |> parse_section_title(parse_options)
+            |> downcase_section_title()
             |> parse_standalone_example(section, path)
             |> case do
               {:ok, {is_request, code}} ->
@@ -1185,6 +1153,8 @@ defmodule Mix.Tasks.Generate do
 
       MapSet.member?(classes, code_block_class) ->
         {title, subtitle}
+        |> parse_section_title(parse_options)
+        |> downcase_section_title()
         |> parse_standalone_example(div, path)
         |> case do
           {:ok, {is_request, code}} ->
@@ -1478,25 +1448,6 @@ defmodule Mix.Tasks.Generate do
     end)
   end
 
-  defp parse_standalone_example({title, nil}, div, path) when is_binary(title),
-    do: title |> String.downcase() |> parse_standalone_example(div, path)
-
-  defp parse_standalone_example({nil, subtitle}, div, path) when is_binary(subtitle),
-    do: subtitle |> String.downcase() |> parse_standalone_example(div, path)
-
-  defp parse_standalone_example({title, ""}, div, path),
-    do: parse_standalone_example({title, nil}, div, path)
-
-  defp parse_standalone_example({"", subtitle}, div, path),
-    do: parse_standalone_example({nil, subtitle}, div, path)
-
-  defp parse_standalone_example({title, subtitle}, div, path)
-       when is_binary(title) and is_binary(subtitle) do
-    "#{title}. #{subtitle}"
-    |> String.downcase()
-    |> parse_standalone_example(div, path)
-  end
-
   defp parse_standalone_example("response example", _div, [
          [2],
          "gpay",
@@ -1505,9 +1456,13 @@ defmodule Mix.Tasks.Generate do
        ]),
        do: :error
 
-  defp parse_standalone_example(title, div, _path) do
-    is_request = not String.match?(title, ~r/(^|[^\w])response([^\w]|$)/)
+  defp parse_standalone_example("response example", div, path),
+    do: parse_standalone_example(false, div, path)
 
+  defp parse_standalone_example(title, div, path) when is_binary(title),
+    do: parse_standalone_example(true, div, path)
+
+  defp parse_standalone_example(is_request, div, _path) when is_boolean(is_request) do
     div
     |> Floki.find("code.language-json")
     |> case do
@@ -1536,5 +1491,50 @@ defmodule Mix.Tasks.Generate do
             :error
         end
     end
+  end
+
+  defp parse_node_text([node], parse_options), do: parse_node_text(node, parse_options)
+
+  defp parse_node_text(
+         node,
+         parse_options(inline_code_text_class: inline_code_text_class) = parse_options
+       ) do
+    node
+    |> Floki.children()
+    |> Enum.map_join(fn
+      str when is_binary(str) ->
+        result = String.replace(str, ~r/\s+/, " ")
+
+        if result == " " and String.contains?(str, "\n") do
+          "\n"
+        else
+          result
+        end
+
+      {"a", _attrs, _children} = link ->
+        [href] = Floki.attribute(link, "href")
+
+        "[#{link |> parse_node_text(parse_options) |> String.replace(~r/\s+/, " ") |> String.trim()}](#{@liqpay_base_url |> URI.merge(href) |> URI.to_string()})"
+
+      {"br", _attrs, _children} ->
+        "\n"
+
+      {"b", _attrs, [text]} = _bold ->
+        "**#{text}**"
+
+      {"span", _attrs, [text]} = span ->
+        span
+        |> node_classes()
+        |> Enum.member?(inline_code_text_class)
+        |> if(do: "`#{text}`", else: text)
+
+      {"div", _attrs, _children} = div ->
+        div
+        |> parse_node_text(parse_options)
+        |> String.trim_trailing()
+        |> Kernel.<>("\n")
+    end)
+    |> String.replace(~r/\n\s+([^[:upper:]`])/, " \\1")
+    |> String.trim()
   end
 end
