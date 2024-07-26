@@ -30,7 +30,8 @@ defmodule Mix.Tasks.Generate do
     subtitle_classes: MapSet.new()
   )
 
-  Record.defrecordp(:menu_item,
+  Record.defrecordp(:section,
+    type: :doc,
     title: nil,
     id: nil,
     children: [],
@@ -104,7 +105,7 @@ defmodule Mix.Tasks.Generate do
     parse_settings
     |> parse_menu_page()
     |> case do
-      {:ok, menu_items} -> {:ok, menu_items}
+      {:ok, _} = result -> result
       :error -> parse_doc_page(parse_settings)
     end
   end
@@ -112,10 +113,10 @@ defmodule Mix.Tasks.Generate do
   defp parse_menu_page(
          parse_settings(body: body, document: document, path: path) = parse_settings
        ) do
-    with [menu_item_class] <-
+    with [item_class] <-
            Regex.run(~r/(?<!\w)new_doc_doc_menu_content__\w+(?!\w)/, body, capture: :first),
-         [_ | _] = links <- Floki.find(document, "a.#{menu_item_class}") do
-      menu_item_title_class =
+         [_ | _] = links <- Floki.find(document, "a.#{item_class}") do
+      item_title_class =
         ~r/(?<!\w)new_doc_doc_list_title__\w+(?!\w)/
         |> Regex.run(body, capture: :first)
         |> case do
@@ -129,48 +130,47 @@ defmodule Mix.Tasks.Generate do
             class
         end
 
-      menu_items =
-        Enum.map(links, fn link ->
-          [url] = Floki.attribute(link, "href")
+      links
+      |> Enum.map(fn link ->
+        [url] = Floki.attribute(link, "href")
 
-          title =
-            link
-            |> Floki.find("div.#{menu_item_title_class} > div:first-child")
-            |> parse_node_text(block_parse_settings())
-            |> String.replace(~r/\s+/, " ")
-            |> String.trim()
+        title =
+          link
+          |> Floki.find("div.#{item_title_class} > div:first-child")
+          |> parse_node_text(block_parse_settings())
+          |> String.replace(~r/\s+/, " ")
+          |> String.trim()
 
-          uri =
-            @liqpay_base_url
-            |> URI.merge(url)
-            |> URI.new!()
+        uri =
+          @liqpay_base_url
+          |> URI.merge(url)
+          |> URI.new!()
 
-          id = uri.path |> Path.split() |> List.last()
+        id = uri.path |> Path.split() |> List.last()
 
-          query_new =
-            (uri.query || "")
-            |> URI.decode_query()
-            |> Map.put("tab", "1")
-            |> URI.encode_query()
+        query_new =
+          (uri.query || "")
+          |> URI.decode_query()
+          |> Map.put("tab", "1")
+          |> URI.encode_query()
 
-          url_new = URI.to_string(%URI{uri | query: query_new})
+        url_new = URI.to_string(%URI{uri | query: query_new})
 
-          menu_item = menu_item(title: title, id: id, url: url_new)
+        section = section(type: :menu, title: title, id: id, url: url_new)
 
-          if id == "internet_acquiring" or
-               (path != [] and hd(path) == "internet_acquiring") do
-            url_new
-            |> process_url(parse_settings(parse_settings, path: [id | path]))
-            |> case do
-              {:ok, children} -> menu_item(menu_item, children: children)
-              :error -> menu_item
-            end
-          else
-            menu_item
+        if id == "internet_acquiring" or
+             (path != [] and hd(path) == "internet_acquiring") do
+          url_new
+          |> process_url(parse_settings(parse_settings, path: [id | path]))
+          |> case do
+            {:ok, children} -> section(section, children: children)
+            :error -> section
           end
-        end)
-
-      {:ok, menu_items}
+        else
+          section
+        end
+      end)
+      |> then(&{:ok, &1})
     else
       _ -> :error
     end
