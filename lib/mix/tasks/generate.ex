@@ -31,11 +31,18 @@ defmodule Mix.Tasks.Generate do
   )
 
   Record.defrecordp(:section,
-    type: :doc,
+    type: nil,
     title: nil,
     id: nil,
     children: [],
     url: nil
+  )
+
+  Record.defrecordp(:endpoint,
+    title: nil,
+    id: nil,
+    request: nil,
+    response: nil
   )
 
   Record.defrecordp(:parse_settings,
@@ -61,7 +68,6 @@ defmodule Mix.Tasks.Generate do
 
     file =
       path
-      |> List.flatten()
       |> List.insert_at(-1, "api")
       |> List.update_at(0, &"#{&1}.html")
       |> Enum.reverse()
@@ -156,18 +162,18 @@ defmodule Mix.Tasks.Generate do
 
         url_new = URI.to_string(%URI{uri | query: query_new})
 
-        section = section(type: :menu, title: title, id: id, url: url_new)
+        item = section(type: :menu, title: title, id: id, url: url_new)
 
         if id == "internet_acquiring" or
              (path != [] and hd(path) == "internet_acquiring") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
-            {:ok, children} -> section(section, children: children)
-            :error -> section
+            {:ok, children} -> section(item, children: children)
+            :error -> item
           end
         else
-          section
+          item
         end
       end)
       |> then(&{:ok, &1})
@@ -183,7 +189,7 @@ defmodule Mix.Tasks.Generate do
     |> Floki.find("div.base-TabsList-root")
     |> case do
       [tab] ->
-        [_tab_label] =
+        [tab_label_class] =
           Regex.run(~r/(?<!\w)new_doc_tab_lable__\w+(?!\w)/, body, capture: :first)
 
         [_ | _] = tab_items = Floki.find(tab, "button")
@@ -198,40 +204,59 @@ defmodule Mix.Tasks.Generate do
 
         tab_count = Enum.count(tab_items)
 
-        if tab_count <= 2 or tab_index != 1 do
-          process_doc(parse_settings)
-        else
-          results =
-            Enum.map(
-              1..(tab_count - 1),
-              fn
-                1 ->
+        cond do
+          tab_count <= 2 ->
+            "documentation" =
+              tab_items
+              |> Enum.at(tab_index)
+              |> Floki.find("div.#{tab_label_class}")
+              |> parse_node_text(block_parse_settings())
+              |> downcase_block_title()
+
+            process_doc(parse_settings)
+
+          tab_index != 1 ->
+            parse_settings
+            |> parse_settings(path: path)
+            |> process_doc()
+
+          :else ->
+            results =
+              Enum.map(
+                1..(tab_count - 1),
+                fn tab_index ->
+                  tab_label =
+                    tab_items
+                    |> Enum.at(tab_index)
+                    |> Floki.find("div.#{tab_label_class}")
+                    |> parse_node_text(block_parse_settings())
+
+                  {:ok, block(update_operation: :new_endpoint, update_name: tab_id)} =
+                    tab_label
+                    |> downcase_block_title()
+                    |> process_block_title(block(), block_parse_settings(), true, path)
+
+                  parse_settings_new = parse_settings(parse_settings, path: [tab_id | path])
+
                   {:ok, result} =
-                    parse_settings
-                    |> parse_settings(path: [[tab_index] | path])
-                    |> process_doc()
+                    if tab_index == 1 do
+                      process_doc(parse_settings_new)
+                    else
+                      query_new =
+                        decoded_query
+                        |> Map.put("tab", Integer.to_string(tab_index))
+                        |> URI.encode_query()
+
+                      url_new = %URI{uri | query: query_new} |> URI.to_string()
+
+                      process_url(url_new, parse_settings_new)
+                    end
 
                   result
+                end
+              )
 
-                other_index ->
-                  query_new =
-                    decoded_query
-                    |> Map.put("tab", Integer.to_string(other_index))
-                    |> URI.encode_query()
-
-                  url_new = %URI{uri | query: query_new} |> URI.to_string()
-
-                  {:ok, result} =
-                    process_url(
-                      url_new,
-                      parse_settings(parse_settings, path: [[other_index] | path])
-                    )
-
-                  result
-              end
-            )
-
-          {:ok, results}
+            {:ok, results}
         end
 
       [] ->
@@ -295,7 +320,6 @@ defmodule Mix.Tasks.Generate do
 
     json_file =
       path
-      |> List.flatten()
       |> List.update_at(0, &"#{&1}.json")
       |> Enum.reverse()
       |> then(&["specs" | &1])
@@ -360,7 +384,7 @@ defmodule Mix.Tasks.Generate do
             end
           end) ->
             node
-            |> parse_block_data(block_parse_settings, was_request)
+            |> parse_block_data(block_parse_settings, was_request, path)
             |> case do
               {:ok,
                block(is_request: is_request, update_operation: update_operation) = block_data} ->
@@ -505,13 +529,14 @@ defmodule Mix.Tasks.Generate do
     |> String.replace(~r/^\s*(\{[^\{\[]+\[\{[^\]\}]+)\]\}([^\}\]]+\})\s*$/s, "\\1}]\\2")
   end
 
-  defp parse_block_data(node, block_parse_settings, was_request) do
+  defp parse_block_data(node, block_parse_settings, was_request, path) do
     node
     |> parse_block_title(block_parse_settings)
     |> process_block_title(
       block(node: node, is_request: was_request),
       block_parse_settings,
-      false
+      false,
+      path
     )
   end
 
@@ -577,7 +602,8 @@ defmodule Mix.Tasks.Generate do
 
   defp downcase_block_title(title) when is_binary(title), do: String.downcase(title)
 
-  defp process_block_title(title, block, block_parse_settings, false) when is_binary(title) do
+  defp process_block_title(title, block, block_parse_settings, false, path)
+       when is_binary(title) do
     ~r/^\s*(.*)\s+\(\s*(?:the\s+)?(object|array)\s+(\w+)\s*\)\s*$/i
     |> Regex.scan(title, capture: :all_but_first)
     |> case do
@@ -620,85 +646,194 @@ defmodule Mix.Tasks.Generate do
         |> process_block_title(
           block(block, description: title),
           block_parse_settings,
-          true
+          true,
+          path
         )
     end
   end
 
-  # defp process_block_title({title, subtitle}, block, block_parse_settings, false)
+  # defp process_block_title({title, subtitle}, block, block_parse_settings, false, path)
   #      when is_binary(title) and is_binary(subtitle) do
   #   {title, subtitle}
   #   |> downcase_block_title()
   #   |> process_block_title(
   #     block(block, description: subtitle),
   #     block_parse_settings,
-  #     true
+  #     true, path
   #   )
   # end
 
-  defp process_block_title(nil, block, _block_parse_settings, true),
+  defp process_block_title(
+         "encrypted token",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["apay", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
+
+  defp process_block_title(
+         "decrypted token",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["apay", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
+
+  defp process_block_title(
+         "encrypted token",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["gpay", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
+
+  defp process_block_title(
+         "decrypted token",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["gpay", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
+
+  defp process_block_title(
+         "create subscribtion",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["subscription", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
+
+  defp process_block_title("unsubscribe", block(node: nil) = block, _block_parse_settings, true, [
+         "subscription",
+         "internet_acquiring"
+       ]),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "unsubscribe")}
+
+  defp process_block_title(
+         "edit subscribtion",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["subscription", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "edit")}
+
+  defp process_block_title(
+         "funds blocking",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["two_step", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "block")}
+
+  defp process_block_title(
+         "completion of payment",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["two_step", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "complete")}
+
+  defp process_block_title(
+         "issuing the invoice",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["invoice", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "issue")}
+
+  defp process_block_title(
+         "invoice cancelation",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["invoice", "internet_acquiring"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "cancel")}
+
+  defp process_block_title(nil, block, _block_parse_settings, true, _path),
     do: {:ok, block(block, update_operation: :patch)}
 
-  defp process_block_title("main", block, block_parse_settings, true),
-    do: process_block_title(nil, block, block_parse_settings, true)
+  defp process_block_title("main", block, block_parse_settings, true, path),
+    do: process_block_title(nil, block, block_parse_settings, true, path)
 
-  defp process_block_title("other parameters", block, block_parse_settings, true),
-    do: process_block_title(nil, block, block_parse_settings, true)
+  defp process_block_title("other parameters", block, block_parse_settings, true, path),
+    do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "parameters of splitting the payments",
          block,
          block_parse_settings,
-         true
+         true,
+         path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true)
+       do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "parameters for tokenization within the token connect control",
          block,
          block_parse_settings,
-         true
+         true,
+         path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true)
+       do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "parameters for transfer to the card",
          block,
          block_parse_settings,
-         true
+         true,
+         path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true)
+       do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "parameters for transfer to the card's token",
          block,
          block_parse_settings,
-         true
+         true,
+         path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true)
+       do: process_block_title(nil, block, block_parse_settings, true, path)
 
-  defp process_block_title("receiver parameters", block, block_parse_settings, true),
-    do: process_block_title(nil, block, block_parse_settings, true)
+  defp process_block_title("receiver parameters", block, block_parse_settings, true, path),
+    do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "parameters for data formation",
          block,
          block_parse_settings,
-         true
+         true,
+         path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true)
+       do: process_block_title(nil, block, block_parse_settings, true, path)
 
-  defp process_block_title("sender parameters", block, _block_parse_settings, true),
+  defp process_block_title("sender parameters", block, _block_parse_settings, true, _path),
     do: {:ok, block(block, update_name: "sender")}
 
-  defp process_block_title("regular payment parameters", block, _block_parse_settings, true),
-    do: {:ok, block(block, update_name: "regular_payment")}
+  defp process_block_title(
+         "regular payment parameters",
+         block,
+         _block_parse_settings,
+         true,
+         _path
+       ),
+       do: {:ok, block(block, update_name: "regular_payment")}
 
   defp process_block_title(
          "parameters for 1-click payment",
          block,
          _block_parse_settings,
-         true
+         true,
+         _path
        ),
        do: {:ok, block(block, update_name: "one_click_payment")}
 
@@ -706,7 +841,8 @@ defmodule Mix.Tasks.Generate do
          "parameters for tokenization within the visa cards enrollment hub (vceh)",
          block,
          _block_parse_settings,
-         true
+         true,
+         _path
        ),
        do: {:ok, block(block, update_name: "vceh_tokenization")}
 
@@ -714,18 +850,20 @@ defmodule Mix.Tasks.Generate do
          "parameters for tokenization by card number",
          block,
          _block_parse_settings,
-         true
+         true,
+         _path
        ),
        do: {:ok, block(block, update_name: "card_tokenization")}
 
-  defp process_block_title("response parameters", block, _block_parse_settings, true),
+  defp process_block_title("response parameters", block, _block_parse_settings, true, _path),
     do: {:ok, block(block, is_request: false, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for transfer to the current account",
          block,
          _block_parse_settings,
-         true
+         true,
+         _path
        ),
        do: {:ok, block(block, update_name: "receiver_account")}
 
@@ -733,15 +871,22 @@ defmodule Mix.Tasks.Generate do
          "parameters for aggregators",
          block,
          _block_parse_settings,
-         true
+         true,
+         _path
        ),
        do: {:ok, block(block, update_name: "aggregator")}
 
-  defp process_block_title("api invoice_units", _block_data, _block_parse_settings, true),
+  defp process_block_title("api invoice_units", _block_data, _block_parse_settings, true, _path),
     do: :error
 
-  defp process_block_title("payment widget parameters", _block_data, _block_parse_settings, true),
-    do: :error
+  defp process_block_title(
+         "payment widget parameters",
+         _block_data,
+         _block_parse_settings,
+         true,
+         _path
+       ),
+       do: :error
 
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
@@ -1265,7 +1410,7 @@ defmodule Mix.Tasks.Generate do
         |> Jason.decode!()
         |> patch_schema_examples(%{schema | description: description_new})
 
-      ["goods", {:schema, :request}, [1], "invoice", "internet_acquiring"] ->
+      ["goods", {:schema, :request}, "issue", "invoice", "internet_acquiring"] ->
         code
         |> extract_code()
         |> Jason.decode!()
@@ -1506,8 +1651,12 @@ defmodule Mix.Tasks.Generate do
     end)
   end
 
-  defp parse_standalone_example("response example", _div, [[2], "gpay", "internet_acquiring"]),
-    do: :error
+  defp parse_standalone_example("response example", _div, [
+         "decrypted_token",
+         "gpay",
+         "internet_acquiring"
+       ]),
+       do: :error
 
   defp parse_standalone_example("response example", div, path),
     do: parse_standalone_example(false, div, path)
