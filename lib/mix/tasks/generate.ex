@@ -164,8 +164,8 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "tokens" or
-             (path != [] and hd(path) == "tokens") do
+        if id == "confirmation" or
+             (path != [] and hd(path) == "confirmation") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
@@ -1878,6 +1878,9 @@ defmodule Mix.Tasks.Generate do
        do: parse_standalone_example(false, div, path)
 
   defp parse_standalone_example("sample response for visa", div, ["obtain", "tokens"] = path),
+    do: parse_standalone_example(false, div, path)
+
+  defp parse_standalone_example({"example response", _}, div, ["MPI", "confirmation"] = path),
     do: parse_standalone_example(false, div, path)
 
   defp parse_standalone_example(title, div, path) when is_binary(title),
