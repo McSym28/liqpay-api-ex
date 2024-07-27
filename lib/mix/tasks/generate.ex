@@ -164,8 +164,8 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "partnership" or
-             (path != [] and hd(path) == "partnership") do
+        if id == "tokens" or
+             (path != [] and hd(path) == "tokens") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
@@ -873,7 +873,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["tokens"] = _path
+         ["obtain", "tokens"] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -997,7 +997,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["tokens"] = _path
+         ["obtain", "tokens"] = _path
        ),
        do: {:ok, block(block, update_name: "vceh_tokenization")}
 
@@ -1006,7 +1006,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["tokens"] = _path
+         ["obtain", "tokens"] = _path
        ),
        do: {:ok, block(block, update_name: "card_tokenization")}
 
@@ -1018,7 +1018,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         _path
+         ["transferring_to_card"] = _path
        ),
        do: {:ok, block(block, update_name: "receiver_account")}
 
@@ -1078,6 +1078,24 @@ defmodule Mix.Tasks.Generate do
          ["available_mcc", "shop_create", "partnership"]
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "documents")}
+
+  defp process_block_title(
+         "token obtainment",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["tokens"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "obtain")}
+
+  defp process_block_title(
+         "status change",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["tokens"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "change_status")}
 
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
@@ -1850,6 +1868,16 @@ defmodule Mix.Tasks.Generate do
        do: :error
 
   defp parse_standalone_example("response example", div, path),
+    do: parse_standalone_example(false, div, path)
+
+  defp parse_standalone_example(
+         "sample response for mastercard",
+         div,
+         ["obtain", "tokens"] = path
+       ),
+       do: parse_standalone_example(false, div, path)
+
+  defp parse_standalone_example("sample response for visa", div, ["obtain", "tokens"] = path),
     do: parse_standalone_example(false, div, path)
 
   defp parse_standalone_example(title, div, path) when is_binary(title),
