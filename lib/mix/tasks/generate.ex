@@ -765,15 +765,60 @@ defmodule Mix.Tasks.Generate do
   defp process_block_title("main", block, block_parse_settings, true, path),
     do: process_block_title(nil, block, block_parse_settings, true, path)
 
-  defp process_block_title("other parameters", block, block_parse_settings, true, path),
-    do: process_block_title(nil, block, block_parse_settings, true, path)
+  defp process_block_title(
+         "other parameters" = title,
+         block,
+         block_parse_settings,
+         true,
+         [_, section, "internet_acquiring"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           section,
+           "internet_acquiring"
+         ])
+
+  defp process_block_title(
+         "other parameters",
+         block,
+         block_parse_settings,
+         true,
+         [_, "internet_acquiring"] = path
+       ),
+       do: process_block_title(nil, block, block_parse_settings, true, path)
+
+  defp process_block_title(
+         "other parameters" = title,
+         block,
+         block_parse_settings,
+         true,
+         ["transferring_to_card"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           "checkout",
+           "internet_acquiring"
+         ])
+
+  defp process_block_title(
+         "parameters of splitting the payments" = title,
+         block,
+         block_parse_settings,
+         true,
+         [_, section, "internet_acquiring"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           section,
+           "internet_acquiring"
+         ])
 
   defp process_block_title(
          "parameters of splitting the payments",
          block,
          block_parse_settings,
          true,
-         path
+         [_, "internet_acquiring"] = path
        ),
        do: process_block_title(nil, block, block_parse_settings, true, path)
 
@@ -782,7 +827,7 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         path
+         ["tokens"] = path
        ),
        do: process_block_title(nil, block, block_parse_settings, true, path)
 
@@ -791,7 +836,7 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         path
+         ["transferring_to_card"] = path
        ),
        do: process_block_title(nil, block, block_parse_settings, true, path)
 
@@ -800,31 +845,95 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         path
+         ["transferring_to_card"] = path
        ),
        do: process_block_title(nil, block, block_parse_settings, true, path)
 
-  defp process_block_title("receiver parameters", block, block_parse_settings, true, path),
-    do: process_block_title(nil, block, block_parse_settings, true, path)
+  defp process_block_title(
+         "receiver parameters",
+         block,
+         block_parse_settings,
+         true,
+         ["transferring_to_card"] = path
+       ),
+       do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "parameters for data formation",
          block,
          block_parse_settings,
          true,
-         path
+         ["decrypted_token", "gpay", "internet_acquiring"] = path
        ),
        do: process_block_title(nil, block, block_parse_settings, true, path)
 
-  defp process_block_title("sender parameters", block, _block_parse_settings, true, _path),
-    do: {:ok, block(block, update_name: "sender")}
+  defp process_block_title(
+         "sender parameters" = title,
+         block,
+         block_parse_settings,
+         true,
+         [_, section, "internet_acquiring"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           section,
+           "internet_acquiring"
+         ])
+
+  defp process_block_title(
+         "sender parameters",
+         block,
+         _block_parse_settings,
+         true,
+         [_, "internet_acquiring"] = _path
+       ),
+       do: {:ok, block(block, update_name: "sender")}
+
+  defp process_block_title(
+         "sender parameters" = title,
+         block,
+         block_parse_settings,
+         true,
+         ["transferring_to_card"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           "checkout",
+           "internet_acquiring"
+         ])
+
+  defp process_block_title(
+         "sender parameters" = title,
+         block,
+         block_parse_settings,
+         true,
+         ["p2pdebit"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           "checkout",
+           "internet_acquiring"
+         ])
+
+  defp process_block_title(
+         "regular payment parameters" = title,
+         block,
+         block_parse_settings,
+         true,
+         [_, section, "internet_acquiring"] = _path
+       ),
+       do:
+         process_block_title(title, block, block_parse_settings, true, [
+           section,
+           "internet_acquiring"
+         ])
 
   defp process_block_title(
          "regular payment parameters",
          block,
          _block_parse_settings,
          true,
-         _path
+         [_, "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_name: "regular_payment")}
 
@@ -833,7 +942,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         _path
+         [_, "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_name: "one_click_payment")}
 
@@ -842,7 +951,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         _path
+         ["tokens"] = _path
        ),
        do: {:ok, block(block, update_name: "vceh_tokenization")}
 
@@ -851,7 +960,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         _path
+         ["tokens"] = _path
        ),
        do: {:ok, block(block, update_name: "card_tokenization")}
 
@@ -872,7 +981,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         _path
+         ["shop_create", "partnership"] = _path
        ),
        do: {:ok, block(block, update_name: "aggregator")}
 
