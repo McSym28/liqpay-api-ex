@@ -1,0 +1,523 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "phone",
+                  "email",
+                  "name"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "agent_shop_register"
+                    ],
+                    "examples": [
+                      "agent_shop_register"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Shop phone number",
+                    "examples": [
+                      "380950000001"
+                    ]
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Store email",
+                    "examples": [
+                      "email@gmail.com"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Store name (uk, en)",
+                    "examples": [
+                      "Site name"
+                    ]
+                  },
+                  "url_site": {
+                    "type": "string",
+                    "description": "Store website URL",
+                    "examples": [
+                      "agent1.site.com"
+                    ]
+                  },
+                  "url_offer": {
+                    "type": "string",
+                    "description": "Offer URL"
+                  },
+                  "url_app_iphone": {
+                    "type": "string",
+                    "description": "URL to the app in the App Store"
+                  },
+                  "url_app_android": {
+                    "type": "string",
+                    "description": "URL to the app in the Play Market"
+                  },
+                  "telegram": {
+                    "type": "string",
+                    "description": "Link to the Telegram bot"
+                  },
+                  "viber": {
+                    "type": "string",
+                    "description": "Link to the Viber bot"
+                  },
+                  "instagram": {
+                    "type": "string",
+                    "description": "Instagram account link"
+                  },
+                  "facebook": {
+                    "type": "string",
+                    "description": "Link to Facebook group"
+                  },
+                  "iban": {
+                    "type": "string",
+                    "description": "IBAN to receive payments in this store",
+                    "maxLength": 34
+                  },
+                  "okpo": {
+                    "type": "string",
+                    "description": "OKPO account"
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Company name (uk, en)"
+                  },
+                  "mcc_code": {
+                    "type": "string",
+                    "description": "MSS code"
+                  },
+                  "docs": {
+                    "type": "array",
+                    "description": "Documents for store activation",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "file",
+                        "name",
+                        "file_name"
+                      ],
+                      "properties": {
+                        "file": {
+                          "type": "string",
+                          "description": "base64_encoded_data"
+                        },
+                        "doc_id": {
+                          "type": "number",
+                          "description": "Returned from the agent_info_mcc_docs API"
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the document. If we download a document from the list from API agent_info_mcc_docs, then the name is from the response"
+                        },
+                        "file_name": {
+                          "type": "string",
+                          "description": "File name"
+                        }
+                      }
+                    }
+                  },
+                  "amount_procent_agent": {
+                    "type": "number",
+                    "description": "Agent fee in %"
+                  },
+                  "amount_static_agent": {
+                    "type": "number",
+                    "description": "Agent static fee"
+                  },
+                  "currency_static_agent": {
+                    "type": "string",
+                    "description": "Currency of agent static fee"
+                  },
+                  "can_reports": {
+                    "type": "string",
+                    "description": "Allows the owner of the main company to view the payment history of the created company, pass the value `true`"
+                  },
+                  "can_checkout_edit": {
+                    "type": "string",
+                    "description": "Allows the owner of the main company to edit the payment page settings of the company created, pass the value `true`"
+                  },
+                  "logo": {
+                    "type": "string",
+                    "description": "URL shop logo"
+                  },
+                  "url_callback_status": {
+                    "type": "string",
+                    "description": "URL for receiving data on document status change (5 - activated, 6 - blocked)"
+                  },
+                  "aggregator": {
+                    "type": "object",
+                    "description": "Parameters for aggregators",
+                    "required": [
+                      "law_okpo",
+                      "law_name",
+                      "law_iban",
+                      "law_contacts",
+                      "law_cto_info",
+                      "law_owners_info",
+                      "law_co_owners_info"
+                    ],
+                    "properties": {
+                      "law_okpo": {
+                        "type": "string",
+                        "description": "USREOU of an enterprise. The maximum length is 255 characters"
+                      },
+                      "law_name": {
+                        "type": "string",
+                        "description": "Enterprise name. The maximum length is 255 characters"
+                      },
+                      "law_iban": {
+                        "type": "string",
+                        "description": "Iban of an enterprise. The maximum length is 255 characters"
+                      },
+                      "law_contacts": {
+                        "type": "object",
+                        "description": "Contact details of an enterprise",
+                        "properties": {
+                          "phone": {
+                            "type": "string",
+                            "description": "Contact number of an enterprise"
+                          },
+                          "email": {
+                            "type": "string",
+                            "description": "Contact email of an enterprise"
+                          }
+                        }
+                      },
+                      "law_cto_info": {
+                        "type": "object",
+                        "description": "Information about the head of an enterprise",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Full name of the head of an enterprise"
+                          },
+                          "inn": {
+                            "type": "string",
+                            "description": "TIN of the head of an enterprise"
+                          },
+                          "birth_date": {
+                            "type": "string",
+                            "description": "Birth date of the head of an enterprise. Enter the date in this format: 2015-03-31"
+                          },
+                          "citizenship": {
+                            "type": "string",
+                            "description": "Nationality of the head of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                          },
+                          "residency": {
+                            "type": "string",
+                            "description": "Residence of the head of an enterprise"
+                          }
+                        }
+                      },
+                      "law_owners_info": {
+                        "type": "array",
+                        "description": "Information on the final beneficial owners of an enterprise",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "Full name of the owner of an enterprise"
+                            },
+                            "inn": {
+                              "type": "string",
+                              "description": "TIN of the owner of an enterprise"
+                            },
+                            "birth_date": {
+                              "type": "string",
+                              "description": "Birth date of the owner of an enterprise. Enter the date in this format: 2015-03-31"
+                            },
+                            "citizenship": {
+                              "type": "string",
+                              "description": "Nationality of the owner of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                            },
+                            "share_in_capital": {
+                              "type": "string",
+                              "description": "The ownership interest in the authorized capital of an enterprise"
+                            },
+                            "residency": {
+                              "type": "string",
+                              "description": "Residence of the owner of the enterprise"
+                            }
+                          }
+                        }
+                      },
+                      "law_co_owners_info": {
+                        "type": "array",
+                        "description": "Information about owners of major shareholding",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "Full name of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "inn": {
+                              "type": "string",
+                              "description": "TIN of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "birth_date": {
+                              "type": "string",
+                              "description": "Birth date of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "citizenship": {
+                              "type": "string",
+                              "description": "Nationality of the owner of major shareholding. Enter the country in Latin letters. Example: Ukraine. Transfer if the owner is an individual"
+                            },
+                            "share_in_capital": {
+                              "type": "string",
+                              "description": "The size of the ownership interest. Transfer for both individuals and legal entities"
+                            },
+                            "residency": {
+                              "type": "string",
+                              "description": "Residence of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "company_name": {
+                              "type": "string",
+                              "description": "Enterprise name. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                            },
+                            "company_okpo": {
+                              "type": "string",
+                              "description": "USREOU of an enterprise. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "activation_status": {
+                      "type": "number",
+                      "description": "Company activation status. 5 - the company is activated, 6 - the company is blocked"
+                    },
+                    "company_name": {
+                      "type": "string",
+                      "description": "Full name of the company"
+                    },
+                    "create_date": {
+                      "type": "string",
+                      "description": "Date of creation"
+                    },
+                    "email": {
+                      "type": "string",
+                      "description": "Company e-mail"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Name of the company"
+                    },
+                    "okpo": {
+                      "type": "string",
+                      "description": "OKPO account"
+                    },
+                    "phone": {
+                      "type": "string",
+                      "description": "Phone"
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Public key"
+                    },
+                    "refund_number": {
+                      "type": "string",
+                      "description": "Company reimbursement account"
+                    },
+                    "update_date": {
+                      "type": "string",
+                      "description": "Update date"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "Company URL"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "mcc_codes": {
+                      "type": "array",
+                      "description": "Array with code data",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "number",
+                            "description": "Identifier"
+                          },
+                          "mcc_code": {
+                            "type": "number",
+                            "description": "Meaning of MCC. Blank for code category, contains value for MCC"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Name of code or category of codes"
+                          },
+                          "parent_id": {
+                            "type": "number",
+                            "description": "Code category identifier. Blank for code categories, contains value for MCC"
+                          }
+                        }
+                      }
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "Result of the request"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Request execution status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "result": {
+                      "type": "string",
+                      "description": "Result of the request"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Request execution status"
+                    },
+                    "expected_docs": {
+                      "type": "array",
+                      "description": "An array containing the data of documents required for the received MCC",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "doc_id": {
+                            "type": "number",
+                            "description": "Document ID"
+                          },
+                          "doc_type": {
+                            "type": "string",
+                            "description": "Document type: required - a required document, allof - the document can be replaced with all other documents from the list, optional - an optional document."
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Document's name"
+                          },
+                          "alt_docs": {
+                            "type": "array",
+                            "description": "An array of document identifiers that can replace the current document"
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Description of the document"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

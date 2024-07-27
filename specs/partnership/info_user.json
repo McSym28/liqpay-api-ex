@@ -1,0 +1,129 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "phone"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public_key of agent shop"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "agent_info_user"
+                    ],
+                    "examples": [
+                      "agent_info_user"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Shop phone number",
+                    "examples": [
+                      "380950000001"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "blocked": {
+                      "type": "string",
+                      "description": "Company block status"
+                    },
+                    "create_date": {
+                      "type": "string",
+                      "description": "Date of company creation"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Company description"
+                    },
+                    "email": {
+                      "type": "string",
+                      "description": "The company's email"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Company's logo"
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Company name"
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Shop public key"
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "The result of a request `ok` or `error`",
+                      "examples": [
+                        "ok"
+                      ]
+                    },
+                    "role": {
+                      "type": "string",
+                      "description": "The role of the user in the store who requested information"
+                    },
+                    "update_date": {
+                      "type": "string",
+                      "description": "Date of information update on the company"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "URL of company"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "description",
+                  "email",
+                  "merchant_public_key",
+                  "name",
+                  "phone",
+                  "site"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "agent_shop_edit"
+                    ],
+                    "examples": [
+                      "agent_shop_edit"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Store description",
+                    "examples": [
+                      "site description"
+                    ]
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Store email",
+                    "examples": [
+                      "email@gmail.com"
+                    ]
+                  },
+                  "merchant_public_key": {
+                    "type": "string",
+                    "description": "Public_key of agent shop",
+                    "examples": [
+                      "i3111000000"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Store name (uk, en)",
+                    "examples": [
+                      "Site name"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Shop phone number",
+                    "examples": [
+                      "380950000001"
+                    ]
+                  },
+                  "site": {
+                    "type": "string",
+                    "description": "Store URL",
+                    "examples": [
+                      "agent1.site.com"
+                    ]
+                  },
+                  "iban": {
+                    "type": "string",
+                    "description": "IBAN to receive payments in this store",
+                    "maxLength": 34
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Company name (uk, en)"
+                  },
+                  "okpo": {
+                    "type": "string",
+                    "description": "OKPO account"
+                  },
+                  "amount_procent_agent": {
+                    "type": "number",
+                    "description": "Agent fee in %"
+                  },
+                  "amount_static_agent": {
+                    "type": "number",
+                    "description": "Agent static fee"
+                  },
+                  "currency_static_agent": {
+                    "type": "string",
+                    "description": "Currency of agent static fee"
+                  },
+                  "can_reports": {
+                    "type": "string",
+                    "description": "Allows the owner of the main company to view the payment history of the created company, pass the value `true`"
+                  },
+                  "can_checkout_edit": {
+                    "type": "string",
+                    "description": "Allows the owner of the main company to edit the payment page settings of the company created, pass the value `true`"
+                  },
+                  "logo": {
+                    "type": "string",
+                    "description": "URL shop logo"
+                  },
+                  "public_phone": {
+                    "type": "string",
+                    "description": "Shop public phone number"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "private_key": {
+                      "type": "string",
+                      "description": "Company private_key",
+                      "examples": [
+                        "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6"
+                      ]
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Company public_key",
+                      "examples": [
+                        "i000000000"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success"
+                      ],
+                      "description": "Available values:\n* `success` - Successful editing",
+                      "examples": [
+                        "success"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

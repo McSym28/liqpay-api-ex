@@ -1,0 +1,218 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "merchant_public_key"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public_key of agent shop"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "agent_info_merchant"
+                    ],
+                    "examples": [
+                      "agent_info_merchant"
+                    ]
+                  },
+                  "merchant_public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "examples": [
+                      "i3111000000"
+                    ]
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "blocked": {
+                      "type": "string",
+                      "description": "Company block status",
+                      "examples": [
+                        false
+                      ]
+                    },
+                    "company_name": {
+                      "type": "string",
+                      "description": "Full company name",
+                      "examples": [
+                        null
+                      ]
+                    },
+                    "create_date": {
+                      "type": "string",
+                      "description": "Date of company creation",
+                      "examples": [
+                        1501764124764
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Company description",
+                      "examples": [
+                        "site description"
+                      ]
+                    },
+                    "email": {
+                      "type": "string",
+                      "description": "The company's email",
+                      "examples": [
+                        "test@gmail.com"
+                      ]
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Company's logo",
+                      "examples": [
+                        null
+                      ]
+                    },
+                    "mfo": {
+                      "type": "string",
+                      "description": "Company accounts MFI",
+                      "examples": [
+                        null
+                      ]
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Company name",
+                      "examples": [
+                        "Site name"
+                      ]
+                    },
+                    "okpo": {
+                      "type": "string",
+                      "description": "Company accounts OKPO",
+                      "examples": [
+                        null
+                      ]
+                    },
+                    "phone": {
+                      "type": "string",
+                      "description": "Company phone number",
+                      "examples": [
+                        "380950000001"
+                      ]
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Shop public key",
+                      "examples": [
+                        "i000000000"
+                      ]
+                    },
+                    "refund_number": {
+                      "type": "string",
+                      "description": "The number of the card / account / terminal of the company where the compensation was paid",
+                      "examples": [
+                        "4731180000000001"
+                      ]
+                    },
+                    "refund_way": {
+                      "type": "string",
+                      "description": "The way in which the refund takes place",
+                      "examples": [
+                        "card"
+                      ]
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "The result of a request `ok` or `error`",
+                      "examples": [
+                        "ok"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Possible meaning: `activated` - the store is activated with refund, `wait_accept` - the store is activated without refund"
+                    },
+                    "status_description": {
+                      "type": "string",
+                      "description": "The description of the error (the language of the error depends on the language parameter)"
+                    },
+                    "comment": {
+                      "type": "string",
+                      "description": "Comment from the MEO operator"
+                    },
+                    "link": {
+                      "type": "string",
+                      "description": "Link to the merchant's LiqPay Business Cabinet"
+                    },
+                    "update_date": {
+                      "type": "string",
+                      "description": "Date of information update on the company",
+                      "examples": [
+                        1501764124764
+                      ]
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "URL of company",
+                      "examples": [
+                        "site123.site.com"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

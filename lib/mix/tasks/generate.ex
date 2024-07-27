@@ -164,8 +164,8 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "internet_acquiring" or
-             (path != [] and hd(path) == "internet_acquiring") do
+        if id == "partnership" or
+             (path != [] and hd(path) == "partnership") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
@@ -356,11 +356,9 @@ defmodule Mix.Tasks.Generate do
          path,
          json_file
        ) do
-    {request_schema, response_schema, code_blocks} =
-      Enum.reduce(block_nodes, {nil, nil, []}, fn node,
-                                                  {request_schema, response_schema, code_blocks} ->
+    {endpoints, code_blocks, _path} =
+      Enum.reduce(block_nodes, {[], [], path}, fn node, {endpoints, code_blocks, path} ->
         classes = node_classes(node)
-        was_request = is_nil(response_schema)
 
         cond do
           standalone_code_block_class && Enum.member?(classes, standalone_code_block_class) ->
@@ -371,10 +369,10 @@ defmodule Mix.Tasks.Generate do
             |> case do
               {:ok, {is_request, code}} ->
                 code_blocks_new = [{is_request, code} | code_blocks]
-                {request_schema, response_schema, code_blocks_new}
+                {endpoints, code_blocks_new, path}
 
               :error ->
-                {request_schema, response_schema, code_blocks}
+                {endpoints, code_blocks, path}
             end
 
           Enum.find_value(table_classes, fn class ->
@@ -383,22 +381,43 @@ defmodule Mix.Tasks.Generate do
               [] -> nil
             end
           end) ->
+            was_request =
+              case endpoints do
+                [] -> true
+                [endpoint(response: response_schema) | _] -> is_nil(response_schema)
+              end
+
             node
             |> parse_block_data(block_parse_settings, was_request, path)
             |> case do
-              {:ok,
-               block(is_request: is_request, update_operation: update_operation) = block_data} ->
+              {:ok, block(update_operation: update_operation) = block_data} ->
+                {is_request, [top_endpoint | rest_endpoints] = _endpoints_new, path_new} =
+                  case block_data do
+                    block(update_operation: :new_endpoint, update_name: id) ->
+                      [top_id | rest_path] = path
+                      id = if(endpoints == [], do: top_id, else: id)
+                      endpoint = endpoint(id: id)
+                      endpoints_new = [endpoint | endpoints]
+                      path_new = [id | rest_path]
+                      {true, endpoints_new, path_new}
+
+                    block(is_request: is_request) ->
+                      {is_request, endpoints, path}
+                  end
+
                 {block_schema_type, block_schema} =
                   if is_request do
+                    endpoint(request: request_schema) = top_endpoint
                     {:request, request_schema}
                   else
+                    endpoint(response: response_schema) = top_endpoint
                     {:response, response_schema}
                   end
 
                 block_schema_new =
                   (block_schema || %{type: :object, properties: OrderedObject.new([])})
                   |> update_block_schema(block_data, block_parse_settings, false, [
-                    {:schema, block_schema_type} | path
+                    {:schema, block_schema_type} | path_new
                   ])
                   |> case do
                     {true, block_schema_new} ->
@@ -408,33 +427,42 @@ defmodule Mix.Tasks.Generate do
                       block_schema_new
                   end
 
-                if is_request,
-                  do: {block_schema_new, response_schema, code_blocks},
-                  else: {request_schema, block_schema_new, code_blocks}
+                top_endpoint_new =
+                  if is_request,
+                    do: endpoint(top_endpoint, request: block_schema_new),
+                    else: endpoint(top_endpoint, response: block_schema_new)
+
+                endpoints_new = [top_endpoint_new | rest_endpoints]
+
+                {endpoints_new, code_blocks, path_new}
 
               :error ->
-                {request_schema, response_schema, code_blocks}
+                {endpoints, code_blocks, path}
             end
 
           :else ->
             {_, _, code_blocks_new} =
               search_code_blocks(node, block_parse_settings, {nil, nil, code_blocks}, path)
 
-            {request_schema, response_schema, code_blocks_new}
+            {endpoints, code_blocks_new, path}
         end
       end)
 
-    {request_schema_new, response_schema_new} =
+    [top_endpoint | rest_endpoints] = _endpoints = Enum.reverse(endpoints)
+
+    top_endpoint_new =
       code_blocks
       |> Enum.reverse()
-      |> Enum.reduce({request_schema, response_schema}, fn
-        {is_request, example}, {request_schema, response_schema} ->
+      |> Enum.reduce(top_endpoint, fn
+        {is_request, example},
+        endpoint(request: request_schema, response: response_schema) = endpoint ->
           schema = if is_request, do: request_schema, else: response_schema
           schema_new = patch_schema_examples(example, schema)
-          if is_request, do: {schema_new, response_schema}, else: {request_schema, schema_new}
-      end)
 
-    response_schema_new = response_schema_new || %{type: :object}
+          if is_request,
+            do: endpoint(endpoint, request: schema_new),
+            else: endpoint(endpoint, response: schema_new)
+      end)
 
     json_file
     |> Path.dirname()
@@ -445,7 +473,8 @@ defmodule Mix.Tasks.Generate do
       info: OrderedObject.new(version: "3", title: "External API"),
       servers: [OrderedObject.new(url: "https://liqpay.ua")],
       paths:
-        OrderedObject.new([
+        [top_endpoint_new | rest_endpoints]
+        |> Enum.map(fn endpoint(request: request_schema, response: response_schema) ->
           {"/test",
            OrderedObject.new(
              post:
@@ -456,7 +485,7 @@ defmodule Mix.Tasks.Generate do
                    OrderedObject.new(
                      content:
                        OrderedObject.new([
-                         {"application/json", OrderedObject.new(schema: request_schema_new)}
+                         {"application/json", OrderedObject.new(schema: request_schema)}
                        ])
                    ),
                  responses:
@@ -466,13 +495,15 @@ defmodule Mix.Tasks.Generate do
                         description: "200",
                         content:
                           OrderedObject.new([
-                            {"application/json", OrderedObject.new(schema: response_schema_new)}
+                            {"application/json",
+                             OrderedObject.new(schema: response_schema || %{type: :object})}
                           ])
                       )}
                    ])
                )
            )}
-        ])
+        end)
+        |> OrderedObject.new()
     )
     |> Jason.encode!(pretty: true)
     |> then(&File.write!(json_file, &1))
@@ -759,8 +790,26 @@ defmodule Mix.Tasks.Generate do
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "cancel")}
 
+  defp process_block_title(
+         "company creation create",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["shop_create", "partnership"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
+
+  defp process_block_title(
+         "company creation register",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["shop_create", "partnership"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "register")}
+
   defp process_block_title("main", block, _block_parse_settings, true, _path),
-    do: {:ok, block(block, update_operation: :patch)}
+    do: {:ok, block(block, update_operation: :new_endpoint)}
 
   defp process_block_title(
          "other parameters" = title,
@@ -862,7 +911,7 @@ defmodule Mix.Tasks.Generate do
          true,
          ["decrypted_token", "gpay", "internet_acquiring"] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block, update_operation: :new_endpoint)}
 
   defp process_block_title(
          "sender parameters" = title,
@@ -978,7 +1027,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["shop_create", "partnership"] = _path
+         [_, "shop_create", "partnership"] = _path
        ),
        do: {:ok, block(block, update_name: "aggregator")}
 
@@ -993,6 +1042,42 @@ defmodule Mix.Tasks.Generate do
          _path
        ),
        do: :error
+
+  defp process_block_title(
+         "callback parameters",
+         block,
+         _block_parse_settings,
+         true,
+         ["register", "shop_create", "partnership"] = _path
+       ),
+       do: {:ok, block(block, is_request: false, update_operation: :patch)}
+
+  defp process_block_title(
+         "available мсс",
+         block,
+         _block_parse_settings,
+         true,
+         ["register", "shop_create", "partnership"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "available_mcc")}
+
+  defp process_block_title(
+         "example answer",
+         block,
+         _block_parse_settings,
+         true,
+         [_, "shop_create", "partnership"] = _path
+       ),
+       do: {:ok, block(block, is_request: false, update_operation: :patch)}
+
+  defp process_block_title(
+         "documents",
+         block,
+         _block_parse_settings,
+         true,
+         ["available_mcc", "shop_create", "partnership"]
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "documents")}
 
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
@@ -1787,13 +1872,16 @@ defmodule Mix.Tasks.Generate do
               |> extract_code()
               |> then(
                 &Regex.scan(
-                  ~r/liqpay\.(?:cnb_form\(|api\(\s*\"request\"\s*,)\s*(\{(?:[^}{]+|(?1))*+\})/,
+                  ~r/liqpay\.(?:cnb_form\(|api\(\s*\"(?:\w+\/)*request\"\s*,)\s*(\{(?:[^}{]+|(?1))*+\})/,
                   &1,
                   capture: :all_but_first
                 )
               )
 
-            {:ok, {is_request, Jason.decode!(code_string)}}
+            code_string
+            |> String.replace(~r/(\{[^}{]+),(\s*\})/, "\\1\\2")
+            |> Jason.decode!()
+            |> then(&{:ok, {is_request, &1}})
 
           [] ->
             :error
