@@ -759,11 +759,8 @@ defmodule Mix.Tasks.Generate do
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "cancel")}
 
-  defp process_block_title(nil, block, _block_parse_settings, true, _path),
+  defp process_block_title("main", block, _block_parse_settings, true, _path),
     do: {:ok, block(block, update_operation: :patch)}
-
-  defp process_block_title("main", block, block_parse_settings, true, path),
-    do: process_block_title(nil, block, block_parse_settings, true, path)
 
   defp process_block_title(
          "other parameters" = title,
@@ -781,11 +778,11 @@ defmodule Mix.Tasks.Generate do
   defp process_block_title(
          "other parameters",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = path
+         [_, "internet_acquiring"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "other parameters" = title,
@@ -816,56 +813,56 @@ defmodule Mix.Tasks.Generate do
   defp process_block_title(
          "parameters of splitting the payments",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = path
+         [_, "internet_acquiring"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for tokenization within the token connect control",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         ["tokens"] = path
+         ["tokens"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for transfer to the card",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         ["transferring_to_card"] = path
+         ["transferring_to_card"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for transfer to the card's token",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         ["transferring_to_card"] = path
+         ["transferring_to_card"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "receiver parameters",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         ["transferring_to_card"] = path
+         ["transferring_to_card"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for data formation",
          block,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         ["decrypted_token", "gpay", "internet_acquiring"] = path
+         ["decrypted_token", "gpay", "internet_acquiring"] = _path
        ),
-       do: process_block_title(nil, block, block_parse_settings, true, path)
+       do: {:ok, block(block, update_operation: :patch)}
 
   defp process_block_title(
          "sender parameters" = title,
