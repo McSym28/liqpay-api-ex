@@ -1,0 +1,148 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "examples": [
+                      "i123456789"
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "reports_compensation_file"
+                    ],
+                    "examples": [
+                      "reports_compensation_file",
+                      "reports_compensation_file_status"
+                    ]
+                  },
+                  "resp_format": {
+                    "type": "string",
+                    "description": "Possible report format: `csv` (default \"csv\")",
+                    "examples": [
+                      "csv"
+                    ]
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date for which the registry will be uploaded",
+                    "examples": [
+                      "2021-11-23"
+                    ]
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "p2p",
+                      "p2pcredit"
+                    ],
+                    "description": "Type of operation",
+                    "examples": [
+                      "p2p"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "register_token",
+                    "result",
+                    "status"
+                  ],
+                  "properties": {
+                    "register_token": {
+                      "type": "number",
+                      "description": "Parameter received on the previous request"
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "The result of the request"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Request processing status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

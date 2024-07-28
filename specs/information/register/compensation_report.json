@@ -1,0 +1,124 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "examples": [
+                      "i123456789"
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "reports_compensation_file"
+                    ],
+                    "examples": [
+                      "reports_compensation_file",
+                      "reports_compensation_file_status"
+                    ]
+                  },
+                  "compensation_id": {
+                    "type": "string",
+                    "description": "compensation_id of funds crediting posting"
+                  },
+                  "resp_format": {
+                    "type": "string",
+                    "enum": [
+                      "csv"
+                    ],
+                    "examples": [
+                      "csv"
+                    ]
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "If the `compensation_id` parameter is unknown, the payment date for which you want to receive the registry is being passed. For example, `2021-11-23`",
+                    "examples": [
+                      "2021-11-23"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

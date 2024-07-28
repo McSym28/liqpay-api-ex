@@ -1,0 +1,294 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "reports"
+                    ],
+                    "examples": [
+                      "reports"
+                    ]
+                  },
+                  "resp_format": {
+                    "type": "string",
+                    "description": "Possible report format `json`, `csv`, `xml`. If parameter is not passed, will be passed by default `json`."
+                  },
+                  "date_from": {
+                    "type": "string",
+                    "description": "Start date of a report in `timestamp` in milliseconds",
+                    "examples": [
+                      "1443161386000"
+                    ]
+                  },
+                  "date_to": {
+                    "type": "string",
+                    "description": "End date of a report in `timestamp` in milliseconds",
+                    "examples": [
+                      "1443164386000"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acq_id": {
+                      "type": "number",
+                      "description": "Acquirer ID"
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "pay",
+                        "hold",
+                        "paysplit",
+                        "subscribe",
+                        "paydonate",
+                        "auth",
+                        "regular"
+                      ],
+                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment"
+                    },
+                    "agent_commission": {
+                      "type": "number",
+                      "description": "Agent comission in payment currency"
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Payment amount"
+                    },
+                    "amount_bonus": {
+                      "type": "number",
+                      "description": "Payer bonus amount in payment currency debit"
+                    },
+                    "amount_credit": {
+                      "type": "number",
+                      "description": "Payment amount for credit in currency of `currency_credit`"
+                    },
+                    "amount_debit": {
+                      "type": "number",
+                      "description": "Payment amount for debit in currency of `currency_debit`"
+                    },
+                    "authcode_credit": {
+                      "type": "string",
+                      "description": "Authorization code for transaction of credit"
+                    },
+                    "authcode_debit": {
+                      "type": "string",
+                      "description": "Authorization code for transaction of debit"
+                    },
+                    "commission_credit": {
+                      "type": "number",
+                      "description": "Commission from the receiver in `currency_credit`"
+                    },
+                    "commission_debit": {
+                      "type": "number",
+                      "description": "Commission from the sender in `currency_debit`"
+                    },
+                    "create_date": {
+                      "type": "string",
+                      "description": "Date of payment creation"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "description": "Payment currency"
+                    },
+                    "currency_credit": {
+                      "type": "string",
+                      "description": "Transaction currency of credit"
+                    },
+                    "currency_debit": {
+                      "type": "string",
+                      "description": "Transaction currency of debit"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Payment description"
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "description": "Date of payment edition/end"
+                    },
+                    "is_3ds": {
+                      "type": "boolean",
+                      "enum": [
+                        true,
+                        false
+                      ],
+                      "description": "Possible values:\n* `true` - transaction passed with 3DS,\n* `false` - transaction passed without 3DS"
+                    },
+                    "liqpay_order_id": {
+                      "type": "string",
+                      "description": "Payment order_id in LiqPay system"
+                    },
+                    "mpi_eci": {
+                      "type": "integer",
+                      "enum": [
+                        5,
+                        6,
+                        7
+                      ],
+                      "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure"
+                    },
+                    "order_id": {
+                      "type": "string",
+                      "description": "Order_id payment"
+                    },
+                    "payment_id": {
+                      "type": "number",
+                      "description": "Payment id in LiqPay system"
+                    },
+                    "paytype": {
+                      "type": "string",
+                      "enum": [
+                        "card",
+                        "privat24",
+                        "masterpass",
+                        "moment_part",
+                        "cash",
+                        "invoice",
+                        "qr"
+                      ],
+                      "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning"
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Shop public key"
+                    },
+                    "receiver_commission": {
+                      "type": "number",
+                      "description": "Receiver comission in payment currency"
+                    },
+                    "rrn_credit": {
+                      "type": "string",
+                      "description": "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`"
+                    },
+                    "rrn_debit": {
+                      "type": "string",
+                      "description": "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`"
+                    },
+                    "sender_bonus": {
+                      "type": "number",
+                      "description": "Sender's bonus in the payment currency"
+                    },
+                    "sender_card_bank": {
+                      "type": "string",
+                      "description": "Sender's card bank"
+                    },
+                    "sender_card_country": {
+                      "type": "string",
+                      "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)"
+                    },
+                    "sender_card_mask2": {
+                      "type": "string",
+                      "description": "Sender's card"
+                    },
+                    "sender_card_type": {
+                      "type": "string",
+                      "description": "Sender's card type MC/Visa"
+                    },
+                    "sender_commission": {
+                      "type": "number",
+                      "description": "Commission from the sender in the payment currency"
+                    },
+                    "sender_first_name": {
+                      "type": "string",
+                      "description": "The name of the sender"
+                    },
+                    "sender_last_name": {
+                      "type": "string",
+                      "description": "Sender's last name"
+                    },
+                    "sender_phone": {
+                      "type": "string",
+                      "description": "Sender's phone number"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "failure",
+                        "reversed",
+                        "success",
+                        "3ds_verify",
+                        "cvv_verify",
+                        "receiver_verify",
+                        "sender_verify",
+                        "wait_accept",
+                        "wait_secure"
+                      ],
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `3ds_verify` - 3DS verification is required.\n To finish the payment you will require a [3ds_verify](https://www.liqpay.ua/en/doc/api/confirmation/3ds)\n* `cvv_verify` - Sender's card CVV is required. To finish the payment you will require a [cvv_verify](https://www.liqpay.ua/en/doc/api/confirmation/CVV)\n`otp_verify` OTP confirmation is required. OTP is sent to a customer phone number.\n To finish the payment you will require a [otp_verify](https://www.liqpay.ua/en/doc/api/confirmation/OTP)\n* `receiver_verify` - Receiver additional data is required. To finish the payment you will require a [receiver_verify](https://www.liqpay.ua/en/doc/api/confirmation/receiver_verify)\n* `sender_verify` - Sender's additional data is required.\n To finish the payment you will require a [sender_verify](https://www.liqpay.ua/en/doc/api/confirmation/sender_verify)\nOther payment statuses\n* `wait_accept` - Money are withdrawn from client but the store is still not verified. If the store is not activated for 60 days, payment will be automatically cancelled\n* `wait_secure` - Payment is verified"
+                    },
+                    "transaction_id": {
+                      "type": "number",
+                      "description": "Id transactions in the LiqPay system"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Payment type"
+                    },
+                    "version": {
+                      "type": "integer",
+                      "enum": [
+                        3
+                      ],
+                      "description": "Version API"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

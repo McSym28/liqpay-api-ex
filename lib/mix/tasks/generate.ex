@@ -164,8 +164,8 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "confirmation" or
-             (path != [] and hd(path) == "confirmation") do
+        if id == "information" or
+             (path != [] and hd(path) == "information") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
@@ -699,7 +699,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["apay", "internet_acquiring"]
+         ["apay", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
 
@@ -708,7 +708,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["apay", "internet_acquiring"]
+         ["apay", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
 
@@ -717,7 +717,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["gpay", "internet_acquiring"]
+         ["gpay", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
 
@@ -726,7 +726,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["gpay", "internet_acquiring"]
+         ["gpay", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
 
@@ -735,14 +735,20 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["subscription", "internet_acquiring"]
+         ["subscription", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
 
-  defp process_block_title("unsubscribe", block(node: nil) = block, _block_parse_settings, true, [
-         "subscription",
-         "internet_acquiring"
-       ]),
+  defp process_block_title(
+         "unsubscribe",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         [
+           "subscription",
+           "internet_acquiring"
+         ] = _path
+       ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "unsubscribe")}
 
   defp process_block_title(
@@ -750,7 +756,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["subscription", "internet_acquiring"]
+         ["subscription", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "edit")}
 
@@ -759,7 +765,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["two_step", "internet_acquiring"]
+         ["two_step", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "block")}
 
@@ -768,7 +774,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["two_step", "internet_acquiring"]
+         ["two_step", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "complete")}
 
@@ -777,7 +783,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["invoice", "internet_acquiring"]
+         ["invoice", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "issue")}
 
@@ -786,7 +792,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["invoice", "internet_acquiring"]
+         ["invoice", "internet_acquiring"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "cancel")}
 
@@ -795,7 +801,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["shop_create", "partnership"]
+         ["shop_create", "partnership"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
 
@@ -804,7 +810,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["shop_create", "partnership"]
+         ["shop_create", "partnership"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "register")}
 
@@ -1031,8 +1037,14 @@ defmodule Mix.Tasks.Generate do
        ),
        do: {:ok, block(block, update_name: "aggregator")}
 
-  defp process_block_title("api invoice_units", _block_data, _block_parse_settings, true, _path),
-    do: :error
+  defp process_block_title(
+         "api invoice_units",
+         _block_data,
+         _block_parse_settings,
+         true,
+         ["cancel", "invoice", "internet_acquiring"] = _path
+       ),
+       do: :error
 
   defp process_block_title(
          "payment widget parameters",
@@ -1057,7 +1069,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["register", "shop_create", "partnership"]
+         ["register", "shop_create", "partnership"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "available_mcc")}
 
@@ -1075,7 +1087,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["available_mcc", "shop_create", "partnership"]
+         ["available_mcc", "shop_create", "partnership"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "documents")}
 
@@ -1084,7 +1096,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["tokens"]
+         ["tokens"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "obtain")}
 
@@ -1093,9 +1105,115 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["tokens"]
+         ["tokens"] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "change_status")}
+
+  defp process_block_title(
+         "compensation once a day",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["register", "information"] = _path
+       ),
+       do:
+         {:ok, block(block, update_operation: :new_endpoint, update_name: "compensation_per_day")}
+
+  defp process_block_title(
+         "compensation per transaction",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["register", "information"] = _path
+       ),
+       do:
+         {:ok,
+          block(block,
+            update_operation: :new_endpoint,
+            update_name: "compensation_per_transaction"
+          )}
+
+  defp process_block_title(
+         "getting the compensation registry",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["register", "information"] = _path
+       ),
+       do:
+         {:ok, block(block, update_operation: :new_endpoint, update_name: "compensation_report")}
+
+  defp process_block_title(
+         "parameters for generation of the first request",
+         block,
+         _block_parse_settings,
+         true,
+         ["compensation_report", "register", "information"] = _path
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint)}
+
+  defp process_block_title(
+         "parameters for generation of the second request",
+         block,
+         _block_parse_settings,
+         true,
+         ["compensation_report", "register", "information"] = _path
+       ),
+       do:
+         {:ok,
+          block(block, update_operation: :new_endpoint, update_name: "compensation_report_status")}
+
+  defp process_block_title(
+         "request statuses",
+         _block_data,
+         _block_parse_settings,
+         true,
+         ["compensation_report_status", "register", "information"] = _path
+       ),
+       do: :error
+
+  defp process_block_title(
+         "registry by p2p operation",
+         block(node: nil) = block,
+         _block_parse_settings,
+         true,
+         ["register", "information"]
+       ),
+       do:
+         {:ok,
+          block(block, update_operation: :new_endpoint, update_name: "compensation_report_p2p")}
+
+  defp process_block_title(
+         "parameters for generation of the request",
+         block,
+         _block_parse_settings,
+         true,
+         ["compensation_report_p2p", "register", "information"] = _path
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint)}
+
+  defp process_block_title(
+         "parameters for generation of the second request",
+         block,
+         _block_parse_settings,
+         true,
+         ["compensation_report_p2p", "register", "information"] = _path
+       ),
+       do:
+         {:ok,
+          block(block,
+            update_operation: :new_endpoint,
+            update_name: "compensation_report_p2p_status"
+          )}
+
+  defp process_block_title(
+         "request statuses",
+         _block_data,
+         _block_parse_settings,
+         true,
+         ["compensation_report_p2p_status", "register", "information"] = _path
+       ),
+       do: :error
 
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
@@ -1216,7 +1334,7 @@ defmodule Mix.Tasks.Generate do
          ) = block_parse_settings,
          path
        ) do
-    {properties, required} =
+    table =
       table_classes
       |> Enum.find_value(fn class ->
         case Floki.find(node, "div.#{class}.MuiBox-root") do
@@ -1224,13 +1342,27 @@ defmodule Mix.Tasks.Generate do
           [] -> nil
         end
       end)
+
+    is_full_property =
+      is_request or
+        table
+        |> Floki.find(
+          "table.MuiTable-root thead.MuiTableHead-root tr.MuiTableRow-root.MuiTableRow-head th.MuiTableCell-root.MuiTableCell-head"
+        )
+        |> Enum.at(1)
+        |> parse_node_text(block_parse_settings)
+        |> String.downcase()
+        |> Kernel.==("required")
+
+    {properties, required} =
+      table
       |> Floki.find("table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root")
       |> Enum.map(fn property ->
         [name, required, type, description | rest] =
           property
           |> Floki.find("td.MuiTableCell-root.MuiTableCell-body")
           |> case do
-            [name, type, description | rest] when not is_request ->
+            [name, type, description | rest] when not is_full_property ->
               [name, {"div", [], ["Optional"]}, type, description | rest]
 
             full_property ->
