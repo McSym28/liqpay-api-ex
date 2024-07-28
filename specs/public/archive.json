@@ -1,0 +1,97 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "USD": {
+                    "type": "string",
+                    "description": "U.S. dollar"
+                  },
+                  "EUR": {
+                    "type": "string",
+                    "description": "Euro"
+                  },
+                  "CHF": {
+                    "type": "string",
+                    "description": "Swiss Franc"
+                  },
+                  "GBP": {
+                    "type": "string",
+                    "description": "British pound"
+                  },
+                  "PLZ": {
+                    "type": "string",
+                    "description": "Polish Zloty"
+                  },
+                  "SEK": {
+                    "type": "string",
+                    "description": "Swedish krone"
+                  },
+                  "XAU": {
+                    "type": "string",
+                    "description": "Gold"
+                  },
+                  "CAD": {
+                    "type": "string",
+                    "description": "Canadian Dollar"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "baseCurrency": {
+                      "type": "string",
+                      "description": "Basic currency (UAH)"
+                    },
+                    "currency": {
+                      "type": "string",
+                      "description": "Deal currency (USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD)"
+                    },
+                    "saleRateNB/purchaseRateNB": {
+                      "type": "string",
+                      "description": "The sale rate of NBU"
+                    },
+                    "saleRate": {
+                      "type": "string",
+                      "description": "The sale rate of PrivatBank"
+                    },
+                    "purchaseRate": {
+                      "type": "string",
+                      "description": "Buying rate of PrivatBank"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

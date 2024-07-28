@@ -25,6 +25,9 @@ defmodule Mix.Tasks.Generate do
     table_standalone_code_block_class: nil,
     standalone_code_block_class: nil,
     code_block_class: nil,
+    code_block_language_panel_class: nil,
+    code_block_language_panel_menu_class: nil,
+    code_block_language_panel_menu_item_class: nil,
     irrelevant_code_block_class: nil,
     title_class: nil,
     subtitle_classes: MapSet.new()
@@ -164,8 +167,8 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "information" or
-             (path != [] and hd(path) == "information") do
+        if id == "public" or
+             (path != [] and hd(path) == "public") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
@@ -182,141 +185,117 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_doc_page(
-         parse_settings(url: url, body: body, document: document, path: path) = parse_settings
-       ) do
+  defp parse_doc_page(parse_settings(document: document) = parse_settings) do
     document
     |> Floki.find("div.base-TabsList-root")
     |> case do
-      [tab] ->
-        [tab_label_class] =
-          Regex.run(~r/(?<!\w)new_doc_tab_lable__\w+(?!\w)/, body, capture: :first)
-
-        [_ | _] = tab_items = Floki.find(tab, "button")
-
-        %URI{query: query} = uri = URI.new!(url)
-        decoded_query = URI.decode_query(query)
-
-        tab_index =
-          decoded_query
-          |> Map.fetch!("tab")
-          |> parse_schema_value(%{type: :integer})
-
-        tab_count = Enum.count(tab_items)
-
-        cond do
-          tab_count <= 2 ->
-            "documentation" =
-              tab_items
-              |> Enum.at(tab_index)
-              |> Floki.find("div.#{tab_label_class}")
-              |> parse_node_text(block_parse_settings())
-              |> downcase_block_title()
-
-            process_doc(parse_settings)
-
-          tab_index != 1 ->
-            parse_settings
-            |> parse_settings(path: path)
-            |> process_doc()
-
-          :else ->
-            results =
-              Enum.map(
-                1..(tab_count - 1),
-                fn tab_index ->
-                  tab_label =
-                    tab_items
-                    |> Enum.at(tab_index)
-                    |> Floki.find("div.#{tab_label_class}")
-                    |> parse_node_text(block_parse_settings())
-
-                  {:ok, block(update_operation: :new_endpoint, update_name: tab_id)} =
-                    tab_label
-                    |> downcase_block_title()
-                    |> process_block_title(block(), block_parse_settings(), true, path)
-
-                  parse_settings_new = parse_settings(parse_settings, path: [tab_id | path])
-
-                  {:ok, result} =
-                    if tab_index == 1 do
-                      process_doc(parse_settings_new)
-                    else
-                      query_new =
-                        decoded_query
-                        |> Map.put("tab", Integer.to_string(tab_index))
-                        |> URI.encode_query()
-
-                      url_new = %URI{uri | query: query_new} |> URI.to_string()
-
-                      process_url(url_new, parse_settings_new)
-                    end
-
-                  result
-                end
-              )
-
-            {:ok, results}
-        end
-
-      [] ->
-        :error
+      [tab] -> parse_tab(tab, parse_settings)
+      [] -> process_doc(parse_settings, false)
     end
   end
 
-  defp process_doc(parse_settings(body: body, document: document, path: path) = _parse_settings) do
-    [main_block_class] = Regex.run(~r/(?<!\w)new_doc_page_doc__\w+(?!\w)/, body, capture: :first)
+  defp parse_tab(tab, parse_settings(url: url, body: body, path: path) = parse_settings) do
+    [tab_label_class] =
+      Regex.run(~r/(?<!\w)new_doc_tab_lable__\w+(?!\w)/, body, capture: :first)
 
-    [title_class] =
-      Regex.run(~r/(?<!\w)new_doc_integration_titles__\w+(?!\w)/, body, capture: :first)
+    [_ | _] = tab_items = Floki.find(tab, "button")
+
+    %URI{query: query} = uri = URI.new!(url)
+    decoded_query = URI.decode_query(query)
+
+    tab_index =
+      decoded_query
+      |> Map.fetch!("tab")
+      |> parse_schema_value(%{type: :integer})
+
+    tab_count = Enum.count(tab_items)
+
+    cond do
+      tab_count <= 2 ->
+        "documentation" =
+          tab_items
+          |> Enum.at(tab_index)
+          |> Floki.find("div.#{tab_label_class}")
+          |> parse_node_text(block_parse_settings())
+          |> downcase_block_title()
+
+        process_doc(parse_settings, true)
+
+      tab_index != 1 ->
+        parse_settings
+        |> parse_settings(path: path)
+        |> process_doc(true)
+
+      :else ->
+        results =
+          Enum.map(
+            1..(tab_count - 1),
+            fn tab_index ->
+              tab_label =
+                tab_items
+                |> Enum.at(tab_index)
+                |> Floki.find("div.#{tab_label_class}")
+                |> parse_node_text(block_parse_settings())
+
+              {:ok, block(update_operation: :new_endpoint, update_name: tab_id)} =
+                tab_label
+                |> downcase_block_title()
+                |> process_block_title(block(), block_parse_settings(), true, path)
+
+              parse_settings_new = parse_settings(parse_settings, path: [tab_id | path])
+
+              {:ok, result} =
+                if tab_index == 1 do
+                  process_doc(parse_settings_new, true)
+                else
+                  query_new =
+                    decoded_query
+                    |> Map.put("tab", Integer.to_string(tab_index))
+                    |> URI.encode_query()
+
+                  url_new = %URI{uri | query: query_new} |> URI.to_string()
+
+                  process_url(url_new, parse_settings_new)
+                end
+
+              result
+            end
+          )
+
+        {:ok, results}
+    end
+  end
+
+  defp process_doc(parse_settings(document: document, path: path) = parse_settings, has_tabs) do
+    main_block_class = find_class!("new_doc_page_doc", parse_settings)
+    title_class = find_class!("new_doc_integration_titles", parse_settings)
 
     subtitle_classes =
-      ~r/(?<!\w)(?:new_doc_possibilities_(?:text|subtitle)|doc_page_index_indent)__\w+(?!\w)/
-      |> Regex.scan(body)
-      |> Enum.map(fn [class] -> class end)
+      "(?:new_doc_possibilities_(?:text|subtitle)|doc_page_index_indent)"
+      |> find_classes(parse_settings)
       |> MapSet.new()
 
-    [inline_code_text_class] =
-      Regex.run(~r/(?<!\w)new_doc_integration_code_text__\w+(?!\w)/, body, capture: :first)
+    inline_code_text_class = find_class("new_doc_integration_code_text", parse_settings)
 
     table_classes =
-      ~r/(?<!\w)new_doc_table_scroll(?:_\w+)?__\w+(?!\w)/
-      |> Regex.scan(body)
-      |> Enum.map(fn [class] -> class end)
-      |> Enum.uniq()
+      "new_doc_table_scroll(?:_\\w+)?"
+      |> find_classes(parse_settings)
       |> MapSet.new()
 
-    table_standalone_code_block_class =
-      ~r/(?<!\w)new_doc_table_code__\w+(?!\w)/
-      |> Regex.run(body, capture: :first)
-      |> case do
-        [class] -> class
-        nil -> nil
-      end
+    table_standalone_code_block_class = find_class("new_doc_table_code", parse_settings)
+    standalone_code_block_class = find_class("new_doc_page_content", parse_settings)
+    code_block_class = find_class("doc_code_style", parse_settings)
 
-    standalone_code_block_class =
-      ~r/(?<!\w)new_doc_page_content__\w+(?!\w)/
-      |> Regex.run(body, capture: :first)
-      |> case do
-        [class] -> class
-        nil -> nil
-      end
+    code_block_language_panel_class =
+      code_block_class && find_class("doc_doc_panel_menu", parse_settings)
 
-    code_block_class =
-      ~r/(?<!\w)doc_code_style__\w+(?!\w)/
-      |> Regex.run(body, capture: :first)
-      |> case do
-        [class] -> class
-        nil -> nil
-      end
+    code_block_language_panel_menu_class =
+      code_block_language_panel_class && find_class("doc_panel_mob", parse_settings)
 
-    irrelevant_code_block_class =
-      ~r/(?<!\w)new_doc_green_page_background__\w+(?!\w)/
-      |> Regex.run(body, capture: :first)
-      |> case do
-        [class] -> class
-        nil -> nil
-      end
+    code_block_language_panel_menu_item_class =
+      code_block_language_panel_menu_class && find_class("doc_doc_panel_menu_a", parse_settings)
+
+    irrelevant_code_block_class = find_class("new_doc_green_page_background", parse_settings)
 
     json_file =
       path
@@ -326,7 +305,9 @@ defmodule Mix.Tasks.Generate do
       |> Path.join()
 
     document
-    |> Floki.find("div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root")
+    |> Floki.find(
+      "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root #{if has_tabs, do: "> div.MuiBox-root"}"
+    )
     |> parse_doc(
       block_parse_settings(
         inline_code_text_class: inline_code_text_class,
@@ -334,6 +315,9 @@ defmodule Mix.Tasks.Generate do
         table_standalone_code_block_class: table_standalone_code_block_class,
         standalone_code_block_class: standalone_code_block_class,
         code_block_class: code_block_class,
+        code_block_language_panel_class: code_block_language_panel_class,
+        code_block_language_panel_menu_class: code_block_language_panel_menu_class,
+        code_block_language_panel_menu_item_class: code_block_language_panel_menu_item_class,
         irrelevant_code_block_class: irrelevant_code_block_class,
         title_class: title_class,
         subtitle_classes: subtitle_classes
@@ -345,6 +329,36 @@ defmodule Mix.Tasks.Generate do
       :ok -> {:ok, :ok}
       :error -> :error
     end
+  end
+
+  defp find_class_ensure_regex(class_prefix) when is_binary(class_prefix) do
+    ~s'(?<!\\w)#{class_prefix}__\\w+(?!\\w)'
+    |> Regex.compile!()
+    |> find_class_ensure_regex()
+  end
+
+  defp find_class_ensure_regex(%Regex{} = regex), do: regex
+
+  defp find_classes(pattern, parse_settings(body: body)) do
+    pattern
+    |> find_class_ensure_regex()
+    |> Regex.scan(body, capture: :first)
+    |> Enum.map(fn [class] -> class end)
+    |> Enum.uniq()
+  end
+
+  defp find_class(pattern, parse_settings) do
+    pattern
+    |> find_classes(parse_settings)
+    |> case do
+      [class] -> class
+      [] -> nil
+    end
+  end
+
+  defp find_class!(pattern, parse_settings) do
+    [class] = find_classes(pattern, parse_settings)
+    class
   end
 
   defp parse_doc(
@@ -365,7 +379,7 @@ defmodule Mix.Tasks.Generate do
             node
             |> parse_block_title(block_parse_settings)
             |> downcase_block_title()
-            |> parse_standalone_example(node, path)
+            |> parse_standalone_example(node, block_parse_settings, path)
             |> case do
               {:ok, {is_request, code}} ->
                 code_blocks_new = [{is_request, code} | code_blocks]
@@ -683,16 +697,17 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  # defp process_block_title({title, subtitle}, block, block_parse_settings, false, path)
-  #      when is_binary(title) and is_binary(subtitle) do
-  #   {title, subtitle}
-  #   |> downcase_block_title()
-  #   |> process_block_title(
-  #     block(block, description: subtitle),
-  #     block_parse_settings,
-  #     true, path
-  #   )
-  # end
+  defp process_block_title({title, subtitle}, block, block_parse_settings, false, path)
+       when is_binary(title) and is_binary(subtitle) do
+    {title, subtitle}
+    |> downcase_block_title()
+    |> process_block_title(
+      block(block, description: title),
+      block_parse_settings,
+      true,
+      path
+    )
+  end
 
   defp process_block_title(
          "encrypted token",
@@ -1215,6 +1230,15 @@ defmodule Mix.Tasks.Generate do
        ),
        do: :error
 
+  defp process_block_title(
+         {"request parameters", "main"},
+         block,
+         _block_parse_settings,
+         true,
+         [_, "public"] = _path
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint)}
+
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
   end
@@ -1327,7 +1351,7 @@ defmodule Mix.Tasks.Generate do
 
   defp process_block_properties(
          schema,
-         block(node: node, is_request: is_request) = block_data,
+         block(node: node) = block_data,
          block_parse_settings(
            table_classes: table_classes,
            table_standalone_code_block_class: table_standalone_code_block_class
@@ -1343,36 +1367,45 @@ defmodule Mix.Tasks.Generate do
         end
       end)
 
-    is_full_property =
-      is_request or
-        table
-        |> Floki.find(
-          "table.MuiTable-root thead.MuiTableHead-root tr.MuiTableRow-root.MuiTableRow-head th.MuiTableCell-root.MuiTableCell-head"
-        )
-        |> Enum.at(1)
+    column_headers =
+      table
+      |> Floki.find(
+        "table.MuiTable-root thead.MuiTableHead-root tr.MuiTableRow-root.MuiTableRow-head th.MuiTableCell-root.MuiTableCell-head"
+      )
+      |> Enum.map(fn node ->
+        node
         |> parse_node_text(block_parse_settings)
         |> String.downcase()
-        |> Kernel.==("required")
+      end)
 
     {properties, required} =
       table
       |> Floki.find("table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root")
       |> Enum.map(fn property ->
-        [name, required, type, description | rest] =
+        {name, required, type, description, example_nodes} =
           property
           |> Floki.find("td.MuiTableCell-root.MuiTableCell-body")
-          |> case do
-            [name, type, description | rest] when not is_full_property ->
-              [name, {"div", [], ["Optional"]}, type, description | rest]
+          |> Enum.zip(column_headers)
+          |> Enum.reduce({nil, false, :string, "", []}, fn
+            {cell, "parameter"}, {_name, required, type, description, example_nodes} ->
+              name = parse_property_name(cell, block_parse_settings)
+              {name, required, type, description, example_nodes}
 
-            full_property ->
-              full_property
-          end
+            {cell, "required"}, {name, _required, type, description, example_nodes} ->
+              required = parse_property_required(cell, block_parse_settings)
+              {name, required, type, description, example_nodes}
 
-        name = parse_property_name(name, block_parse_settings)
-        description = parse_node_text(description, block_parse_settings)
-        type = parse_property_type(type, block_parse_settings)
-        required = parse_property_required(required, block_parse_settings)
+            {cell, "type"}, {name, required, _type, description, example_nodes} ->
+              type = parse_property_type(cell, block_parse_settings)
+              {name, required, type, description, example_nodes}
+
+            {cell, "description"}, {name, required, type, _description, example_nodes} ->
+              description = parse_node_text(cell, block_parse_settings)
+              {name, required, type, description, example_nodes}
+
+            {cell, ""}, {name, required, type, description, example_nodes} ->
+              {name, required, type, description, [cell | example_nodes]}
+          end)
 
         path_new = [name | path]
 
@@ -1382,7 +1415,7 @@ defmodule Mix.Tasks.Generate do
           |> parse_property_maximum_length()
           |> parse_property_enum()
           |> parse_property_examples()
-          |> parse_property_separate_example(rest, path_new)
+          |> parse_property_separate_example(example_nodes, path_new)
 
         {{name, property_schema}, if(required, do: [name], else: [])}
       end)
@@ -1695,11 +1728,11 @@ defmodule Mix.Tasks.Generate do
         subtitle_new = parse_block_title_text(div, block_parse_settings)
         {title, subtitle_new, code_blocks}
 
-      MapSet.member?(classes, code_block_class) ->
+      code_block_class && MapSet.member?(classes, code_block_class) ->
         {title, subtitle}
         |> parse_block_title(block_parse_settings)
         |> downcase_block_title()
-        |> parse_standalone_example(div, path)
+        |> parse_standalone_example(div, block_parse_settings, path)
         |> case do
           {:ok, {is_request, code}} ->
             code_blocks_new = [{is_request, code} | code_blocks]
@@ -1992,63 +2025,93 @@ defmodule Mix.Tasks.Generate do
     end)
   end
 
-  defp parse_standalone_example("response example", _div, [
+  defp parse_standalone_example("response example", _div, _block_parse_settings, [
          "decrypted_token",
          "gpay",
          "internet_acquiring"
        ]),
        do: :error
 
-  defp parse_standalone_example("response example", div, path),
-    do: parse_standalone_example(false, div, path)
+  defp parse_standalone_example("response example", div, block_parse_settings, path),
+    do: parse_standalone_example(false, div, block_parse_settings, path)
 
   defp parse_standalone_example(
          "sample response for mastercard",
          div,
+         block_parse_settings,
          ["obtain", "tokens"] = path
        ),
-       do: parse_standalone_example(false, div, path)
+       do: parse_standalone_example(false, div, block_parse_settings, path)
 
-  defp parse_standalone_example("sample response for visa", div, ["obtain", "tokens"] = path),
-    do: parse_standalone_example(false, div, path)
+  defp parse_standalone_example(
+         "sample response for visa",
+         div,
+         block_parse_settings,
+         ["obtain", "tokens"] = path
+       ),
+       do: parse_standalone_example(false, div, block_parse_settings, path)
 
-  defp parse_standalone_example({"example response", _}, div, ["MPI", "confirmation"] = path),
-    do: parse_standalone_example(false, div, path)
+  defp parse_standalone_example(
+         {"example response", _},
+         div,
+         block_parse_settings,
+         ["MPI", "confirmation"] = path
+       ),
+       do: parse_standalone_example(false, div, block_parse_settings, path)
 
-  defp parse_standalone_example(title, div, path) when is_binary(title),
-    do: parse_standalone_example(true, div, path)
+  defp parse_standalone_example(title, div, block_parse_settings, path) when is_binary(title),
+    do: parse_standalone_example(true, div, block_parse_settings, path)
 
-  defp parse_standalone_example(is_request, div, _path) when is_boolean(is_request) do
-    div
-    |> Floki.find("code.language-json")
-    |> case do
-      [code_string] ->
-        {:ok, {is_request, code_string |> extract_code() |> Jason.decode!()}}
+  defp parse_standalone_example(
+         is_request,
+         div,
+         block_parse_settings(
+           code_block_language_panel_class: code_block_language_panel_class,
+           code_block_language_panel_menu_class: code_block_language_panel_menu_class,
+           code_block_language_panel_menu_item_class: code_block_language_panel_menu_item_class
+         ) = block_parse_settings,
+         _path
+       )
+       when is_boolean(is_request) and is_binary(code_block_language_panel_class) and
+              is_binary(code_block_language_panel_menu_class) and
+              is_binary(code_block_language_panel_menu_item_class) do
+    languages =
+      div
+      |> Floki.find(
+        "div.#{code_block_language_panel_class} div.#{code_block_language_panel_menu_class} a.#{code_block_language_panel_menu_item_class}"
+      )
+      |> Enum.map(fn node ->
+        node |> parse_node_text(block_parse_settings) |> String.downcase()
+      end)
+      |> MapSet.new()
 
-      [] ->
-        div
-        |> Floki.find("code.language-javascript")
-        |> case do
-          [code] ->
-            [[code_string]] =
-              code
-              |> extract_code()
-              |> then(
-                &Regex.scan(
-                  ~r/liqpay\.(?:cnb_form\(|api\(\s*\"(?:\w+\/)*request\"\s*,)\s*(\{(?:[^}{]+|(?1))*+\})/,
-                  &1,
-                  capture: :all_but_first
-                )
-              )
+    cond do
+      MapSet.member?(languages, "json") ->
+        [code_string] = Floki.find(div, "code.language-json")
+        code = code_string |> extract_code() |> Jason.decode!()
+        {:ok, {is_request, code}}
 
-            code_string
-            |> String.replace(~r/(\{[^}{]+),(\s*\})/, "\\1\\2")
-            |> Jason.decode!()
-            |> then(&{:ok, {is_request, &1}})
+      MapSet.member?(languages, "nodejs") ->
+        [code_string] = Floki.find(div, "code.language-javascript")
 
-          [] ->
-            :error
-        end
+        [[code_string]] =
+          code_string
+          |> extract_code()
+          |> then(
+            &Regex.scan(
+              ~r/liqpay\.(?:cnb_form\(|api\(\s*\"(?:\w+\/)*request\"\s*,)\s*(\{(?:[^}{]+|(?1))*+\})/,
+              &1,
+              capture: :all_but_first
+            )
+          )
+
+        code_string
+        |> String.replace(~r/(\{[^}{]+),(\s*\})/, "\\1\\2")
+        |> Jason.decode!()
+        |> then(&{:ok, {is_request, &1}})
+
+      :else ->
+        :error
     end
   end
 
@@ -2084,10 +2147,12 @@ defmodule Mix.Tasks.Generate do
         "**#{text}**"
 
       {"span", _attrs, [text]} = span ->
-        span
-        |> node_classes()
-        |> Enum.member?(inline_code_text_class)
-        |> if(do: "`#{text}`", else: text)
+        if inline_code_text_class &&
+             span |> node_classes() |> Enum.member?(inline_code_text_class) do
+          "`#{text}`"
+        else
+          text
+        end
 
       {"div", _attrs, _children} = div ->
         div

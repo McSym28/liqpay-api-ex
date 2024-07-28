@@ -1,0 +1,69 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "year": {
+                    "type": "string",
+                    "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`, for example - 2014"
+                  }
+                },
+                "examples": [
+                  [
+                    {
+                      "rate_date": "17.07.2014",
+                      "rate_value": "12.5"
+                    },
+                    {
+                      "rate_date": "15.04.2014",
+                      "rate_value": "9.5"
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rate_date": {
+                      "type": "string",
+                      "description": "Date of establishing «NBU Accounting Rate»"
+                    },
+                    "rate_value": {
+                      "type": "string",
+                      "description": "The value of the «NBU Discount Rate»"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

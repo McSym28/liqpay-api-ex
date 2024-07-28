@@ -1,0 +1,85 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "version": "3",
+    "title": "External API"
+  },
+  "servers": [
+    {
+      "url": "https://liqpay.ua"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "USD": {
+                    "type": "string",
+                    "description": "U.S. dollar"
+                  },
+                  "EUR": {
+                    "type": "string",
+                    "description": "Euro"
+                  }
+                },
+                "examples": [
+                  [
+                    {
+                      "base_ccy": "UAH",
+                      "buy": "19.20000",
+                      "ccy": "EUR",
+                      "sale": "20.00000"
+                    },
+                    {
+                      "base_ccy": "UAH",
+                      "buy": "15.50000",
+                      "ccy": "USD",
+                      "sale": "15.85000"
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ccy": {
+                      "type": "string",
+                      "description": "Currency code ([reference currency codes](https://en.wikipedia.org/wiki/ISO_4217))"
+                    },
+                    "base_ccy": {
+                      "type": "string",
+                      "description": "National currency code"
+                    },
+                    "buy": {
+                      "type": "string",
+                      "description": "Buying rate"
+                    },
+                    "sale": {
+                      "type": "string",
+                      "description": "Sales rate"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
