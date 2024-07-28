@@ -29,7 +29,7 @@ defmodule Mix.Tasks.Generate do
     code_block_language_panel_menu_class: nil,
     code_block_language_panel_menu_item_class: nil,
     irrelevant_code_block_class: nil,
-    title_class: nil,
+    title_classes: MapSet.new(),
     subtitle_classes: MapSet.new()
   )
 
@@ -167,8 +167,8 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "public" or
-             (path != [] and hd(path) == "public") do
+        if id == "callback" or
+             (path != [] and hd(path) == "callback") do
           url_new
           |> process_url(parse_settings(parse_settings, path: [id | path]))
           |> case do
@@ -190,7 +190,7 @@ defmodule Mix.Tasks.Generate do
     |> Floki.find("div.base-TabsList-root")
     |> case do
       [tab] -> parse_tab(tab, parse_settings)
-      [] -> process_doc(parse_settings, false)
+      [] -> process_doc(parse_settings)
     end
   end
 
@@ -219,12 +219,12 @@ defmodule Mix.Tasks.Generate do
           |> parse_node_text(block_parse_settings())
           |> downcase_block_title()
 
-        process_doc(parse_settings, true)
+        process_doc(parse_settings)
 
       tab_index != 1 ->
         parse_settings
         |> parse_settings(path: path)
-        |> process_doc(true)
+        |> process_doc()
 
       :else ->
         results =
@@ -246,7 +246,7 @@ defmodule Mix.Tasks.Generate do
 
               {:ok, result} =
                 if tab_index == 1 do
-                  process_doc(parse_settings_new, true)
+                  process_doc(parse_settings_new)
                 else
                   query_new =
                     decoded_query
@@ -266,9 +266,32 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp process_doc(parse_settings(document: document, path: path) = parse_settings, has_tabs) do
-    main_block_class = find_class!("new_doc_page_doc", parse_settings)
-    title_class = find_class!("new_doc_integration_titles", parse_settings)
+  defp process_doc(parse_settings(path: ["widgets", "internet_acquiring"])), do: :error
+  defp process_doc(parse_settings(path: ["splitting", "internet_acquiring"])), do: :error
+  defp process_doc(parse_settings(path: ["testing"])), do: :error
+  defp process_doc(parse_settings(path: ["errors"])), do: :error
+
+  defp process_doc(parse_settings(document: document, path: path) = parse_settings) do
+    main_block_selector =
+      "new_doc_page_doc"
+      |> find_class(parse_settings)
+      |> then(&{&1, path})
+      |> case do
+        {class, [_, "public"]} when is_binary(class) ->
+          "div.#{class} > div.MuiBox-root > div.MuiBox-root"
+
+        {class, _path} when is_binary(class) ->
+          "div.#{class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
+
+        {nil, ["callback"]} ->
+          class = find_class!("new_doc_doc_container_child", parse_settings)
+          "div.#{class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
+      end
+
+    title_classes =
+      "new_doc_(?:integration|page)_titles"
+      |> find_classes(parse_settings)
+      |> MapSet.new()
 
     subtitle_classes =
       "(?:new_doc_possibilities_(?:text|subtitle)|doc_page_index_indent)"
@@ -305,9 +328,7 @@ defmodule Mix.Tasks.Generate do
       |> Path.join()
 
     document
-    |> Floki.find(
-      "div.#{main_block_class} > div.MuiBox-root > div.MuiBox-root #{if has_tabs, do: "> div.MuiBox-root"}"
-    )
+    |> Floki.find(main_block_selector)
     |> parse_doc(
       block_parse_settings(
         inline_code_text_class: inline_code_text_class,
@@ -319,7 +340,7 @@ defmodule Mix.Tasks.Generate do
         code_block_language_panel_menu_class: code_block_language_panel_menu_class,
         code_block_language_panel_menu_item_class: code_block_language_panel_menu_item_class,
         irrelevant_code_block_class: irrelevant_code_block_class,
-        title_class: title_class,
+        title_classes: title_classes,
         subtitle_classes: subtitle_classes
       ),
       path,
@@ -588,11 +609,11 @@ defmodule Mix.Tasks.Generate do
   defp parse_block_title(
          {_, _, _} = node,
          block_parse_settings(
-           title_class: title_class,
+           title_classes: title_classes,
            subtitle_classes: subtitle_classes
          ) = block_parse_settings
        ) do
-    title = parse_block_title(node, block_parse_settings, [title_class])
+    title = parse_block_title(node, block_parse_settings, title_classes)
     subtitle = parse_block_title(node, block_parse_settings, subtitle_classes)
     parse_block_title({title, subtitle}, block_parse_settings)
   end
@@ -1031,6 +1052,15 @@ defmodule Mix.Tasks.Generate do
        ),
        do: {:ok, block(block, update_name: "card_tokenization")}
 
+  defp process_block_title(
+         "response parameters",
+         block,
+         _block_parse_settings,
+         true,
+         ["callback"] = _path
+       ),
+       do: {:ok, block(block, update_operation: :new_endpoint)}
+
   defp process_block_title("response parameters", block, _block_parse_settings, true, _path),
     do: {:ok, block(block, is_request: false, update_operation: :patch)}
 
@@ -1057,7 +1087,7 @@ defmodule Mix.Tasks.Generate do
          _block_data,
          _block_parse_settings,
          true,
-         ["cancel", "invoice", "internet_acquiring"] = _path
+         ["issue", "invoice", "internet_acquiring"] = _path
        ),
        do: :error
 
@@ -1704,7 +1734,7 @@ defmodule Mix.Tasks.Generate do
   defp search_code_blocks(
          {"div", _, _} = div,
          block_parse_settings(
-           title_class: title_class,
+           title_classes: title_classes,
            subtitle_classes: subtitle_classes,
            code_block_class: code_block_class,
            irrelevant_code_block_class: irrelevant_code_block_class
@@ -1718,7 +1748,9 @@ defmodule Mix.Tasks.Generate do
       |> MapSet.new()
 
     cond do
-      MapSet.member?(classes, title_class) ->
+      not (classes
+           |> MapSet.intersection(title_classes)
+           |> Enum.empty?()) ->
         title_new = parse_block_title_text(div, block_parse_settings)
         {title_new, subtitle, code_blocks}
 
@@ -2058,6 +2090,14 @@ defmodule Mix.Tasks.Generate do
          ["MPI", "confirmation"] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "check of the callback of the signature",
+         _div,
+         _block_parse_settings,
+         ["callback"]
+       ),
+       do: :error
 
   defp parse_standalone_example(title, div, block_parse_settings, path) when is_binary(title),
     do: parse_standalone_example(true, div, block_parse_settings, path)
