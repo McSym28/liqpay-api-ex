@@ -167,16 +167,11 @@ defmodule Mix.Tasks.Generate do
 
         item = section(type: :menu, title: title, id: id, url: url_new)
 
-        if id == "callback" or
-             (path != [] and hd(path) == "callback") do
-          url_new
-          |> process_url(parse_settings(parse_settings, path: [id | path]))
-          |> case do
-            {:ok, children} -> section(item, children: children)
-            :error -> item
-          end
-        else
-          item
+        url_new
+        |> process_url(parse_settings(parse_settings, path: [id | path]))
+        |> case do
+          {:ok, children} -> section(item, children: children)
+          :error -> item
         end
       end)
       |> then(&{:ok, &1})
