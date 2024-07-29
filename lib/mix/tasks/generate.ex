@@ -34,7 +34,6 @@ defmodule Mix.Tasks.Generate do
   )
 
   Record.defrecordp(:section,
-    type: nil,
     title: nil,
     id: nil,
     children: [],
@@ -71,6 +70,10 @@ defmodule Mix.Tasks.Generate do
 
     file =
       path
+      |> Enum.map(fn
+        section(id: id) -> id
+        endpoint(id: id) -> id
+      end)
       |> List.insert_at(-1, "api")
       |> List.update_at(0, &"#{&1}.html")
       |> Enum.reverse()
@@ -165,10 +168,10 @@ defmodule Mix.Tasks.Generate do
 
         url_new = URI.to_string(%URI{uri | query: query_new})
 
-        item = section(type: :menu, title: title, id: id, url: url_new)
+        item = section(title: title, id: id, url: url_new)
 
         url_new
-        |> process_url(parse_settings(parse_settings, path: [id | path]))
+        |> process_url(parse_settings(parse_settings, path: [item | path]))
         |> case do
           {:ok, children} -> section(item, children: children)
           :error -> item
@@ -217,9 +220,7 @@ defmodule Mix.Tasks.Generate do
         process_doc(parse_settings)
 
       tab_index != 1 ->
-        parse_settings
-        |> parse_settings(path: path)
-        |> process_doc()
+        process_doc(parse_settings)
 
       :else ->
         results =
@@ -237,11 +238,13 @@ defmodule Mix.Tasks.Generate do
                 |> downcase_block_title()
                 |> process_block_title(block(), block_parse_settings(), true, path)
 
-              parse_settings_new = parse_settings(parse_settings, path: [tab_id | path])
+              tab_item = section(title: tab_label, id: tab_id, url: url)
 
               {:ok, result} =
                 if tab_index == 1 do
-                  process_doc(parse_settings_new)
+                  parse_settings
+                  |> parse_settings(path: [tab_item | path])
+                  |> process_doc()
                 else
                   query_new =
                     decoded_query
@@ -250,6 +253,8 @@ defmodule Mix.Tasks.Generate do
 
                   url_new = %URI{uri | query: query_new} |> URI.to_string()
 
+                  tab_item_new = section(tab_item, url: url_new)
+                  parse_settings_new = parse_settings(path: [tab_item_new | path])
                   process_url(url_new, parse_settings_new)
                 end
 
@@ -261,10 +266,18 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp process_doc(parse_settings(path: ["widgets", "internet_acquiring"])), do: :error
-  defp process_doc(parse_settings(path: ["splitting", "internet_acquiring"])), do: :error
-  defp process_doc(parse_settings(path: ["testing"])), do: :error
-  defp process_doc(parse_settings(path: ["errors"])), do: :error
+  defp process_doc(
+         parse_settings(path: [section(id: "widgets"), section(id: "internet_acquiring")])
+       ),
+       do: :error
+
+  defp process_doc(
+         parse_settings(path: [section(id: "splitting"), section(id: "internet_acquiring")])
+       ),
+       do: :error
+
+  defp process_doc(parse_settings(path: [section(id: "testing")])), do: :error
+  defp process_doc(parse_settings(path: [section(id: "errors")])), do: :error
 
   defp process_doc(parse_settings(document: document, path: path) = parse_settings) do
     main_block_selector =
@@ -272,13 +285,13 @@ defmodule Mix.Tasks.Generate do
       |> find_class(parse_settings)
       |> then(&{&1, path})
       |> case do
-        {class, [_, "public"]} when is_binary(class) ->
+        {class, [_, section(id: "public")]} when is_binary(class) ->
           "div.#{class} > div.MuiBox-root > div.MuiBox-root"
 
         {class, _path} when is_binary(class) ->
           "div.#{class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
 
-        {nil, ["callback"]} ->
+        {nil, [section(id: "callback")]} ->
           class = find_class!("new_doc_doc_container_child", parse_settings)
           "div.#{class} > div.MuiBox-root > div.MuiBox-root > div.MuiBox-root"
       end
@@ -317,6 +330,10 @@ defmodule Mix.Tasks.Generate do
 
     json_file =
       path
+      |> Enum.map(fn
+        section(id: id) -> id
+        endpoint(id: id) -> id
+      end)
       |> List.update_at(0, &"#{&1}.json")
       |> Enum.reverse()
       |> then(&["specs" | &1])
@@ -424,11 +441,18 @@ defmodule Mix.Tasks.Generate do
                 {is_request, [top_endpoint | rest_endpoints] = _endpoints_new, path_new} =
                   case block_data do
                     block(update_operation: :new_endpoint, update_name: id) ->
-                      [top_id | rest_path] = path
-                      id = if(endpoints == [], do: top_id, else: id)
-                      endpoint = endpoint(id: id)
+                      [top_section | rest_path] = path
+
+                      endpoint =
+                        if endpoints == [] do
+                          section(id: id, title: title) = top_section
+                          endpoint(id: id, title: title)
+                        else
+                          endpoint(id: id)
+                        end
+
                       endpoints_new = [endpoint | endpoints]
-                      path_new = [id | rest_path]
+                      path_new = [endpoint | rest_path]
                       {true, endpoints_new, path_new}
 
                     block(is_request: is_request) ->
@@ -730,7 +754,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["apay", "internet_acquiring"] = _path
+         [section(id: "apay"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
 
@@ -739,7 +763,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["apay", "internet_acquiring"] = _path
+         [section(id: "apay"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
 
@@ -748,7 +772,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["gpay", "internet_acquiring"] = _path
+         [section(id: "gpay"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
 
@@ -757,7 +781,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["gpay", "internet_acquiring"] = _path
+         [section(id: "gpay"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
 
@@ -766,7 +790,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["subscription", "internet_acquiring"] = _path
+         [section(id: "subscription"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
 
@@ -776,8 +800,8 @@ defmodule Mix.Tasks.Generate do
          _block_parse_settings,
          true,
          [
-           "subscription",
-           "internet_acquiring"
+           section(id: "subscription"),
+           section(id: "internet_acquiring")
          ] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "unsubscribe")}
@@ -787,7 +811,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["subscription", "internet_acquiring"] = _path
+         [section(id: "subscription"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "edit")}
 
@@ -796,7 +820,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["two_step", "internet_acquiring"] = _path
+         [section(id: "two_step"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "block")}
 
@@ -805,7 +829,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["two_step", "internet_acquiring"] = _path
+         [section(id: "two_step"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "complete")}
 
@@ -814,7 +838,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["invoice", "internet_acquiring"] = _path
+         [section(id: "invoice"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "issue")}
 
@@ -823,7 +847,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["invoice", "internet_acquiring"] = _path
+         [section(id: "invoice"), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "cancel")}
 
@@ -832,7 +856,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["shop_create", "partnership"] = _path
+         [section(id: "shop_create"), section(id: "partnership")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
 
@@ -841,7 +865,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["shop_create", "partnership"] = _path
+         [section(id: "shop_create"), section(id: "partnership")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "register")}
 
@@ -853,20 +877,16 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         [_, section, "internet_acquiring"] = _path
+         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do:
-         process_block_title(title, block, block_parse_settings, true, [
-           section,
-           "internet_acquiring"
-         ])
+       do: process_block_title(title, block, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "other parameters",
          block,
          _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = _path
+         [_, section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -875,12 +895,12 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         ["transferring_to_card"] = _path
+         [endpoint(id: "transferring_to_card")] = _path
        ),
        do:
          process_block_title(title, block, block_parse_settings, true, [
-           "checkout",
-           "internet_acquiring"
+           endpoint(id: "checkout"),
+           section(id: "internet_acquiring")
          ])
 
   defp process_block_title(
@@ -888,20 +908,16 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         [_, section, "internet_acquiring"] = _path
+         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do:
-         process_block_title(title, block, block_parse_settings, true, [
-           section,
-           "internet_acquiring"
-         ])
+       do: process_block_title(title, block, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "parameters of splitting the payments",
          block,
          _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = _path
+         [_, section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -910,7 +926,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["obtain", "tokens"] = _path
+         [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -919,7 +935,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["transferring_to_card"] = _path
+         [endpoint(id: "transferring_to_card")] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -928,7 +944,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["transferring_to_card"] = _path
+         [endpoint(id: "transferring_to_card")] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -937,7 +953,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["transferring_to_card"] = _path
+         [endpoint(id: "transferring_to_card")] = _path
        ),
        do: {:ok, block(block, update_operation: :patch)}
 
@@ -946,7 +962,8 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["decrypted_token", "gpay", "internet_acquiring"] = _path
+         [section(id: "decrypted_token"), section(id: "gpay"), section(id: "internet_acquiring")] =
+           _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint)}
 
@@ -955,20 +972,16 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         [_, section, "internet_acquiring"] = _path
+         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do:
-         process_block_title(title, block, block_parse_settings, true, [
-           section,
-           "internet_acquiring"
-         ])
+       do: process_block_title(title, block, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "sender parameters",
          block,
          _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = _path
+         [_, section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_name: "sender")}
 
@@ -977,12 +990,12 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         ["transferring_to_card"] = _path
+         [endpoint(id: "transferring_to_card")] = _path
        ),
        do:
          process_block_title(title, block, block_parse_settings, true, [
-           "checkout",
-           "internet_acquiring"
+           section(id: "checkout"),
+           section(id: "internet_acquiring")
          ])
 
   defp process_block_title(
@@ -990,12 +1003,12 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         ["p2pdebit"] = _path
+         [endpoint(id: "p2pdebit")] = _path
        ),
        do:
          process_block_title(title, block, block_parse_settings, true, [
-           "checkout",
-           "internet_acquiring"
+           section(id: "checkout"),
+           section(id: "internet_acquiring")
          ])
 
   defp process_block_title(
@@ -1003,20 +1016,16 @@ defmodule Mix.Tasks.Generate do
          block,
          block_parse_settings,
          true,
-         [_, section, "internet_acquiring"] = _path
+         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do:
-         process_block_title(title, block, block_parse_settings, true, [
-           section,
-           "internet_acquiring"
-         ])
+       do: process_block_title(title, block, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "regular payment parameters",
          block,
          _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = _path
+         [_, section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_name: "regular_payment")}
 
@@ -1025,7 +1034,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         [_, "internet_acquiring"] = _path
+         [_, section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block, update_name: "one_click_payment")}
 
@@ -1034,7 +1043,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["obtain", "tokens"] = _path
+         [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
        do: {:ok, block(block, update_name: "vceh_tokenization")}
 
@@ -1043,7 +1052,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["obtain", "tokens"] = _path
+         [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
        do: {:ok, block(block, update_name: "card_tokenization")}
 
@@ -1052,7 +1061,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["callback"] = _path
+         [section(id: "callback")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint)}
 
@@ -1064,7 +1073,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["transferring_to_card"] = _path
+         [endpoint(id: "transferring_to_card")] = _path
        ),
        do: {:ok, block(block, update_name: "receiver_account")}
 
@@ -1073,7 +1082,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         [_, "shop_create", "partnership"] = _path
+         [_, section(id: "shop_create"), section(id: "partnership")] = _path
        ),
        do: {:ok, block(block, update_name: "aggregator")}
 
@@ -1082,7 +1091,8 @@ defmodule Mix.Tasks.Generate do
          _block_data,
          _block_parse_settings,
          true,
-         ["issue", "invoice", "internet_acquiring"] = _path
+         [endpoint(id: "issue"), section(id: "invoice"), section(id: "internet_acquiring")] =
+           _path
        ),
        do: :error
 
@@ -1091,7 +1101,7 @@ defmodule Mix.Tasks.Generate do
          _block_data,
          _block_parse_settings,
          true,
-         _path
+         [section(id: "widget"), section(id: "internet_acquiring")] = _path
        ),
        do: :error
 
@@ -1100,7 +1110,8 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["register", "shop_create", "partnership"] = _path
+         [endpoint(id: "register"), section(id: "shop_create"), section(id: "partnership")] =
+           _path
        ),
        do: {:ok, block(block, is_request: false, update_operation: :patch)}
 
@@ -1109,7 +1120,8 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["register", "shop_create", "partnership"] = _path
+         [endpoint(id: "register"), section(id: "shop_create"), section(id: "partnership")] =
+           _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "available_mcc")}
 
@@ -1118,7 +1130,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         [_, "shop_create", "partnership"] = _path
+         [_, section(id: "shop_create"), section(id: "partnership")] = _path
        ),
        do: {:ok, block(block, is_request: false, update_operation: :patch)}
 
@@ -1127,7 +1139,8 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["available_mcc", "shop_create", "partnership"] = _path
+         [endpoint(id: "available_mcc"), section(id: "shop_create"), section(id: "partnership")] =
+           _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "documents")}
 
@@ -1136,7 +1149,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["tokens"] = _path
+         [section(id: "tokens")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "obtain")}
 
@@ -1145,7 +1158,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["tokens"] = _path
+         [section(id: "tokens")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint, update_name: "change_status")}
 
@@ -1154,7 +1167,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["register", "information"] = _path
+         [section(id: "register"), section(id: "information")] = _path
        ),
        do:
          {:ok, block(block, update_operation: :new_endpoint, update_name: "compensation_per_day")}
@@ -1164,7 +1177,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["register", "information"] = _path
+         [section(id: "register"), section(id: "information")] = _path
        ),
        do:
          {:ok,
@@ -1178,7 +1191,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["register", "information"] = _path
+         [section(id: "register"), section(id: "information")] = _path
        ),
        do:
          {:ok, block(block, update_operation: :new_endpoint, update_name: "compensation_report")}
@@ -1188,7 +1201,8 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["compensation_report", "register", "information"] = _path
+         [section(id: "compensation_report"), section(id: "register"), section(id: "information")] =
+           _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint)}
 
@@ -1197,7 +1211,11 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["compensation_report", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do:
          {:ok,
@@ -1208,7 +1226,11 @@ defmodule Mix.Tasks.Generate do
          _block_data,
          _block_parse_settings,
          true,
-         ["compensation_report_status", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report_status"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do: :error
 
@@ -1217,7 +1239,7 @@ defmodule Mix.Tasks.Generate do
          block(node: nil) = block,
          _block_parse_settings,
          true,
-         ["register", "information"]
+         [section(id: "register"), section(id: "information")]
        ),
        do:
          {:ok,
@@ -1228,7 +1250,11 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["compensation_report_p2p", "register", "information"] = _path
+         [
+           section(id: "compensation_report_p2p"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint)}
 
@@ -1237,7 +1263,11 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         ["compensation_report_p2p", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report_p2p"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do:
          {:ok,
@@ -1251,7 +1281,11 @@ defmodule Mix.Tasks.Generate do
          _block_data,
          _block_parse_settings,
          true,
-         ["compensation_report_p2p_status", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report_p2p_status"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do: :error
 
@@ -1260,7 +1294,7 @@ defmodule Mix.Tasks.Generate do
          block,
          _block_parse_settings,
          true,
-         [_, "public"] = _path
+         [_, section(id: "public")] = _path
        ),
        do: {:ok, block(block, update_operation: :new_endpoint)}
 
@@ -1285,7 +1319,8 @@ defmodule Mix.Tasks.Generate do
            block_data,
          block_parse_settings,
          false,
-         [{:schema, :request}, "card_payment", "internet_acquiring"] = path
+         [{:schema, :request}, endpoint(id: "card_payment"), section(id: "internet_acquiring")] =
+           path
        ) do
     schema_new =
       schema
@@ -1729,9 +1764,9 @@ defmodule Mix.Tasks.Generate do
          [
            "register_token",
            {:schema, :response},
-           "compensation_report_p2p",
-           "register",
-           "information"
+           endpoint(id: "compensation_report_p2p"),
+           section(id: "register"),
+           section(id: "information")
          ] = path
        ) do
     property
@@ -1826,7 +1861,13 @@ defmodule Mix.Tasks.Generate do
         |> Jason.decode!()
         |> patch_schema_examples(%{schema | description: description_new})
 
-      ["goods", {:schema, :request}, "issue", "invoice", "internet_acquiring"] ->
+      [
+        "goods",
+        {:schema, :request},
+        endpoint(id: "issue"),
+        section(id: "invoice"),
+        section(id: "internet_acquiring")
+      ] ->
         code
         |> extract_code()
         |> Jason.decode!()
@@ -2068,9 +2109,9 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_standalone_example("response example", _div, _block_parse_settings, [
-         "decrypted_token",
-         "gpay",
-         "internet_acquiring"
+         endpoint(id: "decrypted_token"),
+         section(id: "gpay"),
+         section(id: "internet_acquiring")
        ]),
        do: :error
 
@@ -2081,7 +2122,7 @@ defmodule Mix.Tasks.Generate do
          "sample response for mastercard",
          div,
          block_parse_settings,
-         ["obtain", "tokens"] = path
+         [endpoint(id: "obtain"), section(id: "tokens")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
 
@@ -2089,7 +2130,7 @@ defmodule Mix.Tasks.Generate do
          "sample response for visa",
          div,
          block_parse_settings,
-         ["obtain", "tokens"] = path
+         [endpoint(id: "obtain"), section(id: "tokens")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
 
@@ -2097,7 +2138,7 @@ defmodule Mix.Tasks.Generate do
          {"example response", _},
          div,
          block_parse_settings,
-         ["MPI", "confirmation"] = path
+         [endpoint(id: "MPI"), section(id: "confirmation")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
 
@@ -2105,7 +2146,7 @@ defmodule Mix.Tasks.Generate do
          "check of the callback of the signature",
          _div,
          _block_parse_settings,
-         ["callback"]
+         [section(id: "callback")]
        ),
        do: :error
 
@@ -2116,7 +2157,7 @@ defmodule Mix.Tasks.Generate do
          "connection",
          div,
          block_parse_settings,
-         ["checkout", "internet_acquiring"] = path
+         [section(id: "checkout"), section(id: "internet_acquiring")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2124,7 +2165,7 @@ defmodule Mix.Tasks.Generate do
          "example of the html form",
          div,
          block_parse_settings,
-         ["checkout", "internet_acquiring"] = path
+         [section(id: "checkout"), section(id: "internet_acquiring")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2132,7 +2173,7 @@ defmodule Mix.Tasks.Generate do
          "example of data about products",
          div,
          block_parse_settings,
-         ["checkout", "internet_acquiring"] = path
+         [endpoint(id: "checkout"), section(id: "internet_acquiring")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2140,7 +2181,7 @@ defmodule Mix.Tasks.Generate do
          "connection",
          div,
          block_parse_settings,
-         ["widget", "internet_acquiring"] = path
+         [section(id: "widget"), section(id: "internet_acquiring")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2148,7 +2189,7 @@ defmodule Mix.Tasks.Generate do
          "example js widget",
          _div,
          _block_parse_settings,
-         ["widget", "internet_acquiring"] = _path
+         [section(id: "widget"), section(id: "internet_acquiring")] = _path
        ),
        do: :error
 
@@ -2156,7 +2197,7 @@ defmodule Mix.Tasks.Generate do
          "example of data about products",
          div,
          block_parse_settings,
-         ["card_payment", "internet_acquiring"] = path
+         [endpoint(id: "card_payment"), section(id: "internet_acquiring")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2164,23 +2205,28 @@ defmodule Mix.Tasks.Generate do
          "example of data about products",
          div,
          block_parse_settings,
-         ["complete", "two_step", "internet_acquiring"] = path
+         [endpoint(id: "complete"), section(id: "two_step"), section(id: "internet_acquiring")] =
+           path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
   defp parse_standalone_example(
-         "example of getting compensation_id" = title,
+         "example of getting compensation_id",
          div,
          block_parse_settings,
-         ["compensation_per_day", "register", "information"] = path
+         [
+           endpoint(id: "compensation_per_day"),
+           section(id: "register"),
+           section(id: "information")
+         ] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
   defp parse_standalone_example(
-         "example of json request" = title,
+         "example of json request",
          div,
          block_parse_settings,
-         [_, "register", "information"] = path
+         [_, section(id: "register"), section(id: "information")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2188,7 +2234,11 @@ defmodule Mix.Tasks.Generate do
          "example of json response",
          _div,
          _block_parse_settings,
-         ["compensation_report", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do: :error
 
@@ -2196,7 +2246,11 @@ defmodule Mix.Tasks.Generate do
          "example of json response",
          _div,
          _block_parse_settings,
-         ["compensation_report_status", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report_status"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do: :error
 
@@ -2204,15 +2258,19 @@ defmodule Mix.Tasks.Generate do
          "example of json response",
          _div,
          _block_parse_settings,
-         ["compensation_report_p2p_status", "register", "information"] = _path
+         [
+           endpoint(id: "compensation_report_p2p_status"),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
        ),
        do: :error
 
   defp parse_standalone_example(
-         "example of json response" = title,
+         "example of json response",
          div,
          block_parse_settings,
-         [_, "register", "information"] = path
+         [_, section(id: "register"), section(id: "information")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
 
@@ -2220,7 +2278,7 @@ defmodule Mix.Tasks.Generate do
          "example of the request",
          div,
          block_parse_settings,
-         [_, "public"] = path
+         [_, section(id: "public")] = path
        ),
        do: parse_standalone_example(true, div, block_parse_settings, path)
 
@@ -2228,7 +2286,7 @@ defmodule Mix.Tasks.Generate do
          "response example with failed status",
          div,
          block_parse_settings,
-         [_, "public"] = path
+         [_, section(id: "public")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
 
