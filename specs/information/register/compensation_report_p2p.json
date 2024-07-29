@@ -97,16 +97,25 @@
                   ],
                   "properties": {
                     "register_token": {
-                      "type": "number",
-                      "description": "Parameter received on the previous request"
+                      "type": "string",
+                      "description": "Parameter received on the previous request",
+                      "examples": [
+                        "register_i11301247803_105267.csv"
+                      ]
                     },
                     "result": {
                       "type": "string",
-                      "description": "The result of the request"
+                      "description": "The result of the request",
+                      "examples": [
+                        "ok"
+                      ]
                     },
                     "status": {
                       "type": "string",
-                      "description": "Request processing status"
+                      "description": "Request processing status",
+                      "examples": [
+                        "processing"
+                      ]
                     }
                   }
                 }

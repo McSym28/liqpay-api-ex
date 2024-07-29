@@ -1724,6 +1724,21 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
+  defp initialize_property_processing(
+         %{type: :number} = property,
+         [
+           "register_token",
+           {:schema, :response},
+           "compensation_report_p2p",
+           "register",
+           "information"
+         ] = path
+       ) do
+    property
+    |> Map.put(:type, :string)
+    |> initialize_property_processing(path)
+  end
+
   defp initialize_property_processing(property, _path), do: property
 
   defp search_code_blocks(
@@ -2094,8 +2109,128 @@ defmodule Mix.Tasks.Generate do
        ),
        do: :error
 
-  defp parse_standalone_example(title, div, block_parse_settings, path) when is_binary(title),
+  defp parse_standalone_example("example of using sdk", div, block_parse_settings, path),
     do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "connection",
+         div,
+         block_parse_settings,
+         ["checkout", "internet_acquiring"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of the html form",
+         div,
+         block_parse_settings,
+         ["checkout", "internet_acquiring"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of data about products",
+         div,
+         block_parse_settings,
+         ["checkout", "internet_acquiring"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "connection",
+         div,
+         block_parse_settings,
+         ["widget", "internet_acquiring"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example js widget",
+         _div,
+         _block_parse_settings,
+         ["widget", "internet_acquiring"] = _path
+       ),
+       do: :error
+
+  defp parse_standalone_example(
+         "example of data about products",
+         div,
+         block_parse_settings,
+         ["card_payment", "internet_acquiring"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of data about products",
+         div,
+         block_parse_settings,
+         ["complete", "two_step", "internet_acquiring"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of getting compensation_id" = title,
+         div,
+         block_parse_settings,
+         ["compensation_per_day", "register", "information"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of json request" = title,
+         div,
+         block_parse_settings,
+         [_, "register", "information"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of json response",
+         _div,
+         _block_parse_settings,
+         ["compensation_report", "register", "information"] = _path
+       ),
+       do: :error
+
+  defp parse_standalone_example(
+         "example of json response",
+         _div,
+         _block_parse_settings,
+         ["compensation_report_status", "register", "information"] = _path
+       ),
+       do: :error
+
+  defp parse_standalone_example(
+         "example of json response",
+         _div,
+         _block_parse_settings,
+         ["compensation_report_p2p_status", "register", "information"] = _path
+       ),
+       do: :error
+
+  defp parse_standalone_example(
+         "example of json response" = title,
+         div,
+         block_parse_settings,
+         [_, "register", "information"] = path
+       ),
+       do: parse_standalone_example(false, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of the request",
+         div,
+         block_parse_settings,
+         [_, "public"] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "response example with failed status",
+         div,
+         block_parse_settings,
+         [_, "public"] = path
+       ),
+       do: parse_standalone_example(false, div, block_parse_settings, path)
 
   defp parse_standalone_example(
          is_request,

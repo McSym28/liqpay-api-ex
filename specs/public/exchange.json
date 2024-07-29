@@ -28,23 +28,7 @@
                     "type": "string",
                     "description": "Euro"
                   }
-                },
-                "examples": [
-                  [
-                    {
-                      "base_ccy": "UAH",
-                      "buy": "19.20000",
-                      "ccy": "EUR",
-                      "sale": "20.00000"
-                    },
-                    {
-                      "base_ccy": "UAH",
-                      "buy": "15.50000",
-                      "ccy": "USD",
-                      "sale": "15.85000"
-                    }
-                  ]
-                ]
+                }
               }
             }
           }
@@ -73,7 +57,23 @@
                       "type": "string",
                       "description": "Sales rate"
                     }
-                  }
+                  },
+                  "examples": [
+                    [
+                      {
+                        "base_ccy": "UAH",
+                        "buy": "19.20000",
+                        "ccy": "EUR",
+                        "sale": "20.00000"
+                      },
+                      {
+                        "base_ccy": "UAH",
+                        "buy": "15.50000",
+                        "ccy": "USD",
+                        "sale": "15.85000"
+                      }
+                    ]
+                  ]
                 }
               }
             }

@@ -24,19 +24,7 @@
                     "type": "string",
                     "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`, for example - 2014"
                   }
-                },
-                "examples": [
-                  [
-                    {
-                      "rate_date": "17.07.2014",
-                      "rate_value": "12.5"
-                    },
-                    {
-                      "rate_date": "15.04.2014",
-                      "rate_value": "9.5"
-                    }
-                  ]
-                ]
+                }
               }
             }
           }
@@ -57,7 +45,19 @@
                       "type": "string",
                       "description": "The value of the «NBU Discount Rate»"
                     }
-                  }
+                  },
+                  "examples": [
+                    [
+                      {
+                        "rate_date": "17.07.2014",
+                        "rate_value": "12.5"
+                      },
+                      {
+                        "rate_date": "15.04.2014",
+                        "rate_value": "9.5"
+                      }
+                    ]
+                  ]
                 }
               }
             }

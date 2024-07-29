@@ -67,7 +67,10 @@
                   "properties": {
                     "baseCurrency": {
                       "type": "string",
-                      "description": "Basic currency (UAH)"
+                      "description": "Basic currency (UAH)",
+                      "examples": [
+                        980
+                      ]
                     },
                     "currency": {
                       "type": "string",
