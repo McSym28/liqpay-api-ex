@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/apay/encrypted_token": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

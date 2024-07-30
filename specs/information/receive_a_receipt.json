@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/information/receive_a_receipt": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

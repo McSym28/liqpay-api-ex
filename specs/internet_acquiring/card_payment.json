@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/card_payment": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

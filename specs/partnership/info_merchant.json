@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/partnership/info_merchant": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

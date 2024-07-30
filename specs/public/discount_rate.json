@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/public/discount_rate": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

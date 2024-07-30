@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/tokens/change_status": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

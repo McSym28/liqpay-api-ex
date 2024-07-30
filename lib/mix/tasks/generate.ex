@@ -522,14 +522,28 @@ defmodule Mix.Tasks.Generate do
     |> Path.dirname()
     |> File.mkdir_p!()
 
+    endpoint_path =
+      path
+      |> tl()
+      |> Enum.map(fn
+        section(id: id) -> id
+        endpoint(id: id) -> id
+      end)
+
     OrderedObject.new(
       openapi: "3.1.0",
       info: OrderedObject.new(version: "3", title: "External API"),
       servers: [OrderedObject.new(url: "https://liqpay.ua")],
       paths:
         [top_endpoint_new | rest_endpoints]
-        |> Enum.map(fn endpoint(request: request_schema, response: response_schema) ->
-          {"/test",
+        |> Enum.map(fn endpoint(id: id, request: request_schema, response: response_schema) ->
+          url =
+            [id | endpoint_path]
+            |> Enum.reverse()
+            |> then(&["/" | &1])
+            |> Path.join()
+
+          {url,
            OrderedObject.new(
              post:
                OrderedObject.new(

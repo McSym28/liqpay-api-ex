@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/subscription/unsubscribe": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

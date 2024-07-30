@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/information/register/compensation_per_day": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

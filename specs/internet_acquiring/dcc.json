@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/dcc": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

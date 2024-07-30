@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/public/exchange": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

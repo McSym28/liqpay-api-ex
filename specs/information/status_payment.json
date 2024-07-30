@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/information/status_payment": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

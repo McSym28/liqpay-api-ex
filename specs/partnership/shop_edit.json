@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/partnership/shop_edit": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

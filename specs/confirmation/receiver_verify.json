@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/confirmation/receiver_verify": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

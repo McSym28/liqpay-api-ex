@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/transferring_to_card": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/information/register/compensation_report": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",
@@ -92,7 +92,7 @@
         }
       }
     },
-    "/test": {
+    "/information/register/compensation_report_status": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

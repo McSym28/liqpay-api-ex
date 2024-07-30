@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/confirmation/cardverification": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

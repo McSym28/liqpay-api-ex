@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/partnership/shop_create/register": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",
@@ -389,7 +389,7 @@
         }
       }
     },
-    "/test": {
+    "/partnership/shop_create/available_mcc": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",
@@ -452,7 +452,7 @@
         }
       }
     },
-    "/test": {
+    "/partnership/shop_create/documents": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

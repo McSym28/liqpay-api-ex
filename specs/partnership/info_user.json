@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/partnership/info_user": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

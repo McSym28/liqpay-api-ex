@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/invoice/cancel": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

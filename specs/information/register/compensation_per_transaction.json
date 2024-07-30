@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/information/register/compensation_per_transaction": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/gpay/decrypted_token": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

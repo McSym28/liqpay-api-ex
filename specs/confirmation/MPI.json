@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/confirmation/MPI": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",

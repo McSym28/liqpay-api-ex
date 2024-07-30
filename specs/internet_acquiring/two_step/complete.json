@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/test": {
+    "/internet_acquiring/two_step/complete": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",
