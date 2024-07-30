@@ -10,6 +10,312 @@
     }
   ],
   "paths": {
+    "/partnership/shop_create/create": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "description",
+                  "email",
+                  "name",
+                  "phone",
+                  "site"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "agent_shop_create"
+                    ],
+                    "examples": [
+                      "agent_shop_create"
+                    ]
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Store description",
+                    "examples": [
+                      "site description"
+                    ]
+                  },
+                  "email": {
+                    "type": "string",
+                    "description": "Store email",
+                    "examples": [
+                      "email@gmail.com"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "Store name (uk, en)",
+                    "examples": [
+                      "Site name"
+                    ]
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Shop phone number",
+                    "examples": [
+                      "380950000001"
+                    ]
+                  },
+                  "site": {
+                    "type": "string",
+                    "description": "Store URL",
+                    "examples": [
+                      "agent1.site.com"
+                    ]
+                  },
+                  "iban": {
+                    "type": "string",
+                    "description": "IBAN to receive payments in this store",
+                    "maxLength": 34
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Company name (uk, en)"
+                  },
+                  "okpo": {
+                    "type": "string",
+                    "description": "OKPO account"
+                  },
+                  "amount_procent_agent": {
+                    "type": "number",
+                    "description": "Agent fee in %"
+                  },
+                  "amount_static_agent": {
+                    "type": "number",
+                    "description": "Agent static fee"
+                  },
+                  "currency_static_agent": {
+                    "type": "string",
+                    "description": "Currency of agent static fee"
+                  },
+                  "can_reports": {
+                    "type": "string",
+                    "description": "Allows the owner of the main company to view the payment history of the created company, pass the value `true`"
+                  },
+                  "can_checkout_edit": {
+                    "type": "string",
+                    "description": "Allows the owner of the main company to edit the payment page settings of the company created, pass the value `true`"
+                  },
+                  "logo": {
+                    "type": "string",
+                    "description": "URL shop logo"
+                  },
+                  "public_phone": {
+                    "type": "string",
+                    "description": "Shop public phone number"
+                  },
+                  "aggregator": {
+                    "type": "object",
+                    "description": "Parameters for aggregators",
+                    "required": [
+                      "law_okpo",
+                      "law_name",
+                      "law_iban",
+                      "law_contacts",
+                      "law_cto_info",
+                      "law_owners_info",
+                      "law_co_owners_info"
+                    ],
+                    "properties": {
+                      "law_okpo": {
+                        "type": "string",
+                        "description": "USREOU of an enterprise. The maximum length is 255 characters"
+                      },
+                      "law_name": {
+                        "type": "string",
+                        "description": "Enterprise name. The maximum length is 255 characters"
+                      },
+                      "law_iban": {
+                        "type": "string",
+                        "description": "Iban of an enterprise. The maximum length is 255 characters"
+                      },
+                      "law_contacts": {
+                        "type": "object",
+                        "description": "Contact details of an enterprise",
+                        "properties": {
+                          "phone": {
+                            "type": "string",
+                            "description": "Contact number of an enterprise"
+                          },
+                          "email": {
+                            "type": "string",
+                            "description": "Contact email of an enterprise"
+                          }
+                        }
+                      },
+                      "law_cto_info": {
+                        "type": "object",
+                        "description": "Information about the head of an enterprise",
+                        "properties": {
+                          "name": {
+                            "type": "string",
+                            "description": "Full name of the head of an enterprise"
+                          },
+                          "inn": {
+                            "type": "string",
+                            "description": "TIN of the head of an enterprise"
+                          },
+                          "birth_date": {
+                            "type": "string",
+                            "description": "Birth date of the head of an enterprise. Enter the date in this format: 2015-03-31"
+                          },
+                          "citizenship": {
+                            "type": "string",
+                            "description": "Nationality of the head of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                          },
+                          "residency": {
+                            "type": "string",
+                            "description": "Residence of the head of an enterprise"
+                          }
+                        }
+                      },
+                      "law_owners_info": {
+                        "type": "array",
+                        "description": "Information on the final beneficial owners of an enterprise",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "Full name of the owner of an enterprise"
+                            },
+                            "inn": {
+                              "type": "string",
+                              "description": "TIN of the owner of an enterprise"
+                            },
+                            "birth_date": {
+                              "type": "string",
+                              "description": "Birth date of the owner of an enterprise. Enter the date in this format: 2015-03-31"
+                            },
+                            "citizenship": {
+                              "type": "string",
+                              "description": "Nationality of the owner of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                            },
+                            "share_in_capital": {
+                              "type": "string",
+                              "description": "The ownership interest in the authorized capital of an enterprise"
+                            },
+                            "residency": {
+                              "type": "string",
+                              "description": "Residence of the owner of the enterprise"
+                            }
+                          }
+                        }
+                      },
+                      "law_co_owners_info": {
+                        "type": "array",
+                        "description": "Information about owners of major shareholding",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "description": "Full name of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "inn": {
+                              "type": "string",
+                              "description": "TIN of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "birth_date": {
+                              "type": "string",
+                              "description": "Birth date of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "citizenship": {
+                              "type": "string",
+                              "description": "Nationality of the owner of major shareholding. Enter the country in Latin letters. Example: Ukraine. Transfer if the owner is an individual"
+                            },
+                            "share_in_capital": {
+                              "type": "string",
+                              "description": "The size of the ownership interest. Transfer for both individuals and legal entities"
+                            },
+                            "residency": {
+                              "type": "string",
+                              "description": "Residence of the owner of major shareholding. Transfer if the owner is an individual"
+                            },
+                            "company_name": {
+                              "type": "string",
+                              "description": "Enterprise name. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                            },
+                            "company_okpo": {
+                              "type": "string",
+                              "description": "USREOU of an enterprise. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "private_key": {
+                      "type": "string",
+                      "description": "Company private_key",
+                      "examples": [
+                        "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6"
+                      ]
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Company public_key",
+                      "examples": [
+                        "i000000000"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "success"
+                      ],
+                      "description": "Available values:\n* `success` - Successful payment",
+                      "examples": [
+                        "success"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/partnership/shop_create/register": {
       "post": {
         "summary": "Checkout",

@@ -34,6 +34,7 @@ defmodule Mix.Tasks.Generate do
   )
 
   Record.defrecordp(:section,
+    type: nil,
     title: nil,
     id: nil,
     children: [],
@@ -168,7 +169,7 @@ defmodule Mix.Tasks.Generate do
 
         url_new = URI.to_string(%URI{uri | query: query_new})
 
-        item = section(title: title, id: id, url: url_new)
+        item = section(type: :menu, title: title, id: id, url: url_new)
 
         url_new
         |> process_url(parse_settings(parse_settings, path: [item | path]))
@@ -183,12 +184,92 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_doc_page(parse_settings(document: document) = parse_settings) do
+  defp parse_doc_page(parse_settings(document: document, path: path) = parse_settings) do
     document
     |> Floki.find("div.base-TabsList-root")
     |> case do
       [tab] -> parse_tab(tab, parse_settings)
       [] -> process_doc(parse_settings)
+    end
+    |> case do
+      :error ->
+        :error
+
+      {:ok, endpoints} = result ->
+        case path do
+          [section(type: :menu) | _] ->
+            path_ids = Enum.map(path, fn section(id: id) -> id end)
+
+            json_file =
+              path_ids
+              |> List.update_at(0, &"#{&1}.json")
+              |> Enum.reverse()
+              |> then(&["specs" | &1])
+              |> Path.join()
+
+            json_file
+            |> Path.dirname()
+            |> File.mkdir_p!()
+
+            endpoint_path = if Enum.count(endpoints) == 1, do: tl(path_ids), else: path_ids
+
+            OrderedObject.new(
+              openapi: "3.1.0",
+              info: OrderedObject.new(version: "3", title: "External API"),
+              servers: [OrderedObject.new(url: "https://liqpay.ua")],
+              paths:
+                endpoints
+                |> Enum.map(fn endpoint(
+                                 id: id,
+                                 request: request_schema,
+                                 response: response_schema
+                               ) ->
+                  url =
+                    [id | endpoint_path]
+                    |> Enum.reverse()
+                    |> then(&["/" | &1])
+                    |> Path.join()
+
+                  {url,
+                   OrderedObject.new(
+                     post:
+                       OrderedObject.new(
+                         summary: "Checkout",
+                         operationId: "checkout",
+                         requestBody:
+                           OrderedObject.new(
+                             content:
+                               OrderedObject.new([
+                                 {"application/json", OrderedObject.new(schema: request_schema)}
+                               ])
+                           ),
+                         responses:
+                           OrderedObject.new([
+                             {"200",
+                              OrderedObject.new(
+                                description: "200",
+                                content:
+                                  OrderedObject.new([
+                                    {"application/json",
+                                     OrderedObject.new(
+                                       schema: response_schema || %{type: :object}
+                                     )}
+                                  ])
+                              )}
+                           ])
+                       )
+                   )}
+                end)
+                |> OrderedObject.new()
+            )
+            |> Jason.encode!(pretty: true)
+            |> then(&File.write!(json_file, &1))
+
+          _ ->
+            :ok
+        end
+
+        result
     end
   end
 
@@ -224,7 +305,7 @@ defmodule Mix.Tasks.Generate do
 
       :else ->
         results =
-          Enum.map(
+          Enum.flat_map(
             1..(tab_count - 1),
             fn tab_index ->
               tab_label =
@@ -238,7 +319,7 @@ defmodule Mix.Tasks.Generate do
                 |> downcase_block_title()
                 |> process_block_title(block(), block_parse_settings(), true, path)
 
-              tab_item = section(title: tab_label, id: tab_id, url: url)
+              tab_item = section(type: :doc, title: tab_label, id: tab_id, url: url)
 
               {:ok, result} =
                 if tab_index == 1 do
@@ -328,17 +409,6 @@ defmodule Mix.Tasks.Generate do
 
     irrelevant_code_block_class = find_class("new_doc_green_page_background", parse_settings)
 
-    json_file =
-      path
-      |> Enum.map(fn
-        section(id: id) -> id
-        endpoint(id: id) -> id
-      end)
-      |> List.update_at(0, &"#{&1}.json")
-      |> Enum.reverse()
-      |> then(&["specs" | &1])
-      |> Path.join()
-
     document
     |> Floki.find(main_block_selector)
     |> parse_doc(
@@ -355,13 +425,8 @@ defmodule Mix.Tasks.Generate do
         title_classes: title_classes,
         subtitle_classes: subtitle_classes
       ),
-      path,
-      json_file
+      path
     )
-    |> case do
-      :ok -> {:ok, :ok}
-      :error -> :error
-    end
   end
 
   defp find_class_ensure_regex(class_prefix) when is_binary(class_prefix) do
@@ -400,8 +465,7 @@ defmodule Mix.Tasks.Generate do
            standalone_code_block_class: standalone_code_block_class,
            table_classes: table_classes
          ) = block_parse_settings,
-         path,
-         json_file
+         path
        ) do
     {endpoints, code_blocks, _path} =
       Enum.reduce(block_nodes, {[], [], path}, fn node, {endpoints, code_blocks, path} ->
@@ -518,63 +582,7 @@ defmodule Mix.Tasks.Generate do
             else: endpoint(endpoint, response: schema_new)
       end)
 
-    json_file
-    |> Path.dirname()
-    |> File.mkdir_p!()
-
-    endpoint_path =
-      path
-      |> tl()
-      |> Enum.map(fn
-        section(id: id) -> id
-        endpoint(id: id) -> id
-      end)
-
-    OrderedObject.new(
-      openapi: "3.1.0",
-      info: OrderedObject.new(version: "3", title: "External API"),
-      servers: [OrderedObject.new(url: "https://liqpay.ua")],
-      paths:
-        [top_endpoint_new | rest_endpoints]
-        |> Enum.map(fn endpoint(id: id, request: request_schema, response: response_schema) ->
-          url =
-            [id | endpoint_path]
-            |> Enum.reverse()
-            |> then(&["/" | &1])
-            |> Path.join()
-
-          {url,
-           OrderedObject.new(
-             post:
-               OrderedObject.new(
-                 summary: "Checkout",
-                 operationId: "checkout",
-                 requestBody:
-                   OrderedObject.new(
-                     content:
-                       OrderedObject.new([
-                         {"application/json", OrderedObject.new(schema: request_schema)}
-                       ])
-                   ),
-                 responses:
-                   OrderedObject.new([
-                     {"200",
-                      OrderedObject.new(
-                        description: "200",
-                        content:
-                          OrderedObject.new([
-                            {"application/json",
-                             OrderedObject.new(schema: response_schema || %{type: :object})}
-                          ])
-                      )}
-                   ])
-               )
-           )}
-        end)
-        |> OrderedObject.new()
-    )
-    |> Jason.encode!(pretty: true)
-    |> then(&File.write!(json_file, &1))
+    {:ok, [top_endpoint_new | rest_endpoints]}
   end
 
   defp extract_code(code_element) do

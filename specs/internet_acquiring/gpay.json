@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/apay/encrypted_token": {
+    "/internet_acquiring/gpay/encrypted_token": {
       "post": {
         "summary": "Checkout",
         "operationId": "checkout",
@@ -86,12 +86,12 @@
                   "paytype": {
                     "type": "string",
                     "enum": [
-                      "apay_tavv"
+                      "gpay_tavv"
                     ]
                   },
                   "tavv": {
                     "type": "string",
-                    "description": "A cryptogram is a dynamic one-time code for each transaction that accompanies a token. It is obtained when decrypting payment data from the Apple device"
+                    "description": "A cryptogram is a dynamic one-time code for each transaction that accompanies a token. It is obtained when decrypting payment data from the Android device"
                   },
                   "language": {
                     "type": "string",
@@ -115,7 +115,7 @@
                   },
                   "card": {
                     "type": "string",
-                    "description": "Card token obtained by decrypting data from an Apple device"
+                    "description": "Card token obtained by decrypting data from an Google device"
                   },
                   "card_exp_month": {
                     "type": "string",
@@ -247,6 +247,120 @@
                     "format": "uri",
                     "description": "Product page address",
                     "maxLength": 2000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/internet_acquiring/gpay/decrypted_token": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "paytype",
+                  "amount",
+                  "gpay_token",
+                  "order_id",
+                  "currency",
+                  "description"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "pay"
+                    ]
+                  },
+                  "paytype": {
+                    "type": "string",
+                    "enum": [
+                      "gpay"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "examples": [
+                      5.0,
+                      7.34
+                    ]
+                  },
+                  "gpay_token": {
+                    "type": "string",
+                    "description": "JSON string from token parameter (obtained from [Google](https://www.liqpay.ua/en/methods/google_pay)) encoded with base64 function"
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255
+                  },
+                  "currency": {
+                    "type": "string",
+                    "enum": [
+                      "USD",
+                      "EUR",
+                      "UAH"
+                    ],
+                    "description": "Payment currency"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Payment description"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  },
+                  "result_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
+                    "maxLength": 510
+                  },
+                  "server_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
+                    "maxLength": 510
                   }
                 }
               }

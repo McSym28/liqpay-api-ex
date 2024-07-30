@@ -273,6 +273,89 @@
           }
         }
       }
+    },
+    "/internet_acquiring/invoice/cancel": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "order_id"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "invoice_cancel"
+                    ],
+                    "examples": [
+                      "invoice_cancel"
+                    ]
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255,
+                    "examples": [
+                      "order_id_1"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "invoice_id": {
+                      "type": "number",
+                      "description": "Unique identifier of the invoice",
+                      "examples": [
+                        6173
+                      ]
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "The result of a request `ok` or `error`",
+                      "examples": [
+                        "ok"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }

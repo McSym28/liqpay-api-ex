@@ -650,6 +650,473 @@
           }
         }
       }
+    },
+    "/internet_acquiring/two_step/complete": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "order_id"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "hold_completion"
+                    ],
+                    "examples": [
+                      "hold_completion"
+                    ]
+                  },
+                  "amount": {
+                    "type": "number",
+                    "description": "Payment amount",
+                    "examples": [
+                      5.0,
+                      7.34
+                    ]
+                  },
+                  "order_id": {
+                    "type": "string",
+                    "description": "Unique purchase ID in your shop",
+                    "maxLength": 255,
+                    "examples": [
+                      "order_id_1"
+                    ]
+                  },
+                  "rro_info": {
+                    "type": "object",
+                    "description": "Data for fiscalization",
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "description": "Data about products for which payment is performed",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "amount",
+                            "cost",
+                            "id",
+                            "price"
+                          ],
+                          "properties": {
+                            "amount": {
+                              "type": "number",
+                              "description": "Quantity/volume",
+                              "examples": [
+                                2
+                              ]
+                            },
+                            "cost": {
+                              "type": "number",
+                              "description": "The cost of all units of the specified product in the receipt (number of units * unit cost)",
+                              "examples": [
+                                404
+                              ]
+                            },
+                            "id": {
+                              "type": "integer",
+                              "description": "Item ID. You can get it in the Liqpay account - SCR - Kasa - Goods",
+                              "examples": [
+                                123456
+                              ]
+                            },
+                            "price": {
+                              "type": "number",
+                              "description": "Unit cost of goods",
+                              "examples": [
+                                202
+                              ]
+                            }
+                          }
+                        }
+                      },
+                      "delivery_emails": {
+                        "type": "array",
+                        "description": "List of e-mails to which receipts should be sent after fiscalization",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "examples": [
+                            "email1@email.com",
+                            "email2@email.com"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "acq_id": {
+                      "type": "number",
+                      "description": "Acquirer ID",
+                      "examples": [
+                        414963
+                      ]
+                    },
+                    "action": {
+                      "type": "string",
+                      "enum": [
+                        "pay",
+                        "hold",
+                        "paysplit",
+                        "subscribe",
+                        "paydonate",
+                        "auth",
+                        "regular"
+                      ],
+                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "examples": [
+                        "hold"
+                      ]
+                    },
+                    "agent_commission": {
+                      "type": "number",
+                      "description": "Agent comission in payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "amount": {
+                      "type": "number",
+                      "description": "Payment amount",
+                      "examples": [
+                        0.02
+                      ]
+                    },
+                    "amount_bonus": {
+                      "type": "number",
+                      "description": "Payer bonus amount in payment currency debit",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "amount_credit": {
+                      "type": "number",
+                      "description": "Payment amount for credit in currency of `currency_credit`",
+                      "examples": [
+                        0.02
+                      ]
+                    },
+                    "amount_debit": {
+                      "type": "number",
+                      "description": "Payment amount for debit in currency of `currency_debit`",
+                      "examples": [
+                        0.02
+                      ]
+                    },
+                    "authcode_credit": {
+                      "type": "string",
+                      "description": "Authorization code for transaction of credit",
+                      "examples": [
+                        "002970"
+                      ]
+                    },
+                    "authcode_debit": {
+                      "type": "string",
+                      "description": "Authorization code for transaction of debit",
+                      "examples": [
+                        "751279"
+                      ]
+                    },
+                    "card_token": {
+                      "type": "string",
+                      "description": "Sender's card token",
+                      "examples": [
+                        "2DFBFE626B734161130DE81E971E948D6F260"
+                      ]
+                    },
+                    "commission_credit": {
+                      "type": "number",
+                      "description": "Commission from the receiver in `currency_credit`",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "commission_debit": {
+                      "type": "number",
+                      "description": "Commission from the sender in `currency_debit`",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "completion_date": {
+                      "type": "string",
+                      "description": "Charge date",
+                      "examples": [
+                        1501681656973
+                      ]
+                    },
+                    "create_date": {
+                      "type": "string",
+                      "description": "Date of payment creation",
+                      "examples": [
+                        1501681569734
+                      ]
+                    },
+                    "currency": {
+                      "type": "string",
+                      "description": "Payment currency",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "currency_credit": {
+                      "type": "string",
+                      "description": "Transaction currency of credit",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "currency_debit": {
+                      "type": "string",
+                      "description": "Transaction currency of debit",
+                      "examples": [
+                        "UAH"
+                      ]
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "Payment description",
+                      "examples": [
+                        "test"
+                      ]
+                    },
+                    "end_date": {
+                      "type": "string",
+                      "description": "Date of payment edition/end",
+                      "examples": [
+                        1501681657732
+                      ]
+                    },
+                    "is_3ds": {
+                      "type": "boolean",
+                      "enum": [
+                        true,
+                        false
+                      ],
+                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS",
+                      "examples": [
+                        false
+                      ]
+                    },
+                    "liqpay_order_id": {
+                      "type": "string",
+                      "description": "Payment order_id in LiqPay system",
+                      "examples": [
+                        "NYMK3AE61501685438251925"
+                      ]
+                    },
+                    "mpi_eci": {
+                      "type": "integer",
+                      "enum": [
+                        5,
+                        6,
+                        7
+                      ],
+                      "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure",
+                      "examples": [
+                        7
+                      ]
+                    },
+                    "order_id": {
+                      "type": "string",
+                      "description": "Order_id payment",
+                      "examples": [
+                        "98R1U1OV1485849059893399"
+                      ]
+                    },
+                    "payment_id": {
+                      "type": "number",
+                      "description": "Payment id in LiqPay system",
+                      "examples": [
+                        165160
+                      ]
+                    },
+                    "paytype": {
+                      "type": "string",
+                      "enum": [
+                        "card",
+                        "privat24",
+                        "moment_part",
+                        "cash",
+                        "invoice",
+                        "qr"
+                      ],
+                      "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                      "examples": [
+                        "card"
+                      ]
+                    },
+                    "public_key": {
+                      "type": "string",
+                      "description": "Shop public key",
+                      "examples": [
+                        "i000000000"
+                      ]
+                    },
+                    "receiver_commission": {
+                      "type": "number",
+                      "description": "Receiver comission in payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "rrn_credit": {
+                      "type": "string",
+                      "description": "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`",
+                      "examples": [
+                        "000663205525"
+                      ]
+                    },
+                    "rrn_debit": {
+                      "type": "string",
+                      "description": "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`",
+                      "examples": [
+                        "000663204729"
+                      ]
+                    },
+                    "sender_bonus": {
+                      "type": "number",
+                      "description": "Sender's bonus in the payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "sender_card_bank": {
+                      "type": "string",
+                      "description": "Sender's card bank",
+                      "examples": [
+                        "pb"
+                      ]
+                    },
+                    "sender_card_country": {
+                      "type": "string",
+                      "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                      "examples": [
+                        804
+                      ]
+                    },
+                    "sender_card_mask2": {
+                      "type": "string",
+                      "description": "Sender's card",
+                      "examples": [
+                        "414961*99"
+                      ]
+                    },
+                    "sender_card_type": {
+                      "type": "string",
+                      "description": "Sender's card type MC/Visa",
+                      "examples": [
+                        "visa"
+                      ]
+                    },
+                    "sender_commission": {
+                      "type": "number",
+                      "description": "Commission from the sender in the payment currency",
+                      "examples": [
+                        0.0
+                      ]
+                    },
+                    "sender_first_name": {
+                      "type": "string",
+                      "description": "The name of the sender",
+                      "examples": [
+                        "first name"
+                      ]
+                    },
+                    "sender_last_name": {
+                      "type": "string",
+                      "description": "Sender's last name",
+                      "examples": [
+                        "last name"
+                      ]
+                    },
+                    "sender_phone": {
+                      "type": "string",
+                      "description": "Sender's phone number",
+                      "examples": [
+                        "380950000001"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "error",
+                        "failure",
+                        "success"
+                      ],
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment",
+                      "examples": [
+                        "success"
+                      ]
+                    },
+                    "transaction_id": {
+                      "type": "number",
+                      "description": "Id transactions in the LiqPay system",
+                      "examples": [
+                        165160
+                      ]
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Payment type",
+                      "examples": [
+                        "hold"
+                      ]
+                    },
+                    "version": {
+                      "type": "integer",
+                      "enum": [
+                        3
+                      ],
+                      "description": "Version API",
+                      "examples": [
+                        3
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
