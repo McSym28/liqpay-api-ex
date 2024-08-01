@@ -181,12 +181,18 @@
                         "enum": [
                           "1"
                         ],
-                        "description": "Regular payment"
+                        "description": "Regular payment",
+                        "examples": [
+                          "1"
+                        ]
                       },
                       "subscribe_date_start": {
                         "type": "string",
                         "format": "date-time",
-                        "description": "Date of the first payment. Time must be specified in the following format `2015-03-31 00:00:00` by `UTC`. If past date is indicated - subscription will be activated with the date and time of request"
+                        "description": "Date of the first payment. Time must be specified in the following format `2015-03-31 00:00:00` by `UTC`. If past date is indicated - subscription will be activated with the date and time of request",
+                        "examples": [
+                          "2015-03-31 00:00:00"
+                        ]
                       },
                       "subscribe_periodicity": {
                         "type": "string",
@@ -196,7 +202,10 @@
                           "month",
                           "year"
                         ],
-                        "description": "Period of payments. Possible values:\n* `day` - daily\n* `week` - weekly\n* `month` - once in a month\n* `year` - once in a year"
+                        "description": "Period of payments. Possible values:\n* `day` - daily\n* `week` - weekly\n* `month` - once in a month\n* `year` - once in a year",
+                        "examples": [
+                          "month"
+                        ]
                       }
                     }
                   },

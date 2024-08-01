@@ -39,41 +39,43 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ccy": {
-                      "type": "string",
-                      "description": "Currency code ([reference currency codes](https://en.wikipedia.org/wiki/ISO_4217))"
-                    },
-                    "base_ccy": {
-                      "type": "string",
-                      "description": "National currency code"
-                    },
-                    "buy": {
-                      "type": "string",
-                      "description": "Buying rate"
-                    },
-                    "sale": {
-                      "type": "string",
-                      "description": "Sales rate"
-                    }
-                  },
-                  "examples": [
-                    [
-                      {
-                        "base_ccy": "UAH",
-                        "buy": "19.20000",
-                        "ccy": "EUR",
-                        "sale": "20.00000"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "ccy": {
+                        "type": "string",
+                        "description": "Currency code ([reference currency codes](https://en.wikipedia.org/wiki/ISO_4217))",
+                        "examples": [
+                          "EUR",
+                          "USD"
+                        ]
                       },
-                      {
-                        "base_ccy": "UAH",
-                        "buy": "15.50000",
-                        "ccy": "USD",
-                        "sale": "15.85000"
+                      "base_ccy": {
+                        "type": "string",
+                        "description": "National currency code",
+                        "examples": [
+                          "UAH"
+                        ]
+                      },
+                      "buy": {
+                        "type": "string",
+                        "description": "Buying rate",
+                        "examples": [
+                          "19.20000",
+                          "15.50000"
+                        ]
+                      },
+                      "sale": {
+                        "type": "string",
+                        "description": "Sales rate",
+                        "examples": [
+                          "20.00000",
+                          "15.85000"
+                        ]
                       }
-                    ]
-                  ]
+                    }
+                  }
                 }
               }
             }

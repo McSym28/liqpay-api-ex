@@ -35,29 +35,28 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "rate_date": {
-                      "type": "string",
-                      "description": "Date of establishing «NBU Accounting Rate»"
-                    },
-                    "rate_value": {
-                      "type": "string",
-                      "description": "The value of the «NBU Discount Rate»"
-                    }
-                  },
-                  "examples": [
-                    [
-                      {
-                        "rate_date": "17.07.2014",
-                        "rate_value": "12.5"
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "rate_date": {
+                        "type": "string",
+                        "description": "Date of establishing «NBU Accounting Rate»",
+                        "examples": [
+                          "17.07.2014",
+                          "15.04.2014"
+                        ]
                       },
-                      {
-                        "rate_date": "15.04.2014",
-                        "rate_value": "9.5"
+                      "rate_value": {
+                        "type": "string",
+                        "description": "The value of the «NBU Discount Rate»",
+                        "examples": [
+                          "12.5",
+                          "9.5"
+                        ]
                       }
-                    ]
-                  ]
+                    }
+                  }
                 }
               }
             }

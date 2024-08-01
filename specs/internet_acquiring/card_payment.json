@@ -194,57 +194,63 @@
                   "rro_info": {
                     "type": "object",
                     "description": "Data for fiscalization",
-                    "examples": [
-                      {
-                        "delivery_emails": [
-                          "email1@email.com",
-                          "email2@email.com"
-                        ],
-                        "items": [
-                          {
-                            "amount": 2,
-                            "cost": 404,
-                            "id": 123456,
-                            "price": 202
+                    "properties": {
+                      "items": {
+                        "type": "array",
+                        "description": "Data about products for which payment is performed",
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "amount",
+                            "cost",
+                            "id",
+                            "price"
+                          ],
+                          "properties": {
+                            "amount": {
+                              "type": "number",
+                              "description": "Quantity/volume",
+                              "examples": [
+                                2
+                              ]
+                            },
+                            "cost": {
+                              "type": "number",
+                              "description": "The cost of all units of the specified product in the receipt (number of units * unit cost)",
+                              "examples": [
+                                404
+                              ]
+                            },
+                            "id": {
+                              "type": "integer",
+                              "description": "Item ID. You can get it in the Liqpay account - SCR - Kasa - Goods",
+                              "examples": [
+                                123456
+                              ]
+                            },
+                            "price": {
+                              "type": "number",
+                              "description": "Unit cost of goods",
+                              "examples": [
+                                202
+                              ]
+                            }
                           }
-                        ]
-                      }
-                    ]
-                  },
-                  "items": {
-                    "type": "array",
-                    "description": "Data about products for which payment is performed",
-                    "items": {
-                      "type": "object",
-                      "required": [
-                        "amount",
-                        "cost",
-                        "id",
-                        "price"
-                      ],
-                      "properties": {
-                        "amount": {
-                          "type": "number",
-                          "description": "Quantity/volume"
-                        },
-                        "cost": {
-                          "type": "number",
-                          "description": "The cost of all units of the specified product in the receipt (number of units * unit cost)"
-                        },
-                        "id": {
-                          "type": "number",
-                          "description": "Item ID. You can get it in the Liqpay account - SCR - Kasa - Goods"
-                        },
-                        "price": {
-                          "type": "number",
-                          "description": "Unit cost of goods"
+                        }
+                      },
+                      "delivery_emails": {
+                        "type": "array",
+                        "description": "List of e-mails to which receipts should be sent after fiscalization",
+                        "items": {
+                          "type": "string",
+                          "format": "email",
+                          "examples": [
+                            "email1@email.com",
+                            "email2@email.com"
+                          ]
                         }
                       }
                     }
-                  },
-                  "delivery_emails": {
-                    "type": "array",
-                    "description": "List of e-mails to which receipts should be sent after fiscalization"
                   },
                   "split_rules": {
                     "type": "array",
@@ -793,6 +799,43 @@
                       "examples": [
                         3
                       ]
+                    },
+                    "dcc_allowed": {
+                      "type": "array",
+                      "description": "Data of alternative amount for payment with DCC",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "amount": {
+                            "type": "number",
+                            "description": "Amount of payment in alternative currency",
+                            "examples": [
+                              3.5984
+                            ]
+                          },
+                          "commission": {
+                            "type": "number",
+                            "description": "Commission on payment in alternative currency",
+                            "examples": [
+                              0.0
+                            ]
+                          },
+                          "currency": {
+                            "type": "string",
+                            "description": "Alternative currency",
+                            "examples": [
+                              "USD"
+                            ]
+                          },
+                          "rate": {
+                            "type": "number",
+                            "description": "Conversion rate",
+                            "examples": [
+                              27.7905
+                            ]
+                          }
+                        }
+                      }
                     }
                   }
                 }

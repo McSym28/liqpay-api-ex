@@ -390,7 +390,7 @@ defmodule Mix.Tasks.Generate do
     inline_code_text_class = find_class("new_doc_integration_code_text", parse_settings)
 
     table_classes =
-      "new_doc_table_scroll(?:_\\w+)?"
+      "new_doc_table_scroll(?:_registry)?(?:_\\w+)?"
       |> find_classes(parse_settings)
       |> MapSet.new()
 
@@ -502,25 +502,31 @@ defmodule Mix.Tasks.Generate do
             |> parse_block_data(block_parse_settings, was_request, path)
             |> case do
               {:ok, block(update_operation: update_operation) = block_data} ->
-                {is_request, [top_endpoint | rest_endpoints] = _endpoints_new, path_new} =
+                {is_request, is_new_top, [top_endpoint | rest_endpoints] = _endpoints_new,
+                 block_data_new,
+                 path_new} =
                   case block_data do
                     block(update_operation: :new_endpoint, update_name: id) ->
                       [top_section | rest_path] = path
 
-                      endpoint =
+                      {endpoint, is_new_top} =
                         if endpoints == [] do
                           section(id: id, title: title) = top_section
-                          endpoint(id: id, title: title)
+                          {endpoint(id: id, title: title), false}
                         else
-                          endpoint(id: id)
+                          {endpoint(id: id), true}
                         end
 
                       endpoints_new = [endpoint | endpoints]
                       path_new = [endpoint | rest_path]
-                      {true, endpoints_new, path_new}
+
+                      block_data_new =
+                        block(block_data, update_operation: :patch, update_name: nil)
+
+                      {true, is_new_top, endpoints_new, block_data_new, path_new}
 
                     block(is_request: is_request) ->
-                      {is_request, endpoints, path}
+                      {is_request, false, endpoints, block_data, path}
                   end
 
                 {block_schema_type, block_schema} =
@@ -534,7 +540,7 @@ defmodule Mix.Tasks.Generate do
 
                 block_schema_new =
                   (block_schema || %{type: :object, properties: OrderedObject.new([])})
-                  |> update_block_schema(block_data, block_parse_settings, false, [
+                  |> update_block_schema(block_data_new, block_parse_settings, false, [
                     {:schema, block_schema_type} | path_new
                   ])
                   |> case do
@@ -550,9 +556,18 @@ defmodule Mix.Tasks.Generate do
                     do: endpoint(top_endpoint, request: block_schema_new),
                     else: endpoint(top_endpoint, response: block_schema_new)
 
-                endpoints_new = [top_endpoint_new | rest_endpoints]
+                if is_new_top do
+                  [previous_endpoint | other_endpoints] = rest_endpoints
 
-                {endpoints_new, code_blocks, path_new}
+                  previous_endpoint_new =
+                    process_endpoint_code_blocks(previous_endpoint, code_blocks, path)
+
+                  endpoints_new = [top_endpoint_new, previous_endpoint_new | other_endpoints]
+                  {endpoints_new, [], path_new}
+                else
+                  endpoints_new = [top_endpoint_new | rest_endpoints]
+                  {endpoints_new, code_blocks, path_new}
+                end
 
               :error ->
                 {endpoints, code_blocks, path}
@@ -566,23 +581,38 @@ defmodule Mix.Tasks.Generate do
         end
       end)
 
-    [top_endpoint | rest_endpoints] = _endpoints = Enum.reverse(endpoints)
+    endpoints
+    |> List.update_at(0, &process_endpoint_code_blocks(&1, code_blocks, path))
+    |> Enum.reverse()
+    |> then(&{:ok, &1})
+  end
 
-    top_endpoint_new =
-      code_blocks
-      |> Enum.reverse()
-      |> Enum.reduce(top_endpoint, fn
-        {is_request, example},
-        endpoint(request: request_schema, response: response_schema) = endpoint ->
-          schema = if is_request, do: request_schema, else: response_schema
-          schema_new = patch_schema_examples(example, schema)
+  defp process_endpoint_code_blocks(endpoint, code_blocks, path) do
+    code_blocks
+    |> Enum.reverse()
+    |> Enum.reduce(endpoint, fn
+      {is_request, example}, endpoint ->
+        path_new =
+          case path do
+            [section(type: :doc) | rest_path] -> [endpoint | rest_path]
+            _ -> path
+          end
 
-          if is_request,
-            do: endpoint(endpoint, request: schema_new),
-            else: endpoint(endpoint, response: schema_new)
-      end)
+        {schema_type, schema} =
+          if is_request do
+            endpoint(request: request_schema) = endpoint
+            {:request, request_schema}
+          else
+            endpoint(response: response_schema) = endpoint
+            {:response, response_schema}
+          end
 
-    {:ok, [top_endpoint_new | rest_endpoints]}
+        schema_new = patch_schema_examples(example, schema, [{:schema, schema_type} | path_new])
+
+        if is_request,
+          do: endpoint(endpoint, request: schema_new),
+          else: endpoint(endpoint, response: schema_new)
+    end)
   end
 
   defp extract_code(code_element) do
@@ -1331,32 +1361,7 @@ defmodule Mix.Tasks.Generate do
          false,
          path
        ) do
-    schema_new = process_block_properties(schema, block_data, block_parse_settings, path)
-    {true, schema_new}
-  end
-
-  defp update_block_schema(
-         %{type: :object} = schema,
-         block(update_operation: :patch, update_type: :object, update_name: "rro_info") =
-           block_data,
-         block_parse_settings,
-         false,
-         [{:schema, :request}, endpoint(id: "card_payment"), section(id: "internet_acquiring")] =
-           path
-       ) do
-    schema_new =
-      schema
-      |> append_schema_object_properties(
-        OrderedObject.new([
-          {"rro_info",
-           %{
-             type: :object,
-             description: "Data for fiscalization"
-           }}
-        ])
-      )
-      |> process_block_properties(block_data, block_parse_settings, path)
-
+    schema_new = parse_block_schema(schema, block_data, block_parse_settings, path)
     {true, schema_new}
   end
 
@@ -1368,7 +1373,7 @@ defmodule Mix.Tasks.Generate do
          [name | _] = path
        ) do
     path_new = if type == :array, do: [[] | path], else: path
-    schema_new = process_block_properties(schema, block_data, block_parse_settings, path_new)
+    schema_new = parse_block_schema(schema, block_data, block_parse_settings, path_new)
     {true, schema_new}
   end
 
@@ -1381,8 +1386,40 @@ defmodule Mix.Tasks.Generate do
        )
        when is_binary(name) do
     schema_new =
-      process_block_properties(schema, block_data, block_parse_settings, [name | path])
+      parse_block_schema(schema, block_data, block_parse_settings, [name | path])
 
+    {true, schema_new}
+  end
+
+  defp update_block_schema(
+         %{type: :object, properties: properties} = schema,
+         block(update_operation: :patch, update_type: :object, update_name: "rro_info" = name) =
+           block_data,
+         block_parse_settings,
+         false,
+         [{:schema, :request}, endpoint(id: "card_payment"), section(id: "internet_acquiring")] =
+           path
+       ) do
+    {true, property_new} =
+      properties
+      |> ensure_block_properties([
+        {name,
+         %{
+           type: :object,
+           description: "Data for fiscalization",
+           properties: OrderedObject.new([])
+         }}
+      ])
+      |> get_in([name])
+      |> update_block_schema(
+        block_data,
+        block_parse_settings,
+        false,
+        [name | path]
+      )
+
+    properties_new = ensure_block_properties(properties, [{name, property_new}])
+    schema_new = %{schema | properties: properties_new}
     {true, schema_new}
   end
 
@@ -1431,13 +1468,637 @@ defmodule Mix.Tasks.Generate do
     {false, schema}
   end
 
-  defp process_block_properties(
+  defp parse_block_schema(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :response},
+           endpoint(id: "compensation_per_day"),
+           section(id: "register"),
+           section(id: "information")
+         ] =
+           path
+       ) do
+    schema_new =
+      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      update_in(schema_new, [:properties, "data", :items], fn %{type: :object} = items_schema ->
+        %{
+          oneOf: [
+            items_schema,
+            %{
+              type: :object,
+              properties:
+                OrderedObject.new([
+                  {"compensation_id",
+                   %{
+                     type: :string,
+                     description: "compensation_id of enrollment"
+                   }},
+                  {"create_date", %{type: :string, format: "date-time"}}
+                ])
+            }
+          ]
+        }
+      end)
+    else
+      schema_new
+    end
+  end
+
+  defp parse_block_schema(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :response},
+           endpoint(id: "exchange"),
+           section(id: "public")
+         ] =
+           path
+       ) do
+    schema_new =
+      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      %{type: :array, items: schema_new}
+    else
+      schema_new
+    end
+  end
+
+  defp parse_block_schema(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :response},
+           endpoint(id: "archive"),
+           section(id: "public")
+         ] =
+           path
+       ) do
+    schema_new =
+      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      %{properties: properties} = schema_new
+
+      properties_new =
+        Enum.flat_map(
+          properties,
+          fn
+            {"saleRateNB/purchaseRateNB", property_schema} ->
+              [
+                {"saleRateNB", property_schema},
+                {"purchaseRateNB",
+                 Map.put(property_schema, :description, "The purchase rate of NBU")}
+              ]
+
+            other ->
+              [other]
+          end
+        )
+        |> OrderedObject.new()
+
+      schema_new = %{schema_new | properties: properties_new}
+
+      %{
+        type: :object,
+        properties:
+          OrderedObject.new([
+            {"date", %{type: :string, format: "date"}},
+            {"bank", %{type: :string}},
+            {"baseCurrency", %{type: :integer}},
+            {"baseCurrencyLit", %{type: :string}},
+            {"exchangeRate", %{type: :array, items: schema_new}}
+          ])
+      }
+    else
+      schema_new
+    end
+  end
+
+  defp parse_block_schema(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :response},
+           endpoint(id: "discount_rate"),
+           section(id: "public")
+         ] =
+           path
+       ) do
+    schema_new =
+      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      %{type: :array, items: schema_new}
+    else
+      schema_new
+    end
+  end
+
+  defp parse_block_schema(schema, block_data, block_parse_settings, path),
+    do: do_parse_block_schema(schema, block_data, block_parse_settings, path)
+
+  defp do_parse_block_schema(
          schema,
          block(node: node) = block_data,
          block_parse_settings(
-           table_classes: table_classes,
            table_standalone_code_block_class: table_standalone_code_block_class
          ) = block_parse_settings,
+         path
+       ) do
+    {properties, required} =
+      parse_block_properties(schema, block_data, block_parse_settings, path)
+
+    properties_new =
+      with true <- is_binary(table_standalone_code_block_class),
+           [code] <-
+             Floki.find(node, "div.#{table_standalone_code_block_class} code.language-json") do
+        %{properties: properties_new} =
+          code
+          |> extract_code()
+          |> Jason.decode!()
+          |> patch_schema_examples(%{type: :object, properties: properties}, path)
+
+        properties_new
+      else
+        _ -> properties
+      end
+
+    {properties_new, required_new} =
+      case block_data do
+        block(update_operation: :new, update_name: name, description: description)
+        when is_binary(name) ->
+          schema = %{type: :object, properties: properties_new, description: description}
+
+          schema_new =
+            if Enum.empty?(required) do
+              schema
+            else
+              Map.put(schema, :required, required)
+            end
+
+          {OrderedObject.new([{name, schema_new}]), []}
+
+        _ ->
+          {properties_new, required}
+      end
+
+    case schema do
+      %{type: :object} ->
+        schema_new = append_schema_object_properties(schema, properties_new)
+
+        if Enum.empty?(required_new) do
+          schema_new
+        else
+          Map.update(schema_new, :required, required_new, &(&1 ++ required_new))
+        end
+
+      %{type: :array} ->
+        items_new =
+          schema
+          |> Map.fetch(:items)
+          |> case do
+            {:ok, %{type: :object} = items} -> items
+            :error -> %{type: :object}
+          end
+          |> append_schema_object_properties(properties_new)
+
+        items_new =
+          if Enum.empty?(required_new) do
+            items_new
+          else
+            Map.update(items_new, :required, required_new, &(&1 ++ required_new))
+          end
+
+        Map.put(schema, :items, items_new)
+    end
+  end
+
+  defp parse_block_properties(
+         %{type: :object} = schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [{:schema, :response}, endpoint(id: "card_payment"), section(id: "internet_acquiring")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    properties_new =
+      schema
+      |> case do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+      |> if do
+        ensure_block_properties(properties, [
+          {"dcc_allowed",
+           %{
+             type: :array,
+             description: "Data of alternative amount for payment with DCC",
+             items: %{
+               type: :object,
+               properties:
+                 OrderedObject.new([
+                   {"amount",
+                    %{
+                      type: :number,
+                      description: "Amount of payment in alternative currency"
+                    }},
+                   {"commission",
+                    %{
+                      type: :number,
+                      description: "Commission on payment in alternative currency"
+                    }},
+                   {"currency",
+                    %{
+                      type: :string,
+                      description: "Alternative currency"
+                    }},
+                   {"rate",
+                    %{
+                      type: :number,
+                      description: "Conversion rate"
+                    }}
+                 ])
+             }
+           }}
+        ])
+      else
+        properties
+      end
+
+    {properties_new, required}
+  end
+
+  defp parse_block_properties(
+         %{type: :object} = schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [{:schema, :response}, endpoint(id: "obtain"), section(id: "tokens")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    properties_new =
+      schema
+      |> case do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+      |> if do
+        ensure_block_properties(properties, [
+          {"result",
+           %{
+             type: :string,
+             description: "The result of a request",
+             enum: ["ok", "error"]
+           }}
+        ])
+      else
+        properties
+      end
+
+    {properties_new, required}
+  end
+
+  defp parse_block_properties(
+         %{type: :object} = schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) =
+           block_data,
+         block_parse_settings,
+         [{:schema, :request}, endpoint(id: "MPI"), section(id: "confirmation")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    properties_new =
+      schema
+      |> case do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+      |> if do
+        ensure_block_properties(properties, [
+          {"phone", %{type: :string, description: "Payer's phone number"}}
+        ])
+      else
+        properties
+      end
+
+    {properties_new, required}
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [{:schema, :response}, endpoint(id: "MPI"), section(id: "confirmation")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    properties_new =
+      schema
+      |> case do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+      |> if do
+        ensure_block_properties(properties, [
+          {"result",
+           %{
+             type: :string,
+             description: "The result of a request",
+             enum: ["ok", "error"]
+           }},
+          {"cres", %{type: :string, description: "CRes", nullable: true}}
+        ])
+      else
+        properties
+      end
+
+    {properties_new, required}
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [{:schema, :response}, endpoint(id: "cardverification"), section(id: "confirmation")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    properties_new =
+      schema
+      |> case do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+      |> if do
+        ensure_block_properties(properties, [
+          {"rrn_debit",
+           %{
+             type: :string,
+             description:
+               "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`"
+           }}
+        ])
+      else
+        properties
+      end
+
+    {properties_new, required}
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :request},
+           endpoint(id: "register"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    properties_new =
+      schema
+      |> case do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+      |> if do
+        ensure_block_properties(properties, [
+          {"description",
+           %{
+             type: :string,
+             description: "Store description"
+           }}
+        ])
+      else
+        properties
+      end
+
+    {properties_new, required}
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [{:schema, :response}, endpoint(id: "payment_archive"), section(id: "information")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      data_items = %{type: :object, properties: properties}
+
+      data_items_new =
+        if Enum.empty?(required) do
+          data_items
+        else
+          Map.put(data_items, :required, required)
+        end
+
+      properties_new =
+        OrderedObject.new([
+          {"result",
+           %{
+             type: :string,
+             description: "The result of a request",
+             enum: ["ok", "error", "success"]
+           }},
+          {"data", %{type: :array, items: data_items_new}}
+        ])
+
+      {properties_new, []}
+    else
+      {properties, required}
+    end
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :response},
+           endpoint(id: endpoint_id),
+           section(id: "register"),
+           section(id: "information")
+         ] =
+           path
+       )
+       when endpoint_id in ~w(compensation_per_day compensation_per_transaction) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      data_items = %{type: :object, properties: properties}
+
+      data_items_new =
+        if Enum.empty?(required) do
+          data_items
+        else
+          Map.put(data_items, :required, required)
+        end
+
+      properties_new =
+        OrderedObject.new([
+          {"result",
+           %{
+             type: :string,
+             description: "The result of a request",
+             enum: ["ok", "error", "success"]
+           }},
+          {"data", %{type: :array, items: data_items_new}}
+        ])
+
+      {properties_new, []}
+    else
+      {properties, required}
+    end
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [{:schema, :response}, endpoint(id: "info_user"), section(id: "partnership")] =
+           path
+       ) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      {result_property, properties_new} = pop_in(properties, ["result"])
+      data_items = %{type: :object, properties: properties_new}
+
+      data_items_new =
+        if Enum.empty?(required) do
+          data_items
+        else
+          Map.put(data_items, :required, required -- ["result"])
+        end
+
+      properties_new =
+        OrderedObject.new([
+          {"result", result_property},
+          {"data", %{type: :array, items: data_items_new}}
+        ])
+
+      {properties_new, []}
+    else
+      {properties, required}
+    end
+  end
+
+  defp parse_block_properties(schema, block_data, block_parse_settings, path),
+    do: do_parse_block_properties(schema, block_data, block_parse_settings, path)
+
+  defp do_parse_block_properties(
+         _schema,
+         block(node: node) = _block_data,
+         block_parse_settings(table_classes: table_classes) = block_parse_settings,
          path
        ) do
     table =
@@ -1505,70 +2166,27 @@ defmodule Mix.Tasks.Generate do
 
     properties_new = OrderedObject.new(properties)
     required_new = List.flatten(required)
+    {properties_new, required_new}
+  end
 
-    properties_new =
-      with true <- is_binary(table_standalone_code_block_class),
-           [code] <-
-             Floki.find(node, "div.#{table_standalone_code_block_class} code.language-json") do
-        %{properties: properties_new} =
-          code
-          |> extract_code()
-          |> Jason.decode!()
-          |> patch_schema_examples(%{type: :object, properties: properties_new})
+  defp ensure_block_properties(existing_properties, new_properties) do
+    Enum.reduce(
+      new_properties,
+      existing_properties,
+      fn {key, property}, properties ->
+        case get_in(properties, [key]) do
+          nil ->
+            update_in(
+              properties,
+              [Access.key!(:values)],
+              &List.keystore(&1, key, 0, {key, property})
+            )
 
-        properties_new
-      else
-        _ -> properties_new
-      end
-
-    {properties_new, required_new} =
-      case block_data do
-        block(update_operation: :new, update_name: name, description: description)
-        when is_binary(name) ->
-          schema = %{type: :object, properties: properties_new, description: description}
-
-          schema_new =
-            if Enum.empty?(required_new) do
-              schema
-            else
-              Map.put(schema, :required, required_new)
-            end
-
-          {OrderedObject.new([{name, schema_new}]), []}
-
-        _ ->
-          {properties_new, required_new}
-      end
-
-    case schema do
-      %{type: :object} ->
-        schema_new = append_schema_object_properties(schema, properties_new)
-
-        if Enum.empty?(required_new) do
-          schema_new
-        else
-          Map.update(schema_new, :required, required_new, &(&1 ++ required_new))
+          _property ->
+            properties
         end
-
-      %{type: :array} ->
-        items_new =
-          schema
-          |> Map.fetch(:items)
-          |> case do
-            {:ok, %{type: :object} = items} -> items
-            :error -> %{type: :object}
-          end
-          |> append_schema_object_properties(properties_new)
-
-        items_new =
-          if Enum.empty?(required_new) do
-            items_new
-          else
-            Map.update(items_new, :required, required_new, &(&1 ++ required_new))
-          end
-
-        Map.put(schema, :items, items_new)
-    end
+      end
+    )
   end
 
   defp parse_property_name(str, block_parse_settings) do
@@ -1607,6 +2225,7 @@ defmodule Mix.Tasks.Generate do
          %{type: :string} = property,
          ["split_rules", {:schema, :request} | _] = path
        ) do
+    # TODO: Try to use existing property descriptions
     property
     |> Map.merge(%{
       type: :array,
@@ -1650,6 +2269,68 @@ defmodule Mix.Tasks.Generate do
         required: [
           "amount"
         ]
+      }
+    })
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :object, description: description} = property,
+         [
+           "dcc_allowed",
+           {:schema, :response},
+           endpoint(id: "dcc"),
+           section(id: "internet_acquiring")
+         ] = path
+       ) do
+    {description_new, key_descriptions} =
+      ~r/^\s*`([^`]+)`\s*-\s*(.+)$/m
+      |> Regex.scan(description)
+      |> Enum.reduce({description, %{}}, fn [full_match, key, key_description],
+                                            {description, key_descriptions} ->
+        description_new =
+          String.replace(description, full_match, "")
+
+        key_descriptions_new = Map.put(key_descriptions, key, key_description)
+        {description_new, key_descriptions_new}
+      end)
+
+    description_new =
+      description_new
+      |> String.trim()
+      |> String.trim_trailing(":")
+
+    property
+    |> Map.merge(%{
+      type: :array,
+      description: description_new,
+      items: %{
+        type: :object,
+        properties:
+          OrderedObject.new([
+            {
+              "amount",
+              %{
+                type: :number,
+                description: key_descriptions["amount"]
+              }
+            },
+            {"commission",
+             %{
+               type: :number,
+               description: key_descriptions["commission"]
+             }},
+            {"currency",
+             %{
+               type: :string,
+               description: key_descriptions["currency"]
+             }},
+            {"rate",
+             %{
+               type: :number,
+               description: key_descriptions["rate"]
+             }}
+          ])
       }
     })
     |> initialize_property_processing(path)
@@ -1723,6 +2404,15 @@ defmodule Mix.Tasks.Generate do
          [integer_property, {:schema, _schema_type} | _] = path
        )
        when integer_property in ~w(version mpi_eci) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :number} = property,
+         ["mpi_eci", [], "data", {:schema, :request} | _] = path
+       ) do
     property
     |> Map.put(:type, :integer)
     |> initialize_property_processing(path)
@@ -1881,7 +2571,7 @@ defmodule Mix.Tasks.Generate do
         code
         |> extract_code()
         |> Jason.decode!()
-        |> patch_schema_examples(%{schema | description: description_new})
+        |> patch_schema_examples(%{schema | description: description_new}, path)
 
       [
         "goods",
@@ -1893,7 +2583,7 @@ defmodule Mix.Tasks.Generate do
         code
         |> extract_code()
         |> Jason.decode!()
-        |> patch_schema_examples(schema)
+        |> patch_schema_examples(schema, path)
     end
   end
 
@@ -1901,42 +2591,129 @@ defmodule Mix.Tasks.Generate do
     parse_property_separate_example(schema, Floki.find(node, "code.language-json"), path)
   end
 
-  defp patch_schema_examples(example, %{type: :object, properties: properties} = schema)
+  defp patch_schema_examples(example, %{type: :object, properties: _properties} = schema, path)
        when is_map(example) do
-    properties_new =
-      Enum.reduce(
-        example,
-        properties,
-        fn {key, value}, properties ->
-          case get_in(properties, [key]) do
-            nil ->
-              IO.inspect(value, label: "Unused example (#{key})")
-              properties
-
-            current ->
-              put_in(properties, [key], patch_schema_examples(value, current))
-          end
-        end
-      )
-
-    %{schema | properties: properties_new}
+    Enum.reduce(
+      example,
+      schema,
+      fn {key, value}, schema -> patch_object_schema_examples(value, schema, [key | path]) end
+    )
   end
 
-  defp patch_schema_examples(example, %{type: :array, items: items} = schema)
+  defp patch_schema_examples(example, %{type: :object} = schema, path) do
+    IO.inspect(example, label: "Invalid object example (#{loggable_schema_example_path(path)})")
+    schema
+  end
+
+  defp patch_schema_examples(example, %{type: :array, items: items} = schema, path)
        when is_list(example) do
     items_new =
       Enum.reduce(
         example,
         items,
-        &patch_schema_examples(&1, &2)
+        &patch_schema_examples(&1, &2, [[] | path])
       )
 
     %{schema | items: items_new}
   end
 
-  defp patch_schema_examples(example, schema) do
+  defp patch_schema_examples(example, %{type: :array} = schema, path) do
+    IO.inspect(example, label: "Invalid array example (#{loggable_schema_example_path(path)})")
+    schema
+  end
+
+  defp patch_schema_examples(example, %{oneOf: schemas} = schema, path) do
+    schemas_new = List.update_at(schemas, -1, &patch_schema_examples(example, &1, path))
+    %{schema | oneOf: schemas_new}
+  end
+
+  defp patch_schema_examples(example, schema, _path) do
     example_new = parse_schema_value(example, schema)
     Map.update(schema, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+  end
+
+  defp loggable_schema_example_path(path) do
+    path
+    |> Enum.map(fn
+      key when is_binary(key) -> key
+      [] -> []
+      {:schema, _} = schema -> schema
+      section(id: id) -> id
+      endpoint(id: id) -> id
+    end)
+    |> inspect()
+  end
+
+  @regular_payment_fields ~w(subscribe subscribe_date_start subscribe_periodicity)
+  @card_fields ~w(card card_cvv card_exp_month card_exp_year)
+
+  defp patch_object_schema_examples(
+         _example,
+         %{type: :object} = schema,
+         [
+           key,
+           {:schema, :request},
+           endpoint(id: "create"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = _path
+       )
+       when key in @card_fields do
+    schema
+  end
+
+  defp patch_object_schema_examples(
+         _example,
+         %{type: :object} = schema,
+         [
+           key,
+           {:schema, :request},
+           section(id: "shop_edit"),
+           section(id: "partnership")
+         ] = _path
+       )
+       when key in @card_fields do
+    schema
+  end
+
+  defp patch_object_schema_examples(
+         example,
+         %{type: :object} = schema,
+         [key | [{:schema, :request}, _, section(id: "internet_acquiring")] = rest_path] = _path
+       )
+       when key in @regular_payment_fields do
+    patch_schema_examples(%{"regular_payment" => %{key => example}}, schema, rest_path)
+  end
+
+  defp patch_object_schema_examples(
+         example,
+         %{type: :object} = schema,
+         [key, {:schema, :request}, _, section, section(id: "internet_acquiring")] = _path
+       )
+       when key in @regular_payment_fields do
+    patch_object_schema_examples(
+      example,
+      schema,
+      [key, {:schema, :request}, section, section(id: "internet_acquiring")]
+    )
+  end
+
+  defp patch_object_schema_examples(
+         example,
+         %{type: :object, properties: properties} = schema,
+         [key | _] = path
+       ) do
+    properties_new =
+      case get_in(properties, [key]) do
+        nil ->
+          IO.inspect(example, label: "Unused example (#{loggable_schema_example_path(path)})")
+          properties
+
+        current ->
+          put_in(properties, [key], patch_schema_examples(example, current, path))
+      end
+
+    %{schema | properties: properties_new}
   end
 
   defp parse_property_maximum_length(%{description: description} = property) do
@@ -2121,13 +2898,12 @@ defmodule Mix.Tasks.Generate do
     value_decoded
   end
 
-  defp append_schema_object_properties(
-         schema,
-         %OrderedObject{values: values_new} = properties_new
-       ) do
-    Map.update(schema, :properties, properties_new, fn %OrderedObject{values: values_old} ->
-      OrderedObject.new(values_old ++ values_new)
-    end)
+  defp append_schema_object_properties(schema, properties_new) do
+    update_in(
+      schema,
+      [Access.key(:properties, OrderedObject.new([])), Access.key!(:values)],
+      &(&1 ++ properties_new.values)
+    )
   end
 
   defp parse_standalone_example("response example", _div, _block_parse_settings, [
@@ -2242,7 +3018,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "information")
          ] = path
        ),
-       do: parse_standalone_example(true, div, block_parse_settings, path)
+       do: parse_standalone_example(false, div, block_parse_settings, path)
 
   defp parse_standalone_example(
          "example of json request",

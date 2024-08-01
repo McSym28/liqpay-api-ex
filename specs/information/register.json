@@ -80,157 +80,288 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "action": {
+                    "result": {
                       "type": "string",
                       "enum": [
-                        "pay",
-                        "hold",
-                        "paysplit",
-                        "subscribe",
-                        "paydonate",
-                        "auth",
-                        "regular"
+                        "ok",
+                        "error",
+                        "success"
                       ],
-                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment"
+                      "description": "The result of a request",
+                      "examples": [
+                        "ok",
+                        "success"
+                      ]
                     },
-                    "authcode_debit": {
-                      "type": "string",
-                      "description": "Authorization code for transaction of debit"
-                    },
-                    "bonus_type": {
-                      "type": "string",
-                      "enum": [
-                        "bonusplus",
-                        "discount_club",
-                        "personal",
-                        "promo"
-                      ],
-                      "description": "Bonus type, "
-                    },
-                    "channel": {
-                      "type": "string",
-                      "enum": [
-                        "checkout",
-                        "checkoutjs",
-                        "api"
-                      ],
-                      "description": "Payment channel, "
-                    },
-                    "create_date": {
-                      "type": "string",
-                      "description": "Date of payment creation"
-                    },
-                    "customer": {
-                      "type": "string",
-                      "description": "Unique customer ID in your shop",
-                      "maxLength": 100
-                    },
-                    "description": {
-                      "type": "string",
-                      "description": "Payment description"
-                    },
-                    "end_date": {
-                      "type": "string",
-                      "description": "Date of payment edition/end"
-                    },
-                    "id": {
-                      "type": "number",
-                      "description": "Payment id in LiqPay system"
-                    },
-                    "ip": {
-                      "type": "string",
-                      "description": "Sender's IP address"
-                    },
-                    "liqpay_order_id": {
-                      "type": "string",
-                      "description": "Payment order_id in LiqPay system"
-                    },
-                    "order_id": {
-                      "type": "string",
-                      "description": "Order_id payment"
-                    },
-                    "paytype": {
-                      "type": "string",
-                      "enum": [
-                        "card",
-                        "privat24",
-                        "masterpass",
-                        "moment_part",
-                        "cash",
-                        "invoice",
-                        "qr"
-                      ],
-                      "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning"
-                    },
-                    "sender_card": {
-                      "type": "string",
-                      "description": "Sender's card"
-                    },
-                    "sender_card_bank": {
-                      "type": "string",
-                      "description": "Sender's card bank"
-                    },
-                    "sender_card_country": {
-                      "type": "string",
-                      "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)"
-                    },
-                    "sender_card_product_type": {
-                      "type": "string",
-                      "description": "Type of card product"
-                    },
-                    "sender_card_type": {
-                      "type": "string",
-                      "description": "Sender's card type MC/Visa"
-                    },
-                    "sender_email": {
-                      "type": "string",
-                      "description": "Email payer"
-                    },
-                    "sender_first_name": {
-                      "type": "string",
-                      "description": "The name of the sender"
-                    },
-                    "sender_last_name": {
-                      "type": "string",
-                      "description": "Sender's last name"
-                    },
-                    "sender_phone": {
-                      "type": "string",
-                      "description": "Sender's phone number"
-                    },
-                    "trans_amount": {
-                      "type": "number",
-                      "description": "The amount of the transaction"
-                    },
-                    "trans_bonus": {
-                      "type": "number",
-                      "description": "The amount of the bonus for the transaction"
-                    },
-                    "trans_currency": {
-                      "type": "string",
-                      "description": "Transaction currency"
-                    },
-                    "trans_fee_credit": {
-                      "type": "number",
-                      "description": "The amount of the loan transaction commission"
-                    },
-                    "trans_fee_debit": {
-                      "type": "number",
-                      "description": "The amount of the debit transaction commission"
-                    },
-                    "trans_total": {
-                      "type": "number",
-                      "description": "The amount of reimbursement of the company"
-                    },
-                    "trans_type": {
-                      "type": "string",
-                      "enum": [
-                        "reverse",
-                        "hold_compl",
-                        "purchase",
-                        "refund"
-                      ],
-                      "description": "Transaction type"
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "action": {
+                                "type": "string",
+                                "enum": [
+                                  "pay",
+                                  "hold",
+                                  "paysplit",
+                                  "subscribe",
+                                  "paydonate",
+                                  "auth",
+                                  "regular"
+                                ],
+                                "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                                "examples": [
+                                  "pay"
+                                ]
+                              },
+                              "authcode_debit": {
+                                "type": "string",
+                                "description": "Authorization code for transaction of debit",
+                                "examples": [
+                                  "784593"
+                                ]
+                              },
+                              "bonus_type": {
+                                "type": "string",
+                                "enum": [
+                                  "bonusplus",
+                                  "discount_club",
+                                  "personal",
+                                  "promo"
+                                ],
+                                "description": "Bonus type, ",
+                                "examples": [
+                                  null
+                                ]
+                              },
+                              "channel": {
+                                "type": "string",
+                                "enum": [
+                                  "checkout",
+                                  "checkoutjs",
+                                  "api"
+                                ],
+                                "description": "Payment channel, ",
+                                "examples": [
+                                  "checkout"
+                                ]
+                              },
+                              "create_date": {
+                                "type": "string",
+                                "description": "Date of payment creation",
+                                "examples": [
+                                  "2017-01-31 07:51:37"
+                                ]
+                              },
+                              "customer": {
+                                "type": "string",
+                                "description": "Unique customer ID in your shop",
+                                "maxLength": 100,
+                                "examples": [
+                                  null
+                                ]
+                              },
+                              "description": {
+                                "type": "string",
+                                "description": "Payment description",
+                                "examples": [
+                                  "My product"
+                                ]
+                              },
+                              "end_date": {
+                                "type": "string",
+                                "description": "Date of payment edition/end",
+                                "examples": [
+                                  "2017-01-31 07:51:54"
+                                ]
+                              },
+                              "id": {
+                                "type": "number",
+                                "description": "Payment id in LiqPay system",
+                                "examples": [
+                                  107866
+                                ]
+                              },
+                              "ip": {
+                                "type": "string",
+                                "description": "Sender's IP address",
+                                "examples": [
+                                  "8.8.8.8"
+                                ]
+                              },
+                              "liqpay_order_id": {
+                                "type": "string",
+                                "description": "Payment order_id in LiqPay system",
+                                "examples": [
+                                  "J4L8IRG81485849105029639"
+                                ]
+                              },
+                              "order_id": {
+                                "type": "string",
+                                "description": "Order_id payment",
+                                "examples": [
+                                  "98R1U1OV1485849059893399"
+                                ]
+                              },
+                              "paytype": {
+                                "type": "string",
+                                "enum": [
+                                  "card",
+                                  "privat24",
+                                  "masterpass",
+                                  "moment_part",
+                                  "cash",
+                                  "invoice",
+                                  "qr"
+                                ],
+                                "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                                "examples": [
+                                  "liqpay"
+                                ]
+                              },
+                              "sender_card": {
+                                "type": "string",
+                                "description": "Sender's card",
+                                "examples": [
+                                  "5168 **** **** **16"
+                                ]
+                              },
+                              "sender_card_bank": {
+                                "type": "string",
+                                "description": "Sender's card bank",
+                                "examples": [
+                                  "pb"
+                                ]
+                              },
+                              "sender_card_country": {
+                                "type": "string",
+                                "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                                "examples": [
+                                  804
+                                ]
+                              },
+                              "sender_card_product_type": {
+                                "type": "string",
+                                "description": "Type of card product",
+                                "examples": [
+                                  "KDV"
+                                ]
+                              },
+                              "sender_card_type": {
+                                "type": "string",
+                                "description": "Sender's card type MC/Visa",
+                                "examples": [
+                                  "mc"
+                                ]
+                              },
+                              "sender_email": {
+                                "type": "string",
+                                "description": "Email payer",
+                                "examples": [
+                                  null
+                                ]
+                              },
+                              "sender_first_name": {
+                                "type": "string",
+                                "description": "The name of the sender",
+                                "examples": [
+                                  "test"
+                                ]
+                              },
+                              "sender_last_name": {
+                                "type": "string",
+                                "description": "Sender's last name",
+                                "examples": [
+                                  "test"
+                                ]
+                              },
+                              "sender_phone": {
+                                "type": "string",
+                                "description": "Sender's phone number",
+                                "examples": [
+                                  "380950000001"
+                                ]
+                              },
+                              "trans_amount": {
+                                "type": "number",
+                                "description": "The amount of the transaction",
+                                "examples": [
+                                  1.0
+                                ]
+                              },
+                              "trans_bonus": {
+                                "type": "number",
+                                "description": "The amount of the bonus for the transaction",
+                                "examples": [
+                                  0.0
+                                ]
+                              },
+                              "trans_currency": {
+                                "type": "string",
+                                "description": "Transaction currency",
+                                "examples": [
+                                  "UAH"
+                                ]
+                              },
+                              "trans_fee_credit": {
+                                "type": "number",
+                                "description": "The amount of the loan transaction commission",
+                                "examples": [
+                                  0.03
+                                ]
+                              },
+                              "trans_fee_debit": {
+                                "type": "number",
+                                "description": "The amount of the debit transaction commission",
+                                "examples": [
+                                  0.0
+                                ]
+                              },
+                              "trans_total": {
+                                "type": "number",
+                                "description": "The amount of reimbursement of the company",
+                                "examples": [
+                                  0.97
+                                ]
+                              },
+                              "trans_type": {
+                                "type": "string",
+                                "enum": [
+                                  "reverse",
+                                  "hold_compl",
+                                  "purchase",
+                                  "refund"
+                                ],
+                                "description": "Transaction type",
+                                "examples": [
+                                  "purchase"
+                                ]
+                              }
+                            }
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "compensation_id": {
+                                "type": "string",
+                                "description": "compensation_id of enrollment",
+                                "examples": [
+                                  91330
+                                ]
+                              },
+                              "create_date": {
+                                "type": "string",
+                                "format": "date-time",
+                                "examples": [
+                                  "2016-11-15 00:02:14"
+                                ]
+                              }
+                            }
+                          }
+                        ]
+                      }
                     }
                   }
                 }
@@ -308,157 +439,264 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "action": {
+                    "result": {
                       "type": "string",
                       "enum": [
-                        "pay",
-                        "hold",
-                        "paysplit",
-                        "subscribe",
-                        "paydonate",
-                        "auth",
-                        "regular"
+                        "ok",
+                        "error",
+                        "success"
                       ],
-                      "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment"
+                      "description": "The result of a request",
+                      "examples": [
+                        "ok"
+                      ]
                     },
-                    "authcode_debit": {
-                      "type": "string",
-                      "description": "Authorization code for transaction of debit"
-                    },
-                    "bonus_type": {
-                      "type": "string",
-                      "enum": [
-                        "bonusplus",
-                        "discount_club",
-                        "personal",
-                        "promo"
-                      ],
-                      "description": "Bonus type, "
-                    },
-                    "channel": {
-                      "type": "string",
-                      "enum": [
-                        "checkout",
-                        "checkoutjs",
-                        "api"
-                      ],
-                      "description": "Payment channel, "
-                    },
-                    "create_date": {
-                      "type": "string",
-                      "description": "Date of payment creation"
-                    },
-                    "customer": {
-                      "type": "string",
-                      "description": "Unique customer ID in your shop",
-                      "maxLength": 100
-                    },
-                    "description": {
-                      "type": "string",
-                      "description": "Payment description"
-                    },
-                    "end_date": {
-                      "type": "string",
-                      "description": "Date of payment edition/end"
-                    },
-                    "id": {
-                      "type": "number",
-                      "description": "Payment id in LiqPay system"
-                    },
-                    "ip": {
-                      "type": "string",
-                      "description": "Sender's IP address"
-                    },
-                    "liqpay_order_id": {
-                      "type": "string",
-                      "description": "Payment order_id in LiqPay system"
-                    },
-                    "order_id": {
-                      "type": "string",
-                      "description": "Order_id payment"
-                    },
-                    "paytype": {
-                      "type": "string",
-                      "enum": [
-                        "card",
-                        "privat24",
-                        "masterpass",
-                        "moment_part",
-                        "cash",
-                        "invoice",
-                        "qr"
-                      ],
-                      "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning"
-                    },
-                    "sender_card": {
-                      "type": "string",
-                      "description": "Sender's card"
-                    },
-                    "sender_card_bank": {
-                      "type": "string",
-                      "description": "Sender's card bank"
-                    },
-                    "sender_card_country": {
-                      "type": "string",
-                      "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)"
-                    },
-                    "sender_card_product_type": {
-                      "type": "string",
-                      "description": "Type of card product"
-                    },
-                    "sender_card_type": {
-                      "type": "string",
-                      "description": "Sender's card type MC/Visa"
-                    },
-                    "sender_email": {
-                      "type": "string",
-                      "description": "Email payer"
-                    },
-                    "sender_first_name": {
-                      "type": "string",
-                      "description": "The name of the sender"
-                    },
-                    "sender_last_name": {
-                      "type": "string",
-                      "description": "Sender's last name"
-                    },
-                    "sender_phone": {
-                      "type": "string",
-                      "description": "Sender's phone number"
-                    },
-                    "trans_amount": {
-                      "type": "number",
-                      "description": "The amount of the transaction"
-                    },
-                    "trans_bonus": {
-                      "type": "number",
-                      "description": "The amount of the bonus for the transaction"
-                    },
-                    "trans_currency": {
-                      "type": "string",
-                      "description": "Transaction currency"
-                    },
-                    "trans_fee_credit": {
-                      "type": "number",
-                      "description": "The amount of the loan transaction commission"
-                    },
-                    "trans_fee_debit": {
-                      "type": "number",
-                      "description": "The amount of the debit transaction commission"
-                    },
-                    "trans_total": {
-                      "type": "number",
-                      "description": "The amount of reimbursement of the company"
-                    },
-                    "trans_type": {
-                      "type": "string",
-                      "enum": [
-                        "reverse",
-                        "hold_compl",
-                        "purchase",
-                        "refund"
-                      ],
-                      "description": "Transaction type"
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "action": {
+                            "type": "string",
+                            "enum": [
+                              "pay",
+                              "hold",
+                              "paysplit",
+                              "subscribe",
+                              "paydonate",
+                              "auth",
+                              "regular"
+                            ],
+                            "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                            "examples": [
+                              "pay"
+                            ]
+                          },
+                          "authcode_debit": {
+                            "type": "string",
+                            "description": "Authorization code for transaction of debit",
+                            "examples": [
+                              "784593"
+                            ]
+                          },
+                          "bonus_type": {
+                            "type": "string",
+                            "enum": [
+                              "bonusplus",
+                              "discount_club",
+                              "personal",
+                              "promo"
+                            ],
+                            "description": "Bonus type, ",
+                            "examples": [
+                              null
+                            ]
+                          },
+                          "channel": {
+                            "type": "string",
+                            "enum": [
+                              "checkout",
+                              "checkoutjs",
+                              "api"
+                            ],
+                            "description": "Payment channel, ",
+                            "examples": [
+                              "checkout"
+                            ]
+                          },
+                          "create_date": {
+                            "type": "string",
+                            "description": "Date of payment creation",
+                            "examples": [
+                              "2017-01-31 07:51:37"
+                            ]
+                          },
+                          "customer": {
+                            "type": "string",
+                            "description": "Unique customer ID in your shop",
+                            "maxLength": 100,
+                            "examples": [
+                              null
+                            ]
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Payment description",
+                            "examples": [
+                              "My product"
+                            ]
+                          },
+                          "end_date": {
+                            "type": "string",
+                            "description": "Date of payment edition/end",
+                            "examples": [
+                              "2017-01-31 07:51:54"
+                            ]
+                          },
+                          "id": {
+                            "type": "number",
+                            "description": "Payment id in LiqPay system",
+                            "examples": [
+                              107866
+                            ]
+                          },
+                          "ip": {
+                            "type": "string",
+                            "description": "Sender's IP address",
+                            "examples": [
+                              "8.8.8.8"
+                            ]
+                          },
+                          "liqpay_order_id": {
+                            "type": "string",
+                            "description": "Payment order_id in LiqPay system",
+                            "examples": [
+                              "J4L8IRG81485849105029639"
+                            ]
+                          },
+                          "order_id": {
+                            "type": "string",
+                            "description": "Order_id payment",
+                            "examples": [
+                              "98R1U1OV1485849059893399"
+                            ]
+                          },
+                          "paytype": {
+                            "type": "string",
+                            "enum": [
+                              "card",
+                              "privat24",
+                              "masterpass",
+                              "moment_part",
+                              "cash",
+                              "invoice",
+                              "qr"
+                            ],
+                            "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                            "examples": [
+                              "liqpay"
+                            ]
+                          },
+                          "sender_card": {
+                            "type": "string",
+                            "description": "Sender's card",
+                            "examples": [
+                              "5168 **** **** **16"
+                            ]
+                          },
+                          "sender_card_bank": {
+                            "type": "string",
+                            "description": "Sender's card bank",
+                            "examples": [
+                              "pb"
+                            ]
+                          },
+                          "sender_card_country": {
+                            "type": "string",
+                            "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                            "examples": [
+                              804
+                            ]
+                          },
+                          "sender_card_product_type": {
+                            "type": "string",
+                            "description": "Type of card product",
+                            "examples": [
+                              "KDV"
+                            ]
+                          },
+                          "sender_card_type": {
+                            "type": "string",
+                            "description": "Sender's card type MC/Visa",
+                            "examples": [
+                              "mc"
+                            ]
+                          },
+                          "sender_email": {
+                            "type": "string",
+                            "description": "Email payer",
+                            "examples": [
+                              null
+                            ]
+                          },
+                          "sender_first_name": {
+                            "type": "string",
+                            "description": "The name of the sender",
+                            "examples": [
+                              "test"
+                            ]
+                          },
+                          "sender_last_name": {
+                            "type": "string",
+                            "description": "Sender's last name",
+                            "examples": [
+                              "test"
+                            ]
+                          },
+                          "sender_phone": {
+                            "type": "string",
+                            "description": "Sender's phone number",
+                            "examples": [
+                              "380950000001"
+                            ]
+                          },
+                          "trans_amount": {
+                            "type": "number",
+                            "description": "The amount of the transaction",
+                            "examples": [
+                              1.0
+                            ]
+                          },
+                          "trans_bonus": {
+                            "type": "number",
+                            "description": "The amount of the bonus for the transaction",
+                            "examples": [
+                              0.0
+                            ]
+                          },
+                          "trans_currency": {
+                            "type": "string",
+                            "description": "Transaction currency",
+                            "examples": [
+                              "UAH"
+                            ]
+                          },
+                          "trans_fee_credit": {
+                            "type": "number",
+                            "description": "The amount of the loan transaction commission",
+                            "examples": [
+                              0.03
+                            ]
+                          },
+                          "trans_fee_debit": {
+                            "type": "number",
+                            "description": "The amount of the debit transaction commission",
+                            "examples": [
+                              0.0
+                            ]
+                          },
+                          "trans_total": {
+                            "type": "number",
+                            "description": "The amount of reimbursement of the company",
+                            "examples": [
+                              0.97
+                            ]
+                          },
+                          "trans_type": {
+                            "type": "string",
+                            "enum": [
+                              "reverse",
+                              "hold_compl",
+                              "purchase",
+                              "refund"
+                            ],
+                            "description": "Transaction type",
+                            "examples": [
+                              "purchase"
+                            ]
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -507,8 +745,7 @@
                       "reports_compensation_file"
                     ],
                     "examples": [
-                      "reports_compensation_file",
-                      "reports_compensation_file_status"
+                      "reports_compensation_file"
                     ]
                   },
                   "compensation_id": {
@@ -559,7 +796,48 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {}
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "register_token"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "examples": [
+                      "i123456789"
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "reports_compensation_file_status"
+                    ],
+                    "examples": [
+                      "reports_compensation_file_status"
+                    ]
+                  },
+                  "register_token": {
+                    "type": "string",
+                    "description": "Parameter received on the previous request",
+                    "examples": [
+                      "compensation_i123456789_2021.11.23.csv"
+                    ]
+                  }
+                }
               }
             }
           }
@@ -617,8 +895,7 @@
                       "reports_compensation_file"
                     ],
                     "examples": [
-                      "reports_compensation_file",
-                      "reports_compensation_file_status"
+                      "reports_compensation_file"
                     ]
                   },
                   "resp_format": {
@@ -702,7 +979,48 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {}
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "register_token"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API",
+                    "examples": [
+                      3
+                    ]
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "examples": [
+                      "i123456789"
+                    ]
+                  },
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "reports_compensation_file_status"
+                    ],
+                    "examples": [
+                      "reports_compensation_file_status"
+                    ]
+                  },
+                  "register_token": {
+                    "type": "string",
+                    "description": "Parameter received on the previous request",
+                    "examples": [
+                      "compensation_i123456789_2021.11.23.csv"
+                    ]
+                  }
+                }
               }
             }
           }

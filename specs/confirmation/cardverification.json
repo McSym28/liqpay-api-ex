@@ -412,6 +412,13 @@
                       "examples": [
                         "S8SBQM"
                       ]
+                    },
+                    "rrn_debit": {
+                      "type": "string",
+                      "description": "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`",
+                      "examples": [
+                        "000663770891"
+                      ]
                     }
                   }
                 }

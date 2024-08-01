@@ -65,28 +65,114 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "baseCurrency": {
+                    "date": {
                       "type": "string",
-                      "description": "Basic currency (UAH)",
+                      "format": "date",
+                      "examples": [
+                        "01.12.2014"
+                      ]
+                    },
+                    "bank": {
+                      "type": "string",
+                      "examples": [
+                        "PB"
+                      ]
+                    },
+                    "baseCurrency": {
+                      "type": "integer",
                       "examples": [
                         980
                       ]
                     },
-                    "currency": {
+                    "baseCurrencyLit": {
                       "type": "string",
-                      "description": "Deal currency (USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD)"
+                      "examples": [
+                        "UAH"
+                      ]
                     },
-                    "saleRateNB/purchaseRateNB": {
-                      "type": "string",
-                      "description": "The sale rate of NBU"
-                    },
-                    "saleRate": {
-                      "type": "string",
-                      "description": "The sale rate of PrivatBank"
-                    },
-                    "purchaseRate": {
-                      "type": "string",
-                      "description": "Buying rate of PrivatBank"
+                    "exchangeRate": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "baseCurrency": {
+                            "type": "string",
+                            "description": "Basic currency (UAH)",
+                            "examples": [
+                              "UAH"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string",
+                            "description": "Deal currency (USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD)",
+                            "examples": [
+                              "CHF",
+                              "EUR",
+                              "GBP",
+                              "PLZ",
+                              "SEK",
+                              "UAH",
+                              "USD",
+                              "XAU",
+                              "CAD"
+                            ]
+                          },
+                          "saleRateNB": {
+                            "type": "string",
+                            "description": "The sale rate of NBU",
+                            "examples": [
+                              15.638975,
+                              18.79492,
+                              23.632491,
+                              4.492201,
+                              2.028375,
+                              1.0,
+                              15.056413,
+                              17747.747,
+                              13.21074
+                            ]
+                          },
+                          "purchaseRateNB": {
+                            "type": "string",
+                            "description": "The purchase rate of NBU",
+                            "examples": [
+                              15.638975,
+                              18.79492,
+                              23.632491,
+                              4.492201,
+                              2.028375,
+                              1.0,
+                              15.056413,
+                              17747.747,
+                              13.21074
+                            ]
+                          },
+                          "saleRate": {
+                            "type": "string",
+                            "description": "The sale rate of PrivatBank",
+                            "examples": [
+                              17.0,
+                              20.0,
+                              25.8,
+                              5.0,
+                              15.7,
+                              15.0
+                            ]
+                          },
+                          "purchaseRate": {
+                            "type": "string",
+                            "description": "Buying rate of PrivatBank",
+                            "examples": [
+                              15.5,
+                              19.2,
+                              24.0,
+                              4.2,
+                              15.35,
+                              13.0
+                            ]
+                          }
+                        }
+                      }
                     }
                   }
                 }

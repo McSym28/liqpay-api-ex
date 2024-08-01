@@ -489,6 +489,13 @@
                     "type": "string",
                     "description": "URL for receiving data on document status change (5 - activated, 6 - blocked)"
                   },
+                  "description": {
+                    "type": "string",
+                    "description": "Store description",
+                    "examples": [
+                      "site description"
+                    ]
+                  },
                   "aggregator": {
                     "type": "object",
                     "description": "Parameters for aggregators",
@@ -704,7 +711,33 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {}
+                "required": [
+                  "action",
+                  "version",
+                  "public_key"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "description": "agent_info_mcc_codes"
+                  },
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Locale in which to return the answer. The default language is Ukrainian. The meaning of `en`, `uk`"
+                  }
+                }
               }
             }
           }
@@ -767,7 +800,38 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": {}
+                "required": [
+                  "action",
+                  "version",
+                  "mcc_code",
+                  "public_key"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "description": "agent_info_mcc_docs"
+                  },
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "mcc_code": {
+                    "type": "number",
+                    "description": "MCC Code Meaning. Maximum length 4 characters"
+                  },
+                  "public_key": {
+                    "type": "string",
+                    "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
+                  },
+                  "language": {
+                    "type": "string",
+                    "description": "Locale in which to return the answer. The default language is Ukrainian. The meaning of `en`, `uk`"
+                  }
+                }
               }
             }
           }

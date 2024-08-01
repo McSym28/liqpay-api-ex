@@ -567,24 +567,41 @@
                       ]
                     },
                     "dcc_allowed": {
-                      "type": "object",
-                      "enum": [
-                        "amount",
-                        "currency",
-                        "rate",
-                        "commission"
-                      ],
-                      "description": "Data of alternative amount for payment with DCC:\n* `amount` - Amount of payment in alternative currency\n* `currency` - Alternative currency\n* `rate` - Conversion rate\n* `commission` - Commission on payment in alternative currency",
-                      "examples": [
-                        [
-                          {
-                            "amount": 3.5984,
-                            "commission": 0.0,
-                            "currency": "USD",
-                            "rate": 27.7905
+                      "type": "array",
+                      "description": "Data of alternative amount for payment with DCC",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "amount": {
+                            "type": "number",
+                            "description": "Amount of payment in alternative currency",
+                            "examples": [
+                              3.5984
+                            ]
+                          },
+                          "commission": {
+                            "type": "number",
+                            "description": "Commission on payment in alternative currency",
+                            "examples": [
+                              0.0
+                            ]
+                          },
+                          "currency": {
+                            "type": "string",
+                            "description": "Alternative currency",
+                            "examples": [
+                              "USD"
+                            ]
+                          },
+                          "rate": {
+                            "type": "number",
+                            "description": "Conversion rate",
+                            "examples": [
+                              27.7905
+                            ]
                           }
-                        ]
-                      ]
+                        }
+                      }
                     }
                   }
                 }

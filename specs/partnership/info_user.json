@@ -70,34 +70,6 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "blocked": {
-                      "type": "string",
-                      "description": "Company block status"
-                    },
-                    "create_date": {
-                      "type": "string",
-                      "description": "Date of company creation"
-                    },
-                    "description": {
-                      "type": "string",
-                      "description": "Company description"
-                    },
-                    "email": {
-                      "type": "string",
-                      "description": "The company's email"
-                    },
-                    "logo": {
-                      "type": "string",
-                      "description": "Company's logo"
-                    },
-                    "name": {
-                      "type": "string",
-                      "description": "Company name"
-                    },
-                    "public_key": {
-                      "type": "string",
-                      "description": "Shop public key"
-                    },
                     "result": {
                       "type": "string",
                       "description": "The result of a request `ok` or `error`",
@@ -105,17 +77,83 @@
                         "ok"
                       ]
                     },
-                    "role": {
-                      "type": "string",
-                      "description": "The role of the user in the store who requested information"
-                    },
-                    "update_date": {
-                      "type": "string",
-                      "description": "Date of information update on the company"
-                    },
-                    "url": {
-                      "type": "string",
-                      "description": "URL of company"
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "blocked": {
+                            "type": "string",
+                            "description": "Company block status",
+                            "examples": [
+                              false
+                            ]
+                          },
+                          "create_date": {
+                            "type": "string",
+                            "description": "Date of company creation",
+                            "examples": [
+                              1491294687862
+                            ]
+                          },
+                          "description": {
+                            "type": "string",
+                            "description": "Company description",
+                            "examples": [
+                              "site description"
+                            ]
+                          },
+                          "email": {
+                            "type": "string",
+                            "description": "The company's email",
+                            "examples": [
+                              "test@gmail.com"
+                            ]
+                          },
+                          "logo": {
+                            "type": "string",
+                            "description": "Company's logo",
+                            "examples": [
+                              null
+                            ]
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "Company name",
+                            "examples": [
+                              "Shop"
+                            ]
+                          },
+                          "public_key": {
+                            "type": "string",
+                            "description": "Shop public key",
+                            "examples": [
+                              "i000000000"
+                            ]
+                          },
+                          "role": {
+                            "type": "string",
+                            "description": "The role of the user in the store who requested information",
+                            "examples": [
+                              "undefined"
+                            ]
+                          },
+                          "update_date": {
+                            "type": "string",
+                            "description": "Date of information update on the company",
+                            "examples": [
+                              1491294687862
+                            ]
+                          },
+                          "url": {
+                            "type": "string",
+                            "description": "URL of company",
+                            "examples": [
+                              "http://test.com"
+                            ]
+                          }
+                        }
+                      }
                     }
                   }
                 }

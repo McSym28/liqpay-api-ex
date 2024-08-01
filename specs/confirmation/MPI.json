@@ -222,6 +222,13 @@
                         "description": "The precise content of the user-agent HTTP header.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part."
                       }
                     }
+                  },
+                  "phone": {
+                    "type": "string",
+                    "description": "Payer's phone number",
+                    "examples": [
+                      "380950000001"
+                    ]
                   }
                 }
               }
@@ -304,6 +311,26 @@
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `failure` - Failed payment\n* `success` - Successful payment",
                       "examples": [
                         "success"
+                      ]
+                    },
+                    "result": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
+                      "description": "The result of a request",
+                      "examples": [
+                        "ok"
+                      ]
+                    },
+                    "cres": {
+                      "type": "string",
+                      "description": "CRes",
+                      "nullable": true,
+                      "examples": [
+                        null,
+                        "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
                       ]
                     }
                   }
