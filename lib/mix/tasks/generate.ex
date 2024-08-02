@@ -2369,6 +2369,7 @@ defmodule Mix.Tasks.Generate do
           |> initialize_property_processing(path_new)
           |> parse_property_maximum_length(path_new)
           |> parse_property_enum(path_new)
+          |> parse_property_default(path_new)
           |> parse_property_examples(path_new)
           |> parse_property_separate_example(example_nodes, path_new)
 
@@ -3001,10 +3002,10 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum(%{description: description} = property, _path) do
-    ~r/(\.\s+)?((?:Possible|Present|Valid)\s+values?\s*:?|Current\s+value\s*\-?)\n?([^\.\n]+)(?=\.|$)/i
+    ~r/(\.\s+)?(?:Possible|Valid)\s+values?\s*:?\n?([^\.\n]+)(?=\.|$)/i
     |> Regex.scan(description)
     |> case do
-      [[full_match, prefix, prefix_text, values_match]] ->
+      [[full_match, prefix, values_match]] ->
         {enum_options, has_descriptions} =
           ~r/\s*`([^`]+?)`(?:\s+[\-\–]\s+([^\.\n`]+))?(?:[\n,\.]|$)/u
           |> Regex.scan(values_match, capture: :all_but_first)
@@ -3037,20 +3038,10 @@ defmodule Mix.Tasks.Generate do
           end)
           |> Enum.uniq()
 
-        property_new =
-          Map.merge(property, %{
-            enum: enum,
-            description: description_new
-          })
-
-        if not has_descriptions and length(enum_options) == 1 and
-             prefix_text |> String.replace(~r/\s+/, " ") |> String.starts_with?("Current value") do
-          [{default, _}] = enum_options
-          default_new = parse_schema_value(default, property_new)
-          Map.put(property_new, :default, default_new)
-        else
-          property_new
-        end
+        Map.merge(property, %{
+          enum: enum,
+          description: description_new
+        })
 
       [] ->
         ~r/^((?:\s*`[^`]+?`,?)+)$/
@@ -3082,6 +3073,29 @@ defmodule Mix.Tasks.Generate do
         end
     end
   end
+
+  defp parse_property_default(
+         %{description: description} = property,
+         ["version", {:schema, _schema_type} | _] = path
+       )
+       when not is_map_key(property, :default) do
+    ~r/(?:\.\s+)?(?:Current|Present)\s+value\s*[\-\–]?\s*`(\d+)`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+        default_new = parse_schema_value(default, property)
+        Map.merge(property, %{default: default_new, description: description_new})
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:default, 3)
+    |> Map.put_new(:enum, [3])
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(property, _path), do: property
 
   defp parse_property_examples(%{description: description} = property, _path) do
     ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/

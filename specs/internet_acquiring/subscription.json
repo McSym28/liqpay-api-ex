@@ -561,6 +561,7 @@
                       ]
                     },
                     "version": {
+                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
@@ -903,6 +904,7 @@
                       ]
                     },
                     "version": {
+                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
@@ -1277,6 +1279,7 @@
                       ]
                     },
                     "version": {
+                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3

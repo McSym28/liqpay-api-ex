@@ -445,6 +445,7 @@
                       ]
                     },
                     "version": {
+                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
