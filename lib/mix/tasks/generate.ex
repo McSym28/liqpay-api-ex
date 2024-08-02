@@ -501,73 +501,12 @@ defmodule Mix.Tasks.Generate do
             node
             |> parse_block_data(block_parse_settings, was_request, path)
             |> case do
-              {:ok, block(update_operation: update_operation) = block_data} ->
-                {is_request, is_new_top, [top_endpoint | rest_endpoints] = _endpoints_new,
-                 block_data_new,
-                 path_new} =
-                  case block_data do
-                    block(update_operation: :new_endpoint, update_name: id) ->
-                      [top_section | rest_path] = path
-
-                      {endpoint, is_new_top} =
-                        if endpoints == [] do
-                          section(id: id, title: title) = top_section
-                          {endpoint(id: id, title: title), false}
-                        else
-                          {endpoint(id: id), true}
-                        end
-
-                      endpoints_new = [endpoint | endpoints]
-                      path_new = [endpoint | rest_path]
-
-                      block_data_new =
-                        block(block_data, update_operation: :patch, update_name: nil)
-
-                      {true, is_new_top, endpoints_new, block_data_new, path_new}
-
-                    block(is_request: is_request) ->
-                      {is_request, false, endpoints, block_data, path}
-                  end
-
-                {block_schema_type, block_schema} =
-                  if is_request do
-                    endpoint(request: request_schema) = top_endpoint
-                    {:request, request_schema}
-                  else
-                    endpoint(response: response_schema) = top_endpoint
-                    {:response, response_schema}
-                  end
-
-                block_schema_new =
-                  (block_schema || %{type: :object, properties: OrderedObject.new([])})
-                  |> update_block_schema(block_data_new, block_parse_settings, false, [
-                    {:schema, block_schema_type} | path_new
-                  ])
-                  |> case do
-                    {true, block_schema_new} ->
-                      block_schema_new
-
-                    {false, block_schema_new} when update_operation != :patch ->
-                      block_schema_new
-                  end
-
-                top_endpoint_new =
-                  if is_request,
-                    do: endpoint(top_endpoint, request: block_schema_new),
-                    else: endpoint(top_endpoint, response: block_schema_new)
-
-                if is_new_top do
-                  [previous_endpoint | other_endpoints] = rest_endpoints
-
-                  previous_endpoint_new =
-                    process_endpoint_code_blocks(previous_endpoint, code_blocks, path)
-
-                  endpoints_new = [top_endpoint_new, previous_endpoint_new | other_endpoints]
-                  {endpoints_new, [], path_new}
-                else
-                  endpoints_new = [top_endpoint_new | rest_endpoints]
-                  {endpoints_new, code_blocks, path_new}
-                end
+              {:ok, block_data} ->
+                process_block_data(
+                  {endpoints, code_blocks, path},
+                  block_data,
+                  block_parse_settings
+                )
 
               :error ->
                 {endpoints, code_blocks, path}
@@ -585,6 +524,204 @@ defmodule Mix.Tasks.Generate do
     |> List.update_at(0, &process_endpoint_code_blocks(&1, code_blocks, path))
     |> Enum.reverse()
     |> then(&{:ok, &1})
+  end
+
+  defp process_block_data(
+         {endpoints, code_blocks, [_section | rest_path] = path},
+         block(update_operation: :new_endpoint, update_name: "units" = id) = block_data,
+         block_parse_settings
+       ) do
+    endpoint = endpoint(id: id)
+    endpoints_new = [endpoint | endpoints]
+    path_new = [endpoint | rest_path]
+
+    block_data_new =
+      block(block_data,
+        is_request: true,
+        update_operation: :patch,
+        update_name: nil
+      )
+
+    {[top_endpoint, previous_endpoint | rest_endpoints], code_blocks_new, _path_new} =
+      process_block_data(
+        {endpoints_new, code_blocks, path_new},
+        block_data_new,
+        block_parse_settings
+      )
+
+    top_endpoint_new =
+      endpoint(top_endpoint,
+        response: %{
+          oneOf: [
+            %{
+              type: :object,
+              properties:
+                OrderedObject.new([
+                  {"id", %{type: :string, description: "unique number"}},
+                  {"full_name_uk", %{type: :string, description: "full name in Ukrainian"}},
+                  {"full_name_en", %{type: :string, description: "full name in English"}},
+                  {"short_name_uk", %{type: :string, description: "short name in Ukrainian"}},
+                  {"short_name_en", %{type: :string, description: "short name in English"}}
+                ])
+            },
+            %{
+              type: :object,
+              properties:
+                OrderedObject.new([
+                  {"id", %{type: :string, description: "unique number"}},
+                  {"full_name", %{type: :string, description: "full name"}},
+                  {"short_name", %{type: :string, description: "short name"}}
+                ])
+            }
+          ]
+        }
+      )
+
+    endpoints_new = [previous_endpoint, top_endpoint_new | rest_endpoints]
+    {endpoints_new, code_blocks_new, path}
+  end
+
+  defp process_block_data(
+         {[] = endpoints, code_blocks, [section(id: id, title: title) | rest_path] = _path},
+         block(update_operation: :new_endpoint) = block_data,
+         block_parse_settings
+       ) do
+    endpoint = endpoint(id: id, title: title)
+    endpoints_new = [endpoint | endpoints]
+    path_new = [endpoint | rest_path]
+
+    block_data_new =
+      block(block_data,
+        is_request: true,
+        update_operation: :patch,
+        update_name: nil
+      )
+
+    process_block_data(
+      {endpoints_new, code_blocks, path_new},
+      block_data_new,
+      block_parse_settings
+    )
+  end
+
+  defp process_block_data(
+         {endpoints, code_blocks, [_section | rest_path] = path},
+         block(update_operation: :new_endpoint, update_name: id) = block_data,
+         block_parse_settings
+       ) do
+    endpoint = endpoint(id: id)
+    endpoints_new = [endpoint | endpoints]
+    path_new = [endpoint | rest_path]
+
+    block_data_new =
+      block(block_data,
+        is_request: true,
+        update_operation: :patch,
+        update_name: nil
+      )
+
+    {[top_endpoint, previous_endpoint | rest_endpoints], code_blocks_new, path_new} =
+      process_block_data(
+        {endpoints_new, code_blocks, path_new},
+        block_data_new,
+        block_parse_settings
+      )
+
+    previous_endpoint_new =
+      process_endpoint_code_blocks(previous_endpoint, code_blocks_new, path)
+
+    endpoints_new = [top_endpoint, previous_endpoint_new | rest_endpoints]
+    {endpoints_new, [], path_new}
+  end
+
+  defp process_block_data(
+         {[top_endpoint | rest_endpoints], code_blocks, path},
+         block_data,
+         block_parse_settings
+       ) do
+    top_endpoint_new =
+      update_block_endpoint(
+        top_endpoint,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    endpoints_new = [top_endpoint_new | rest_endpoints]
+    {endpoints_new, code_blocks, path}
+  end
+
+  defp update_block_endpoint(
+         endpoint,
+         block(is_request: true, update_operation: :patch, update_type: :object, update_name: nil) =
+           block_data,
+         block_parse_settings,
+         [
+           endpoint(id: "compensation_report"),
+           section(id: "register"),
+           section(id: "information")
+         ] = path
+       ) do
+    endpoint
+    |> do_update_block_endpoint(block_data, block_parse_settings, path)
+    |> case do
+      endpoint(response: nil) = endpoint_new ->
+        response = %{
+          type: :object,
+          required: ["register_token", "result", "status"],
+          properties:
+            OrderedObject.new([
+              {"register_token",
+               %{type: :string, description: "Parameter received on the previous request"}},
+              {"result", %{type: :string, description: "The result of the request"}},
+              {"status", %{type: :string, description: "Request processing status"}}
+            ])
+        }
+
+        endpoint(endpoint_new, response: response)
+
+      endpoint_new ->
+        endpoint_new
+    end
+  end
+
+  defp update_block_endpoint(endpoint, block_data, block_parse_settings, path) do
+    do_update_block_endpoint(endpoint, block_data, block_parse_settings, path)
+  end
+
+  defp do_update_block_endpoint(
+         endpoint,
+         block(is_request: is_request) = block_data,
+         block_parse_settings,
+         path
+       ) do
+    {block_schema_type, block_schema} =
+      if is_request do
+        endpoint(request: request_schema) = endpoint
+        {:request, request_schema}
+      else
+        endpoint(response: response_schema) = endpoint
+        {:response, response_schema}
+      end
+
+    block_schema_new =
+      (block_schema || %{type: :object, properties: OrderedObject.new([])})
+      |> update_block_schema(block_data, block_parse_settings, false, [
+        {:schema, block_schema_type} | path
+      ])
+      |> case do
+        {true, block_schema_new} ->
+          block_schema_new
+
+        {false, _block_schema_new} ->
+          IO.inspect(block_data |> block() |> Keyword.drop([:node]),
+            label: "Unprocessed block (#{loggable_schema_path(path)})"
+          )
+      end
+
+    if is_request,
+      do: endpoint(endpoint, request: block_schema_new),
+      else: endpoint(endpoint, response: block_schema_new)
   end
 
   defp process_endpoint_code_blocks(endpoint, code_blocks, path) do
@@ -739,7 +876,7 @@ defmodule Mix.Tasks.Generate do
 
   defp downcase_block_title(title) when is_binary(title), do: String.downcase(title)
 
-  defp process_block_title(title, block, block_parse_settings, false, path)
+  defp process_block_title(title, block_data, block_parse_settings, false, path)
        when is_binary(title) do
     ~r/^\s*(.*)\s+\(\s*(?:the\s+)?(object|array)\s+(\w+)\s*\)\s*$/i
     |> Regex.scan(title, capture: :all_but_first)
@@ -766,7 +903,7 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[description, type, name]] ->
         {:ok,
-         block(block,
+         block(block_data,
            update_operation: :patch,
            update_type:
              if(type == "",
@@ -781,7 +918,7 @@ defmodule Mix.Tasks.Generate do
         title
         |> downcase_block_title()
         |> process_block_title(
-          block(block, description: title),
+          block(block_data, description: title),
           block_parse_settings,
           true,
           path
@@ -789,12 +926,12 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp process_block_title({title, subtitle}, block, block_parse_settings, false, path)
+  defp process_block_title({title, subtitle}, block_data, block_parse_settings, false, path)
        when is_binary(title) and is_binary(subtitle) do
     {title, subtitle}
     |> downcase_block_title()
     |> process_block_title(
-      block(block, description: title),
+      block(block_data, description: title),
       block_parse_settings,
       true,
       path
@@ -803,52 +940,56 @@ defmodule Mix.Tasks.Generate do
 
   defp process_block_title(
          "encrypted token",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "apay"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
+       do:
+         {:ok, block(block_data, update_operation: :new_endpoint, update_name: "encrypted_token")}
 
   defp process_block_title(
          "decrypted token",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "apay"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
+       do:
+         {:ok, block(block_data, update_operation: :new_endpoint, update_name: "decrypted_token")}
 
   defp process_block_title(
          "encrypted token",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "gpay"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "encrypted_token")}
+       do:
+         {:ok, block(block_data, update_operation: :new_endpoint, update_name: "encrypted_token")}
 
   defp process_block_title(
          "decrypted token",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "gpay"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "decrypted_token")}
+       do:
+         {:ok, block(block_data, update_operation: :new_endpoint, update_name: "decrypted_token")}
 
   defp process_block_title(
          "create subscribtion",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "subscription"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "create")}
 
   defp process_block_title(
          "unsubscribe",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [
@@ -856,297 +997,297 @@ defmodule Mix.Tasks.Generate do
            section(id: "internet_acquiring")
          ] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "unsubscribe")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "unsubscribe")}
 
   defp process_block_title(
          "edit subscribtion",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "subscription"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "edit")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "edit")}
 
   defp process_block_title(
          "funds blocking",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "two_step"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "block")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "block")}
 
   defp process_block_title(
          "completion of payment",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "two_step"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "complete")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "complete")}
 
   defp process_block_title(
          "issuing the invoice",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "invoice"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "issue")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "issue")}
 
   defp process_block_title(
          "invoice cancelation",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "invoice"), section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "cancel")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "cancel")}
 
   defp process_block_title(
          "company creation create",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "shop_create"), section(id: "partnership")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "create")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "create")}
 
   defp process_block_title(
          "company creation register",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "shop_create"), section(id: "partnership")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "register")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "register")}
 
-  defp process_block_title("main", block, _block_parse_settings, true, _path),
-    do: {:ok, block(block, update_operation: :new_endpoint)}
+  defp process_block_title("main", block_data, _block_parse_settings, true, _path),
+    do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp process_block_title(
          "other parameters" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do: process_block_title(title, block, block_parse_settings, true, rest_path)
+       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "other parameters",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "other parameters" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
        do:
-         process_block_title(title, block, block_parse_settings, true, [
+         process_block_title(title, block_data, block_parse_settings, true, [
            endpoint(id: "checkout"),
            section(id: "internet_acquiring")
          ])
 
   defp process_block_title(
          "parameters of splitting the payments" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do: process_block_title(title, block, block_parse_settings, true, rest_path)
+       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "parameters of splitting the payments",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for tokenization within the token connect control",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for transfer to the card",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for transfer to the card's token",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "receiver parameters",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do: {:ok, block(block, update_operation: :patch)}
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for data formation",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [section(id: "decrypted_token"), section(id: "gpay"), section(id: "internet_acquiring")] =
            _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint)}
+       do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp process_block_title(
          "sender parameters" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do: process_block_title(title, block, block_parse_settings, true, rest_path)
+       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "sender parameters",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_name: "sender")}
+       do: {:ok, block(block_data, update_name: "sender")}
 
   defp process_block_title(
          "sender parameters" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
        do:
-         process_block_title(title, block, block_parse_settings, true, [
+         process_block_title(title, block_data, block_parse_settings, true, [
            section(id: "checkout"),
            section(id: "internet_acquiring")
          ])
 
   defp process_block_title(
          "sender parameters" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [endpoint(id: "p2pdebit")] = _path
        ),
        do:
-         process_block_title(title, block, block_parse_settings, true, [
+         process_block_title(title, block_data, block_parse_settings, true, [
            section(id: "checkout"),
            section(id: "internet_acquiring")
          ])
 
   defp process_block_title(
          "regular payment parameters" = title,
-         block,
+         block_data,
          block_parse_settings,
          true,
          [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
        ),
-       do: process_block_title(title, block, block_parse_settings, true, rest_path)
+       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
 
   defp process_block_title(
          "regular payment parameters",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_name: "regular_payment")}
+       do: {:ok, block(block_data, update_name: "regular_payment")}
 
   defp process_block_title(
          "parameters for 1-click payment",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block, update_name: "one_click_payment")}
+       do: {:ok, block(block_data, update_name: "one_click_payment")}
 
   defp process_block_title(
          "parameters for tokenization within the visa cards enrollment hub (vceh)",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block, update_name: "vceh_tokenization")}
+       do: {:ok, block(block_data, update_name: "vceh_tokenization")}
 
   defp process_block_title(
          "parameters for tokenization by card number",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block, update_name: "card_tokenization")}
+       do: {:ok, block(block_data, update_name: "card_tokenization")}
 
   defp process_block_title(
          "response parameters",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [section(id: "callback")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint)}
+       do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
-  defp process_block_title("response parameters", block, _block_parse_settings, true, _path),
-    do: {:ok, block(block, is_request: false, update_operation: :patch)}
+  defp process_block_title("response parameters", block_data, _block_parse_settings, true, _path),
+    do: {:ok, block(block_data, is_request: false, update_operation: :patch)}
 
   defp process_block_title(
          "parameters for transfer to the current account",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do: {:ok, block(block, update_name: "receiver_account")}
+       do: {:ok, block(block_data, update_name: "receiver_account")}
 
   defp process_block_title(
          "parameters for aggregators",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "shop_create"), section(id: "partnership")] = _path
        ),
-       do: {:ok, block(block, update_name: "aggregator")}
+       do: {:ok, block(block_data, update_name: "aggregator")}
 
   defp process_block_title(
          "api invoice_units",
-         _block_data,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "issue"), section(id: "invoice"), section(id: "internet_acquiring")] =
            _path
        ),
-       do: :error
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "units")}
 
   defp process_block_title(
          "payment widget parameters",
@@ -1159,108 +1300,110 @@ defmodule Mix.Tasks.Generate do
 
   defp process_block_title(
          "callback parameters",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "register"), section(id: "shop_create"), section(id: "partnership")] =
            _path
        ),
-       do: {:ok, block(block, is_request: false, update_operation: :patch)}
+       do: {:ok, block(block_data, is_request: false, update_operation: :patch)}
 
   defp process_block_title(
          "available мсс",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "register"), section(id: "shop_create"), section(id: "partnership")] =
            _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "available_mcc")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "available_mcc")}
 
   defp process_block_title(
          "example answer",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "shop_create"), section(id: "partnership")] = _path
        ),
-       do: {:ok, block(block, is_request: false, update_operation: :patch)}
+       do: {:ok, block(block_data, is_request: false, update_operation: :patch)}
 
   defp process_block_title(
          "documents",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [endpoint(id: "available_mcc"), section(id: "shop_create"), section(id: "partnership")] =
            _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "documents")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "documents")}
 
   defp process_block_title(
          "token obtainment",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "obtain")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "obtain")}
 
   defp process_block_title(
          "status change",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint, update_name: "change_status")}
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "change_status")}
 
   defp process_block_title(
          "compensation once a day",
-         block(node: nil) = block,
-         _block_parse_settings,
-         true,
-         [section(id: "register"), section(id: "information")] = _path
-       ),
-       do:
-         {:ok, block(block, update_operation: :new_endpoint, update_name: "compensation_per_day")}
-
-  defp process_block_title(
-         "compensation per transaction",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "register"), section(id: "information")] = _path
        ),
        do:
          {:ok,
-          block(block,
+          block(block_data, update_operation: :new_endpoint, update_name: "compensation_per_day")}
+
+  defp process_block_title(
+         "compensation per transaction",
+         block(node: nil) = block_data,
+         _block_parse_settings,
+         true,
+         [section(id: "register"), section(id: "information")] = _path
+       ),
+       do:
+         {:ok,
+          block(block_data,
             update_operation: :new_endpoint,
             update_name: "compensation_per_transaction"
           )}
 
   defp process_block_title(
          "getting the compensation registry",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "register"), section(id: "information")] = _path
        ),
        do:
-         {:ok, block(block, update_operation: :new_endpoint, update_name: "compensation_report")}
+         {:ok,
+          block(block_data, update_operation: :new_endpoint, update_name: "compensation_report")}
 
   defp process_block_title(
          "parameters for generation of the first request",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [section(id: "compensation_report"), section(id: "register"), section(id: "information")] =
            _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint)}
+       do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp process_block_title(
          "parameters for generation of the second request",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [
@@ -1271,35 +1414,48 @@ defmodule Mix.Tasks.Generate do
        ),
        do:
          {:ok,
-          block(block, update_operation: :new_endpoint, update_name: "compensation_report_status")}
+          block(block_data,
+            update_operation: :new_endpoint,
+            update_name: "compensation_report_status"
+          )}
 
   defp process_block_title(
          "request statuses",
-         _block_data,
+         block_data,
          _block_parse_settings,
          true,
          [
-           endpoint(id: "compensation_report_status"),
+           endpoint(id: endpoint_id),
            section(id: "register"),
            section(id: "information")
          ] = _path
-       ),
-       do: :error
+       )
+       when endpoint_id in ~w(compensation_report_status compensation_report_p2p_status),
+       do:
+         {:ok,
+          block(block_data,
+            is_request: false,
+            update_operation: :patch,
+            update_name: "response_statuses"
+          )}
 
   defp process_block_title(
          "registry by p2p operation",
-         block(node: nil) = block,
+         block(node: nil) = block_data,
          _block_parse_settings,
          true,
          [section(id: "register"), section(id: "information")]
        ),
        do:
          {:ok,
-          block(block, update_operation: :new_endpoint, update_name: "compensation_report_p2p")}
+          block(block_data,
+            update_operation: :new_endpoint,
+            update_name: "compensation_report_p2p"
+          )}
 
   defp process_block_title(
          "parameters for generation of the request",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [
@@ -1308,11 +1464,11 @@ defmodule Mix.Tasks.Generate do
            section(id: "information")
          ] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint)}
+       do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp process_block_title(
          "parameters for generation of the second request",
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [
@@ -1323,32 +1479,19 @@ defmodule Mix.Tasks.Generate do
        ),
        do:
          {:ok,
-          block(block,
+          block(block_data,
             update_operation: :new_endpoint,
             update_name: "compensation_report_p2p_status"
           )}
 
   defp process_block_title(
-         "request statuses",
-         _block_data,
-         _block_parse_settings,
-         true,
-         [
-           endpoint(id: "compensation_report_p2p_status"),
-           section(id: "register"),
-           section(id: "information")
-         ] = _path
-       ),
-       do: :error
-
-  defp process_block_title(
          {"request parameters", "main"},
-         block,
+         block_data,
          _block_parse_settings,
          true,
          [_, section(id: "public")] = _path
        ),
-       do: {:ok, block(block, update_operation: :new_endpoint)}
+       do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
@@ -1363,6 +1506,75 @@ defmodule Mix.Tasks.Generate do
        ) do
     schema_new = parse_block_schema(schema, block_data, block_parse_settings, path)
     {true, schema_new}
+  end
+
+  defp update_block_schema(
+         %{type: :object} = schema,
+         block(
+           node: node,
+           update_operation: :patch,
+           update_type: :object,
+           update_name: "response_statuses"
+         ) = _block_data,
+         block_parse_settings(table_classes: table_classes) = block_parse_settings,
+         false,
+         [
+           {:schema, :response},
+           endpoint(id: endpoint_id),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
+       )
+       when endpoint_id in ~w(compensation_report_status compensation_report_p2p_status) do
+    schema
+    |> case do
+      %{properties: properties} -> Enum.empty?(properties)
+      _ -> true
+    end
+    |> if do
+      table =
+        table_classes
+        |> Enum.find_value(fn class ->
+          case Floki.find(node, "div.#{class}.MuiBox-root") do
+            [table] -> table
+            [] -> nil
+          end
+        end)
+
+      statuses =
+        table
+        |> Floki.find("table.MuiTable-root tbody.MuiTableBody-root tr.MuiTableRow-root")
+        |> Enum.map(fn row ->
+          [name, desciption] = Floki.find(row, "td.MuiTableCell-root.MuiTableCell-body")
+          name = parse_property_name(name, block_parse_settings)
+          description = parse_node_text(desciption, block_parse_settings)
+          {name, description}
+        end)
+        |> List.keydelete("result", 0)
+
+      properties =
+        OrderedObject.new([
+          {"filelink", %{type: :string, format: :uri, description: "File URL"}},
+          {"result",
+           %{
+             type: :string,
+             description: "The result of a request",
+             enum: ["ok", "error"]
+           }},
+          {"status",
+           %{
+             type: :string,
+             description:
+               "The status of a request. Possible values:#{Enum.map_join(statuses, fn {key, description} -> "\n* `#{key}` - #{description}" end)}",
+             enum: Enum.map(statuses, fn {key, _description} -> key end)
+           }}
+        ])
+
+      schema_new = Map.put(schema, :properties, properties)
+      {true, schema_new}
+    else
+      {true, schema}
+    end
   end
 
   defp update_block_schema(
@@ -2601,7 +2813,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp patch_schema_examples(example, %{type: :object} = schema, path) do
-    IO.inspect(example, label: "Invalid object example (#{loggable_schema_example_path(path)})")
+    IO.inspect(example, label: "Invalid object example (#{loggable_schema_path(path)})")
     schema
   end
 
@@ -2618,7 +2830,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp patch_schema_examples(example, %{type: :array} = schema, path) do
-    IO.inspect(example, label: "Invalid array example (#{loggable_schema_example_path(path)})")
+    IO.inspect(example, label: "Invalid array example (#{loggable_schema_path(path)})")
     schema
   end
 
@@ -2632,7 +2844,7 @@ defmodule Mix.Tasks.Generate do
     Map.update(schema, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
   end
 
-  defp loggable_schema_example_path(path) do
+  defp loggable_schema_path(path) do
     path
     |> Enum.map(fn
       key when is_binary(key) -> key
@@ -2706,7 +2918,7 @@ defmodule Mix.Tasks.Generate do
     properties_new =
       case get_in(properties, [key]) do
         nil ->
-          IO.inspect(example, label: "Unused example (#{loggable_schema_example_path(path)})")
+          IO.inspect(example, label: "Unused example (#{loggable_schema_path(path)})")
           properties
 
         current ->
@@ -2906,6 +3118,7 @@ defmodule Mix.Tasks.Generate do
     )
   end
 
+  # FIXME: No response description
   defp parse_standalone_example("response example", _div, _block_parse_settings, [
          endpoint(id: "decrypted_token"),
          section(id: "gpay"),
@@ -3030,45 +3243,9 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_standalone_example(
          "example of json response",
-         _div,
-         _block_parse_settings,
-         [
-           endpoint(id: "compensation_report"),
-           section(id: "register"),
-           section(id: "information")
-         ] = _path
-       ),
-       do: :error
-
-  defp parse_standalone_example(
-         "example of json response",
-         _div,
-         _block_parse_settings,
-         [
-           endpoint(id: "compensation_report_status"),
-           section(id: "register"),
-           section(id: "information")
-         ] = _path
-       ),
-       do: :error
-
-  defp parse_standalone_example(
-         "example of json response",
-         _div,
-         _block_parse_settings,
-         [
-           endpoint(id: "compensation_report_p2p_status"),
-           section(id: "register"),
-           section(id: "information")
-         ] = _path
-       ),
-       do: :error
-
-  defp parse_standalone_example(
-         "example of json response",
          div,
          block_parse_settings,
-         [_, section(id: "register"), section(id: "information")] = path
+         [endpoint(), section(id: "register"), section(id: "information")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
 

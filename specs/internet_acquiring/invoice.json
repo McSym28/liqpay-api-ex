@@ -10,6 +10,111 @@
     }
   ],
   "paths": {
+    "/internet_acquiring/invoice/units": {
+      "post": {
+        "summary": "Checkout",
+        "operationId": "checkout",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "version",
+                  "action",
+                  "action"
+                ],
+                "properties": {
+                  "version": {
+                    "default": 3,
+                    "type": "integer",
+                    "enum": [
+                      3
+                    ],
+                    "description": "Version API"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "`invoice_units_get_list` if `language` is NOT specified, returns the list in the form - `id`, `full_name_en`, `short_name_en`, `full_name_uk`, `short_name_uk` if `language` is specified, returns only for the specified locale if `language` is specified and `hide_name_lang` = true, it returns in the form - `id`, `full_name`, `short_name`"
+                  },
+                  "action": {
+                    "type": "string",
+                    "description": "`invoice_units_get_list_by_lang` returns a list of units in the form (`id`, `full_name`, `short_name`)"
+                  },
+                  "hide_name_lang": {
+                    "type": "boolean",
+                    "description": "`true`, `false` - only as `language` is passed"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "uk",
+                      "en"
+                    ],
+                    "description": "Customer's language"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "unique number"
+                        },
+                        "full_name_uk": {
+                          "type": "string",
+                          "description": "full name in Ukrainian"
+                        },
+                        "full_name_en": {
+                          "type": "string",
+                          "description": "full name in English"
+                        },
+                        "short_name_uk": {
+                          "type": "string",
+                          "description": "short name in Ukrainian"
+                        },
+                        "short_name_en": {
+                          "type": "string",
+                          "description": "short name in English"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "unique number"
+                        },
+                        "full_name": {
+                          "type": "string",
+                          "description": "full name"
+                        },
+                        "short_name": {
+                          "type": "string",
+                          "description": "short name"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/internet_acquiring/invoice/issue": {
       "post": {
         "summary": "Checkout",

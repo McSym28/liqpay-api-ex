@@ -779,7 +779,35 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "required": [
+                    "register_token",
+                    "result",
+                    "status"
+                  ],
+                  "properties": {
+                    "register_token": {
+                      "type": "string",
+                      "description": "Parameter received on the previous request",
+                      "examples": [
+                        "compensation_i123456789_2021.11.23.csv"
+                      ]
+                    },
+                    "result": {
+                      "type": "string",
+                      "description": "The result of the request",
+                      "examples": [
+                        "ok"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Request processing status",
+                      "examples": [
+                        "processing"
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -848,7 +876,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "filelink": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "File URL",
+                      "examples": [
+                        "https://liqpay-merchant-reports-eu-west-1-production-1.s3-eu-west-1.amazonaws.com/reports/compensation_i63896222463_2021.11.23.csv?AWSAccessKeyId=ASIA4G3XTFOZJ5WF5PWB&Signature=P8RLb6u6%2BRKJkLRk6HjhQlZQ2T4%3D&Expires=1639738263&x-amz-security-token=IQoJb3JpZ2luX2VjELn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCWV1LXdlc3QtMSJIMEYCIQC%2BOZ8y2wDz%2B2a9C8952BazFTCpQpT9OX5cUNF1CcBwzQIhAIPuroQCLJMT9g3PbN%2B4Dk8KXg%2BJb2eZIbYIFYm7A4qdKvADCKL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAhoMODM5MzgwMDUyOTE0IgyXUwg7va32HEQ8W5MqxAOghwqrPEpTnH6dLG9toIM8HGhlggL5bFAVI0%2FEE7N1jZRrlyL3455spFAZcAYcROwLnJXzW%2FndQR0QGKKasO6pMW%2B9u8n%2BRUrN6p5kHV4lU9%2BjVb5x2RsMaSjm9Klio8KnB8o5H7CnsTpGEjeAc3ZmeKS10nSSUh4%2FheANMdQVXMCOoba4oqPOxWAIS1dY7tLNrVEgaqhzXhsbK8j0FwwJESYa%2Fq6cN%2FxcnSVq60wUQhRlqaxQr%2FijbXKnprz9Bs0jgvTYF65yPiIKXQ%2B4bYyxR8geOb5c%2BlfFVMFC%2FRyMT1q7r6K7yVuNXxSN3Y%2BeNOR%2FbvDCL9%2Fu3TqNCBHVR3HWPY9P%2BdnF0wjvDS4sDvDEx7V%2Fx%2F%2B52e4flwqgPhAbJrjDqR0dWVuJgwpPfJFjpMVqQ80QPcEEABYY6YycQgNjoSKqdHjLyghykagoV8DAMiNpJciyCb8DMMAv7Cn5%2FCteeYoZevftP%2FIzyZMR9AErQdCTaAL6Db4PAu%2BInbca1sNkWW1HB0DrdonovpFffSXYBHgZMAmij2pD8RmYHvVu9PoPyBR2fRUbZdtoXdaI0Sp7lFlF1hJ1bkgMvjQRPMU0XURvjzCXkvGNBjqkAbiCqn%2F%2BCI%2B9sPSVdCvg7W3oOVsGViKrQmI2SA%2F%2FrJH%2B243LI9iJ7fM4nv5iDTqkpSuy4lYRpX737ZszaJR%2BtRZ1C%2BmGu%2FQjRl0P9mlpCq5qTheOOM9CDvqxu64MiPpgHab4PCATr3i4u8wrTkHhclID4Qx9SU6TyxH0d2OsyngMxjKe3K9wWqkUtQh8FYDKAiPyp3eY99ZGd322XLDdG35CNFCf"
+                      ]
+                    },
+                    "result": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
+                      "description": "The result of a request",
+                      "examples": [
+                        "ok"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "processing",
+                        "error",
+                        "success"
+                      ],
+                      "description": "The status of a request. Possible values:\n* `processing` - on processing, the file is being formed\n* `error` - an error occurred during download, we recommend checking the request data and repeat (in case of repeated error, contact LiqPay support)\n* `success` - successful request",
+                      "examples": [
+                        "success"
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -1031,7 +1092,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "type": "object",
+                  "properties": {
+                    "filelink": {
+                      "type": "string",
+                      "format": "uri",
+                      "description": "File URL",
+                      "examples": [
+                        "https://liqpay-merchant-reports-eu-west-1-production-1.s3-eu-west-1.amazonaws.com/reports/compensation_i63896222463_2021.11.23.csv?AWSAccessKeyId=ASIA4G3XTFOZJ5WF5PWB&Signature=P8RLb6u6%2BRKJkLRk6HjhQlZQ2T4%3D&Expires=1639738263&x-amz-security-token=IQoJb3JpZ2luX2VjELn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCWV1LXdlc3QtMSJIMEYCIQC%2BOZ8y2wDz%2B2a9C8952BazFTCpQpT9OX5cUNF1CcBwzQIhAIPuroQCLJMT9g3PbN%2B4Dk8KXg%2BJb2eZIbYIFYm7A4qdKvADCKL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAhoMODM5MzgwMDUyOTE0IgyXUwg7va32HEQ8W5MqxAOghwqrPEpTnH6dLG9toIM8HGhlggL5bFAVI0%2FEE7N1jZRrlyL3455spFAZcAYcROwLnJXzW%2FndQR0QGKKasO6pMW%2B9u8n%2BRUrN6p5kHV4lU9%2BjVb5x2RsMaSjm9Klio8KnB8o5H7CnsTpGEjeAc3ZmeKS10nSSUh4%2FheANMdQVXMCOoba4oqPOxWAIS1dY7tLNrVEgaqhzXhsbK8j0FwwJESYa%2Fq6cN%2FxcnSVq60wUQhRlqaxQr%2FijbXKnprz9Bs0jgvTYF65yPiIKXQ%2B4bYyxR8geOb5c%2BlfFVMFC%2FRyMT1q7r6K7yVuNXxSN3Y%2BeNOR%2FbvDCL9%2Fu3TqNCBHVR3HWPY9P%2BdnF0wjvDS4sDvDEx7V%2Fx%2F%2B52e4flwqgPhAbJrjDqR0dWVuJgwpPfJFjpMVqQ80QPcEEABYY6YycQgNjoSKqdHjLyghykagoV8DAMiNpJciyCb8DMMAv7Cn5%2FCteeYoZevftP%2FIzyZMR9AErQdCTaAL6Db4PAu%2BInbca1sNkWW1HB0DrdonovpFffSXYBHgZMAmij2pD8RmYHvVu9PoPyBR2fRUbZdtoXdaI0Sp7lFlF1hJ1bkgMvjQRPMU0XURvjzCXkvGNBjqkAbiCqn%2F%2BCI%2B9sPSVdCvg7W3oOVsGViKrQmI2SA%2F%2FrJH%2B243LI9iJ7fM4nv5iDTqkpSuy4lYRpX737ZszaJR%2BtRZ1C%2BmGu%2FQjRl0P9mlpCq5qTheOOM9CDvqxu64MiPpgHab4PCATr3i4u8wrTkHhclID4Qx9SU6TyxH0d2OsyngMxjKe3K9wWqkUtQh8FYDKAiPyp3eY99ZGd322XLDdG35CNFCf"
+                      ]
+                    },
+                    "result": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
+                      "description": "The result of a request",
+                      "examples": [
+                        "ok"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "processing",
+                        "error",
+                        "success"
+                      ],
+                      "description": "The status of a request. Possible values:\n* `processing` - on processing, the file is being formed\n* `error` - an error occurred during download, we recommend checking the request data and repeat (in case of repeated error, contact LiqPay support)\n* `success` - successful request",
+                      "examples": [
+                        "success"
+                      ]
+                    }
+                  }
                 }
               }
             }
