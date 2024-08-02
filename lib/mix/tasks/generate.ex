@@ -2698,6 +2698,53 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
+  defp initialize_property_processing(
+         %{type: :string, description: description} = property,
+         ["language", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :enum) do
+    %{description: description_new} =
+      property_new =
+      ~r/(?:\.\s+)?Customer's\s+language(\s+[^\.\n]+)(?=\.|$)/i
+      |> Regex.scan(description, capture: :all_but_first)
+      |> case do
+        [[values_match]] ->
+          description_new = String.replace(description, values_match, "")
+
+          %{property | description: values_match}
+          |> parse_property_enum()
+          |> Map.put(:description, description_new)
+
+        [] ->
+          ~r/(?:\.\s+)?The\s+meaning\s+of(\s+[^\.\n]+)(?=\.|$)/i
+          |> Regex.scan(description)
+          |> case do
+            [[full_match, values_match]] ->
+              description_new = String.replace(description, full_match, "")
+
+              %{property | description: values_match}
+              |> parse_property_enum()
+              |> Map.put(:description, description_new)
+
+            [] ->
+              property
+          end
+      end
+
+    property_new
+    |> Map.put_new(:enum, ["uk", "en"])
+    |> Map.put_new(:default, "uk")
+    |> Map.put(
+      :description,
+      String.replace(
+        description_new,
+        ~r/(?:\.\s+)?The\s+default\s+language\s+is\s+[[:upper:]]\w+(?=\.|$)/i,
+        ""
+      )
+    )
+    |> initialize_property_processing(path)
+  end
+
   defp initialize_property_processing(property, _path), do: property
 
   defp search_code_blocks(
@@ -2954,24 +3001,17 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum(%{description: description} = property) do
-    ~r/(\.\s+)?((?:Possible|Present|Valid)\s+values?\s*:?|Current\s+value\s*\-?|^Customer's\s+language)\n?([^\.\n]+)(?:\.|$)/i
+    ~r/(\.\s+)?((?:Possible|Present|Valid)\s+values?\s*:?|Current\s+value\s*\-?)\n?([^\.\n]+)(?=\.|$)/i
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, prefix_text, values_match]] ->
         {enum_options, has_descriptions} =
-          ~r/\s*`([^`]+?)`(?:\s+\-\s+([^,\.\n`]+))?[\n,]?/
+          ~r/\s*`([^`]+?)`(?:\s+[\-\–]\s+([^\.\n`]+))?(?:[\n,\.]|$)/u
           |> Regex.scan(values_match, capture: :all_but_first)
           |> Enum.map_reduce(false, fn
             [key], has_descriptions -> {{key, nil}, has_descriptions}
             [key, description], _has_descriptions -> {{key, description}, true}
           end)
-
-        {full_match_new, prefix_new} =
-          if prefix_text == "Customer's language" do
-            {values_match, "#{prefix}\n"}
-          else
-            {full_match, prefix}
-          end
 
         description_new =
           if has_descriptions do
@@ -2983,12 +3023,10 @@ defmodule Mix.Tasks.Generate do
                 {key, description} -> "* `#{key}` - #{description}"
               end
             )
-            |> then(
-              &String.replace(description, full_match_new, "#{prefix_new}Possible values:\n#{&1}")
-            )
+            |> then(&String.replace(description, full_match, "#{prefix}Possible values:\n#{&1}"))
           else
             description
-            |> String.replace(full_match_new, "")
+            |> String.replace(full_match, "")
             |> String.replace(~r/^\s*\.\s*/, "")
           end
 
@@ -3046,7 +3084,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_examples(%{description: description} = property) do
-    ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?:\.|$)/
+    ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, examples_match]] ->

@@ -99,6 +99,7 @@
                     "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
@@ -119,7 +120,7 @@
                       "invoice",
                       "qr"
                     ],
-                    "description": "Parameter that gets the methods of payments that displayed on checkout. Possible values:\n* `apay` - pay with Apple Pay\n* `gpay` - pay with Google Pay\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `paypart` - payment by parts\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning If the parameter is not passed, shop settings will be applied, Checkout tab"
+                    "description": "Parameter that gets the methods of payments that displayed on checkout. Possible values:\n* `apay` - pay with Apple Pay\n* `gpay` - pay with Google Pay\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `paypart` - payment by parts\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning. If the parameter is not passed, shop settings will be applied, Checkout tab"
                   },
                   "result_url": {
                     "type": "string",
@@ -138,7 +139,7 @@
                     "enum": [
                       "Y"
                     ],
-                    "description": " Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
+                    "description": "Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
                   },
                   "split_rules": {
                     "type": "array",

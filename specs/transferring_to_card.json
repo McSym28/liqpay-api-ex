@@ -97,6 +97,7 @@
                     ]
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
@@ -154,7 +155,7 @@
                   },
                   "receiver_card_token": {
                     "type": "string",
-                    "description": "Recipient's card token",
+                    "description": "Recipient's card token.",
                     "examples": [
                       "B5BВB0D00B88B00ED00A00D0D"
                     ]

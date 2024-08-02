@@ -94,6 +94,7 @@
                     "description": "A cryptogram is a dynamic one-time code for each transaction that accompanies a token. It is obtained when decrypting payment data from the Android device"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
@@ -343,6 +344,7 @@
                     "description": "Payment description"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",

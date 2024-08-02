@@ -80,9 +80,10 @@
                       "hold",
                       "subscribe"
                     ],
-                    "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `subscribe` - regular [payment](https://wwwliqpay.ua/en/doc/api/internet_acquiring/subscription), `paydonate` - donation"
+                    "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `subscribe` - regular [payment](https://www.liqpay.ua/en/doc/api/internet_acquiring/subscription), `paydonate` - donation"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",

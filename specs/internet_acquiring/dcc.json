@@ -114,6 +114,7 @@
                     "description": "Payer's phone number. The OTP-password will be sent to this telephone number to confirm your payment, and the linked payer's LiqPay cabinet. The telephone number should be indicated in the international format (Ukraine `+380`). For example: +380950000001 (with +) or 380950000001 (without +)"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",

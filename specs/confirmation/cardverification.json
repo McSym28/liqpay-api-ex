@@ -86,6 +86,7 @@
                     "maxLength": 255
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
@@ -98,7 +99,7 @@
                     "enum": [
                       "Y"
                     ],
-                    "description": " Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
+                    "description": "Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
                   }
                 }
               }

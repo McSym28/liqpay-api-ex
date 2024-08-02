@@ -734,8 +734,13 @@
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
-                    "description": "Locale in which to return the answer. The default language is Ukrainian. The meaning of `en`, `uk`"
+                    "enum": [
+                      "en",
+                      "uk"
+                    ],
+                    "description": "Locale in which to return the answer"
                   }
                 }
               }
@@ -828,8 +833,13 @@
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
-                    "description": "Locale in which to return the answer. The default language is Ukrainian. The meaning of `en`, `uk`"
+                    "enum": [
+                      "en",
+                      "uk"
+                    ],
+                    "description": "Locale in which to return the answer"
                   }
                 }
               }

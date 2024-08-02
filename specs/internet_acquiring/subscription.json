@@ -137,6 +137,7 @@
                     ]
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",

@@ -144,9 +144,10 @@
                       "p2p",
                       "p2pdebit"
                     ],
-                    "description": "A parameter defining the payment type. Pass the value of the action parameter of the payment, which will be carried out after passing 3DS. Possible values:\n* `pay` - payment\n* `hold` - blocking funds on the sender’s account\n* `subscribe` - regular payment\n* `paydonate` - donation\n* `auth` - card preauthorization\n* `p2p` - transfer from card to card\n* `p2pdebit` - payment using p2p debit Default value is pay - `pay`"
+                    "description": "A parameter defining the payment type. Pass the value of the action parameter of the payment, which will be carried out after passing 3DS. Possible values:\n* `pay` - payment\n* `hold` - blocking funds on the sender’s account\n* `subscribe` - regular payment\n* `paydonate` - donation\n* `auth` - card preauthorization\n* `p2p` - transfer from card to card\n* `p2pdebit` - payment using p2p debit. Default value is pay - `pay`"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",

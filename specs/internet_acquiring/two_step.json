@@ -150,13 +150,14 @@
                       "gpay_tavv",
                       "tavv"
                     ],
-                    "description": "Payment type. Possible values:\n* `apay` - payment using an encrypted Apple token\n* `gpay` - payment using an encrypted Google token\n* `apay_tavv` - payment using an unencrypted Apple token\n* `gpay_tavv` - payment using an unencrypted Google token\n* `tavv` - payment using an unencrypted token of international payment systems (MasterCard This parameter is required for payments using encrypted and unencrypted tokens"
+                    "description": "Payment type. Possible values:\n* `apay` - payment using an encrypted Apple token\n* `gpay` - payment using an encrypted Google token\n* `apay_tavv` - payment using an unencrypted Apple token\n* `gpay_tavv` - payment using an unencrypted Google token\n* `tavv` - payment using an unencrypted token of international payment systems (MasterCard, Visa). This parameter is required for payments using encrypted and unencrypted tokens"
                   },
                   "tid": {
                     "type": "string",
                     "description": "Previous transaction ID. For recurring payments using tokens of Visa international payment system"
                   },
                   "language": {
+                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",

@@ -979,7 +979,7 @@
                       "p2p",
                       "p2pcredit"
                     ],
-                    "description": "Type of operation",
+                    "description": "Type of operation. Possible values:\n* `p2p` - for operations of type p2pdebit\n* `p2pcredit` - for operations of type p2pcredit (default \"acquiring\")",
                     "examples": [
                       "p2p"
                     ]
