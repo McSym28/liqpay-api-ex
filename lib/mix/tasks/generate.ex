@@ -2367,9 +2367,9 @@ defmodule Mix.Tasks.Generate do
         property_schema =
           %{type: type, description: description}
           |> initialize_property_processing(path_new)
-          |> parse_property_maximum_length()
-          |> parse_property_enum()
-          |> parse_property_examples()
+          |> parse_property_maximum_length(path_new)
+          |> parse_property_enum(path_new)
+          |> parse_property_examples(path_new)
           |> parse_property_separate_example(example_nodes, path_new)
 
         {{name, property_schema}, if(required, do: [name], else: [])}
@@ -2712,7 +2712,7 @@ defmodule Mix.Tasks.Generate do
           description_new = String.replace(description, values_match, "")
 
           %{property | description: values_match}
-          |> parse_property_enum()
+          |> parse_property_enum(path)
           |> Map.put(:description, description_new)
 
         [] ->
@@ -2723,7 +2723,7 @@ defmodule Mix.Tasks.Generate do
               description_new = String.replace(description, full_match, "")
 
               %{property | description: values_match}
-              |> parse_property_enum()
+              |> parse_property_enum(path)
               |> Map.put(:description, description_new)
 
             [] ->
@@ -2975,7 +2975,7 @@ defmodule Mix.Tasks.Generate do
     %{schema | properties: properties_new}
   end
 
-  defp parse_property_maximum_length(%{description: description} = property) do
+  defp parse_property_maximum_length(%{description: description} = property, _path) do
     ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+symbols/
     |> Regex.scan(description)
     |> case do
@@ -3000,7 +3000,7 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_enum(%{description: description} = property) do
+  defp parse_property_enum(%{description: description} = property, _path) do
     ~r/(\.\s+)?((?:Possible|Present|Valid)\s+values?\s*:?|Current\s+value\s*\-?)\n?([^\.\n]+)(?=\.|$)/i
     |> Regex.scan(description)
     |> case do
@@ -3083,7 +3083,7 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_examples(%{description: description} = property) do
+  defp parse_property_examples(%{description: description} = property, _path) do
     ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/
     |> Regex.scan(description)
     |> case do
@@ -3100,7 +3100,7 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_examples(property), do: property
+  defp parse_property_examples(property, _path), do: property
 
   defp process_examples_match_in_description(
          %{description: description} = property,
