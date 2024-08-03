@@ -134,6 +134,7 @@
                     ]
                   },
                   "action_payment": {
+                    "default": "pay",
                     "type": "string",
                     "enum": [
                       "pay",
@@ -144,7 +145,7 @@
                       "p2p",
                       "p2pdebit"
                     ],
-                    "description": "A parameter defining the payment type. Pass the value of the action parameter of the payment, which will be carried out after passing 3DS. Possible values:\n* `pay` - payment\n* `hold` - blocking funds on the sender’s account\n* `subscribe` - regular payment\n* `paydonate` - donation\n* `auth` - card preauthorization\n* `p2p` - transfer from card to card\n* `p2pdebit` - payment using p2p debit. Default value is pay - `pay`"
+                    "description": "A parameter defining the payment type. Pass the value of the action parameter of the payment, which will be carried out after passing 3DS. Possible values:\n* `pay` - payment\n* `hold` - blocking funds on the sender’s account\n* `subscribe` - regular payment\n* `paydonate` - donation\n* `auth` - card preauthorization\n* `p2p` - transfer from card to card\n* `p2pdebit` - payment using p2p debit"
                   },
                   "language": {
                     "default": "uk",
@@ -180,47 +181,49 @@
                     "properties": {
                       "notificationURL": {
                         "type": "string",
-                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified.\nThe maximum length is 256 characters."
+                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified.\nThe maximum length is 256 characters"
                       },
                       "browserLanguage": {
                         "type": "string",
-                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser. For example, en-US.\nThe maximum length is 8 characters."
+                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser. For example, en-US.\nThe maximum length is 8 characters"
                       },
                       "threeDSRequestorURL": {
                         "type": "string",
-                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information.\nThe maximum length is 2048 characters."
+                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information.\nThe maximum length is 2048 characters"
                       },
                       "browserScreenHeight": {
                         "type": "string",
-                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser.\nThe maximum length is 6 characters."
+                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser.\nThe maximum length is 6 characters"
                       },
                       "browserColorDepth": {
                         "type": "string",
-                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nThe maximum length is 2 characters.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits."
+                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nThe maximum length is 2 characters.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits"
                       },
                       "browserJavascriptEnabled": {
+                        "default": true,
                         "type": "boolean",
-                        "description": "Parameter describing whether the payer's browser can perform JavaScript. Default `true`"
+                        "description": "Parameter describing whether the payer's browser can perform JavaScript"
                       },
                       "browserJavaEnabled": {
+                        "default": false,
                         "type": "boolean",
-                        "description": "A parameter describing whether the payer's browser can perform Java. Default `false`"
+                        "description": "A parameter describing whether the payer's browser can perform Java"
                       },
                       "browserScreenWidth": {
                         "type": "string",
-                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser.\nThe maximum length is 6 characters."
+                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser.\nThe maximum length is 6 characters"
                       },
                       "browserAcceptHeader": {
                         "type": "string",
-                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part."
+                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part"
                       },
                       "browserTZ": {
                         "type": "string",
-                        "description": "Time zone offset between Greenwich and the payer's local time, in minutes. Example of time zone offset values in minutes:\n- if UTC is –5 hours, then the value is 300,\n- if UTC +5 hours, then the value is –300."
+                        "description": "Time zone offset between Greenwich and the payer's local time, in minutes. Example of time zone offset values in minutes:\n- if UTC is –5 hours, then the value is 300,\n- if UTC +5 hours, then the value is –300"
                       },
                       "browserUserAgent": {
                         "type": "string",
-                        "description": "The precise content of the user-agent HTTP header.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part."
+                        "description": "The precise content of the user-agent HTTP header.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part"
                       }
                     }
                   },
@@ -273,7 +276,7 @@
                         "U",
                         "Y"
                       ],
-                      "description": "Values for 3DS version 2.0:`Y, A` - additional client verification is not required,\n* `C` - additional client verification is required, \n* `N` - failed to verify the client. Payment performance is not recommended. The client can be checked with 3DS 1.0, \n* `U` - failed to verify the card for participation, client redirection is not required to pass 3-D Secure.\nValues for 3DS version 1.0:`N` - card does not participate, client redirection for 3D-Secure is not required,\n* `U` - failed to verify the card for participation, client redirection for 3D-Secure is not required, \n* `Y` - card supports the 3D-Secure service and there will be page of issuing bank in `mpi_req_url` parameter where `mpi_req_pareq` and `mpi_req_md` parameters should be transferred by `POST` method int he next form:\nwhere `TermUrl` - page address to which issuer will return the answer with PaRes and MD parameters. To make a payment with already passed 3DS you need to transfer `mpi_pares` and `mpi_md`, parameters with PaRes and MD values which were received from issuer bank ACS while payment is created.",
+                      "description": "Values for 3DS version 2.0:`Y, A` - additional client verification is not required,\n* `C` - additional client verification is required, \n* `N` - failed to verify the client. Payment performance is not recommended. The client can be checked with 3DS 1.0, \n* `U` - failed to verify the card for participation, client redirection is not required to pass 3-D Secure.\nValues for 3DS version 1.0:`N` - card does not participate, client redirection for 3D-Secure is not required,\n* `U` - failed to verify the card for participation, client redirection for 3D-Secure is not required, \n* `Y` - card supports the 3D-Secure service and there will be page of issuing bank in `mpi_req_url` parameter where `mpi_req_pareq` and `mpi_req_md` parameters should be transferred by `POST` method int he next form:\nwhere `TermUrl` - page address to which issuer will return the answer with PaRes and MD parameters. To make a payment with already passed 3DS you need to transfer `mpi_pares` and `mpi_md`, parameters with PaRes and MD values which were received from issuer bank ACS while payment is created",
                       "examples": [
                         "Y",
                         "C",

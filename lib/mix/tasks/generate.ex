@@ -14,6 +14,8 @@ defmodule Mix.Tasks.Generate do
   @date_time_liqpay_format "date-time"
   # @date_liqpay_format "date-liqpay"
   @date_liqpay_format :date
+  # @boolean_yesno_format "boolean-yesno"
+  # @boolean_integer_format "boolean-integer"
 
   require Record
 
@@ -2362,7 +2364,11 @@ defmodule Mix.Tasks.Generate do
               {name, required, type, description, example_nodes}
 
             {cell, "description"}, {name, required, type, _description, example_nodes} ->
-              description = parse_node_text(cell, block_parse_settings)
+              description =
+                cell
+                |> parse_node_text(block_parse_settings)
+                |> String.replace(~r/\s*\.$/, "")
+
               {name, required, type, description, example_nodes}
 
             {cell, ""}, {name, required, type, description, example_nodes} ->
@@ -2377,6 +2383,7 @@ defmodule Mix.Tasks.Generate do
           |> parse_property_maximum_length(path_new)
           |> parse_property_enum(path_new)
           |> parse_property_default(path_new)
+          |> parse_property_format(path_new)
           |> parse_property_examples(path_new)
           |> parse_property_separate_example(example_nodes, path_new)
 
@@ -2556,69 +2563,6 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
-  # defp initialize_property_processing(
-  #        %{type: :string} = property,
-  #        [boolean_property, {:schema, _schema_type} | _] = path
-  #      )
-  #      when boolean_property in ~w(verifycode) and
-  #             not is_map_key(property, :format) do
-  #   property
-  #   |> Map.put(:format, "boolean-yesno")
-  #   |> initialize_property_processing(path)
-  # end
-
-  defp initialize_property_processing(
-         %{type: :string} = property,
-         [boolean_property, {:schema, _schema_type} | _] = path
-       )
-       when boolean_property in ~w(verifycode) and
-              not is_map_key(property, :enum) do
-    property
-    |> Map.put(:enum, ["Y"])
-    |> initialize_property_processing(path)
-  end
-
-  # defp initialize_property_processing(
-  #        %{type: :string} = property,
-  #        [boolean_property, {:schema, _schema_type} | _] = path
-  #      )
-  #      when boolean_property in ~w(subscribe prepare sandbox) and
-  #             not is_map_key(property, :format) do
-  #   property
-  #   |> Map.put(:format, "boolean-integer")
-  #   |> initialize_property_processing(path)
-  # end
-
-  # defp initialize_property_processing(
-  #        %{type: :string} = property,
-  #        ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
-  #      )
-  #      when not is_map_key(property, :format) do
-  #   property
-  #   |> Map.put(:format, "boolean-integer")
-  #   |> initialize_property_processing(path)
-  # end
-
-  defp initialize_property_processing(
-         %{type: :string} = property,
-         [boolean_property, {:schema, _schema_type} | _] = path
-       )
-       when boolean_property in ~w(subscribe prepare sandbox) and not is_map_key(property, :enum) do
-    property
-    |> Map.put(:enum, ["1"])
-    |> initialize_property_processing(path)
-  end
-
-  defp initialize_property_processing(
-         %{type: :string} = property,
-         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
-       )
-       when not is_map_key(property, :enum) do
-    property
-    |> Map.put(:enum, ["1"])
-    |> initialize_property_processing(path)
-  end
-
   defp initialize_property_processing(
          %{type: :number} = property,
          [integer_property, {:schema, _schema_type} | _] = path
@@ -2648,38 +2592,6 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(
-         %{type: :string} = property,
-         [url_property, {:schema, _schema_type} | _] = path
-       )
-       when url_property in ~w(result_url server_url product_url) and
-              not is_map_key(property, :format) do
-    property
-    |> Map.put(:format, :uri)
-    |> initialize_property_processing(path)
-  end
-
-  defp initialize_property_processing(
-         %{type: :string} = property,
-         [datetime_property, {:schema, _schema_type} | _] = path
-       )
-       when datetime_property in ~w(expired_date) and
-              not is_map_key(property, :format) do
-    property
-    |> Map.put(:format, @date_time_liqpay_format)
-    |> initialize_property_processing(path)
-  end
-
-  defp initialize_property_processing(
-         %{type: :string} = property,
-         ["subscribe_date_start", "regular_payment", {:schema, :request} | _] = path
-       )
-       when not is_map_key(property, :format) do
-    property
-    |> Map.put(:format, @date_time_liqpay_format)
-    |> initialize_property_processing(path)
-  end
-
-  defp initialize_property_processing(
          %{type: :array} = property,
          ["delivery_emails", "rro_info", {:schema, :request} | _] = path
        )
@@ -2701,53 +2613,6 @@ defmodule Mix.Tasks.Generate do
        ) do
     property
     |> Map.put(:type, :string)
-    |> initialize_property_processing(path)
-  end
-
-  defp initialize_property_processing(
-         %{type: :string, description: description} = property,
-         ["language", {:schema, :request} | _] = path
-       )
-       when not is_map_key(property, :enum) do
-    %{description: description_new} =
-      property_new =
-      ~r/(?:\.\s+)?Customer's\s+language(\s+[^\.\n]+)(?=\.|$)/i
-      |> Regex.scan(description, capture: :all_but_first)
-      |> case do
-        [[values_match]] ->
-          description_new = String.replace(description, values_match, "")
-
-          %{property | description: values_match}
-          |> parse_property_enum(path)
-          |> Map.put(:description, description_new)
-
-        [] ->
-          ~r/(?:\.\s+)?The\s+meaning\s+of(\s+[^\.\n]+)(?=\.|$)/i
-          |> Regex.scan(description)
-          |> case do
-            [[full_match, values_match]] ->
-              description_new = String.replace(description, full_match, "")
-
-              %{property | description: values_match}
-              |> parse_property_enum(path)
-              |> Map.put(:description, description_new)
-
-            [] ->
-              property
-          end
-      end
-
-    property_new
-    |> Map.put_new(:enum, ["uk", "en"])
-    |> Map.put_new(:default, "uk")
-    |> Map.put(
-      :description,
-      String.replace(
-        description_new,
-        ~r/(?:\.\s+)?The\s+default\s+language\s+is\s+[[:upper:]]\w+(?=\.|$)/i,
-        ""
-      )
-    )
     |> initialize_property_processing(path)
   end
 
@@ -2908,6 +2773,9 @@ defmodule Mix.Tasks.Generate do
     end)
     |> inspect()
   end
+
+  defp patch_object_schema_examples(
+         _example,
          %{type: :object} = schema,
          [
            key,
@@ -2920,7 +2788,7 @@ defmodule Mix.Tasks.Generate do
        when key in @partnership_card_fields do
     schema
   end
-       when key in @partnership_card_fields do
+
   defp patch_object_schema_examples(
          _example,
          %{type: :object} = schema,
@@ -2931,28 +2799,28 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = _path
        )
-       when key in @card_fields do
+       when key in @partnership_card_fields do
     schema
   end
-       when key in @partnership_card_fields do
+
   defp patch_object_schema_examples(
          example,
          %{type: :object} = schema,
          [key | [{:schema, :request}, _, section(id: "internet_acquiring")] = rest_path] = _path
        )
-       when key in @regular_payment_fields do
+       when key in @internet_acquiring_regular_payment_fields do
     patch_schema_examples(%{"regular_payment" => %{key => example}}, schema, rest_path)
   end
-       when key in @internet_acquiring_regular_payment_fields do
+
   defp patch_object_schema_examples(
          example,
          %{type: :object} = schema,
          [key, {:schema, :request}, _, section, section(id: "internet_acquiring")] = _path
        )
-       when key in @regular_payment_fields do
+       when key in @internet_acquiring_regular_payment_fields do
     patch_object_schema_examples(
       example,
-       when key in @internet_acquiring_regular_payment_fields do
+      schema,
       [key, {:schema, :request}, section, section(id: "internet_acquiring")]
     )
   end
@@ -3000,7 +2868,8 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_property_enum(%{description: description} = property, _path) do
+  defp parse_property_enum(%{description: description} = property, path)
+       when not is_map_key(property, :enum) do
     ~r/(\.\s+)?(?:Possible|Valid)\s+values?\s*:?\n?([^\.\n]+)(?=\.|$)/i
     |> Regex.scan(description)
     |> case do
@@ -3037,41 +2906,204 @@ defmodule Mix.Tasks.Generate do
           end)
           |> Enum.uniq()
 
-        Map.merge(property, %{
+        property
+        |> Map.merge(%{
           enum: enum,
           description: description_new
         })
+        |> parse_property_enum_specific(path)
 
       [] ->
         ~r/^((?:\s*`[^`]+?`,?)+)$/
         |> Regex.match?(description)
         |> if do
-          enum =
-            ~r/`([^`]+?)`/
-            |> Regex.scan(description, capture: :all_but_first)
-            |> Enum.flat_map(fn [str] -> String.split(str, ",") end)
-            |> Enum.map(&String.trim/1)
-
           property
-          |> Map.update(:enum, enum, &Enum.uniq(&1 ++ enum))
+          |> parse_property_enum_list(path)
           |> Map.delete(:description)
+          |> parse_property_enum_specific(path)
         else
           ~r/^\s*`([^`]+)`\s*-\s*(.+)$/m
           |> Regex.scan(description)
-          |> Enum.reduce(property, fn [full_match, key, key_description],
-                                      %{description: description} = property_new ->
-            description_new =
-              String.replace(description, full_match, "* `#{key}` - #{key_description}")
+          |> case do
+            [] ->
+              parse_property_enum_specific(property, path)
 
-            key_new = parse_schema_value(key, property_new)
+            matches ->
+              Enum.reduce(matches, property, fn [full_match, key, key_description],
+                                                %{description: description} = property_new ->
+                description_new =
+                  String.replace(description, full_match, "* `#{key}` - #{key_description}")
 
-            property_new
-            |> Map.update(:enum, [key_new], &Enum.uniq(&1 ++ [key_new]))
-            |> Map.put(:description, description_new)
-          end)
+                key_new = parse_schema_value(key, property_new)
+
+                property_new
+                |> Map.update(:enum, [key_new], &Enum.uniq(&1 ++ [key_new]))
+                |> Map.put(:description, description_new)
+              end)
+              |> parse_property_enum_specific(path)
+          end
         end
     end
   end
+
+  defp parse_property_enum(property, path), do: parse_property_enum_specific(property, path)
+
+  defp parse_property_enum_list(%{description: description} = property, _path) do
+    ~r/`([^`]+?)`/
+    |> Regex.scan(description, capture: :all_but_first)
+    |> Enum.flat_map(fn [str] -> String.split(str, ",") end)
+    |> Enum.reduce(property, fn enum, property ->
+      enum_new = enum |> String.trim() |> parse_schema_value(property)
+      Map.update(property, :enum, [enum_new], &Enum.uniq(&1 ++ [enum_new]))
+    end)
+  end
+
+  defp parse_property_enum_specific(
+         %{type: :string, description: description} = property,
+         ["language", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :enum) do
+    ~r/(?:\.\s+)?Customer's\s+language(\s+[^\.\n]+)(?=\.|$)/i
+    |> Regex.scan(description, capture: :all_but_first)
+    |> case do
+      [[values_match]] ->
+        description_new = String.replace(description, values_match, "")
+
+        %{property | description: values_match}
+        |> parse_property_enum_list(path)
+        |> Map.put(:description, description_new)
+
+      [] ->
+        ~r/(?:\.\s+)?The\s+meaning\s+of(\s+[^\.\n]+)(?=\.|$)/i
+        |> Regex.scan(description)
+        |> case do
+          [[full_match, values_match]] ->
+            description_new = String.replace(description, full_match, "")
+
+            %{property | description: values_match}
+            |> parse_property_enum(path)
+            |> Map.put(:description, description_new)
+
+          [] ->
+            property
+        end
+    end
+    |> Map.put_new(:enum, ["uk", "en"])
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         %{description: description} = property,
+         [
+           "resp_format",
+           {:schema, :request},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] =
+           path
+       )
+       when not is_map_key(property, :enum) do
+    ~r/(?:\.\s+)?Possible\s+report\s+format\s+\n?([^\.\n]+)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, values_match]] ->
+        description_new =
+          description
+          |> String.replace(full_match, ". Report format")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        %{property | description: values_match}
+        |> parse_property_enum_list(path)
+        |> Map.put(:description, description_new)
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:enum, ["json", "csv", "xml"])
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         property,
+         [
+           "resp_format",
+           {:schema, :request},
+           endpoint(id: "compensation_per_day"),
+           section(id: "register") | [section(id: "information")] = rest_path
+         ] =
+           _path
+       ) do
+    parse_property_enum_specific(property, [
+      "resp_format",
+      {:schema, :request},
+      endpoint(id: "payment_archive") | rest_path
+    ])
+  end
+
+  defp parse_property_enum_specific(
+         %{description: description} = property,
+         [
+           "resp_format",
+           {:schema, :request},
+           endpoint(id: "compensation_report_p2p"),
+           section(id: "register"),
+           section(id: "information")
+         ] =
+           path
+       )
+       when not is_map_key(property, :enum) do
+    ~r/(?:\.\s+)?Possible\s+report\s+format\s*\:?\s+\n?([^\.\n\(]+)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, values_match]] ->
+        description_new =
+          description
+          |> String.replace(full_match, ". Report format")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        %{property | description: values_match}
+        |> parse_property_enum_list(path)
+        |> Map.put(:description, description_new)
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:enum, ["csv"])
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         %{type: :string} = property,
+         [boolean_property, {:schema, _schema_type} | _] = path
+       )
+       when boolean_property in ~w(verifycode) and
+              not is_map_key(property, :enum) do
+    property
+    |> Map.put(:enum, ["Y"])
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         %{type: :string} = property,
+         [boolean_property, {:schema, _schema_type} | _] = path
+       )
+       when boolean_property in ~w(subscribe prepare sandbox) and not is_map_key(property, :enum) do
+    property
+    |> Map.put(:enum, ["1"])
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         %{type: :string} = property,
+         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :enum) do
+    property
+    |> Map.put(:enum, ["1"])
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(property, _path), do: property
 
   defp parse_property_default(
          %{description: description} = property,
@@ -3094,7 +3126,237 @@ defmodule Mix.Tasks.Generate do
     |> parse_property_default(path)
   end
 
+  defp parse_property_default(
+         %{description: description} = property,
+         ["action_payment", {:schema, :request}, endpoint(id: "MPI"), section(id: "confirmation")] =
+           path
+       )
+       when not is_map_key(property, :default) do
+    ~r/(?:\.\s+)?Default\s+value\s+is\s+(\w+)\s*[\-\–]\s*`\1`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+        default_new = parse_schema_value(default, property)
+        Map.merge(property, %{default: default_new, description: description_new})
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:default, 3)
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(
+         %{description: description} = property,
+         [
+           "browserJavascriptEnabled",
+           "threeDSInfo",
+           {:schema, :request},
+           endpoint(id: "MPI"),
+           section(id: "confirmation")
+         ] =
+           path
+       )
+       when not is_map_key(property, :default) do
+    ~r/(?:\.\s+)?Default\s+`(\w+)`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+        default_new = parse_schema_value(default, property)
+        Map.merge(property, %{default: default_new, description: description_new})
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:default, true)
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(
+         %{description: description} = property,
+         [
+           "browserJavaEnabled",
+           "threeDSInfo",
+           {:schema, :request},
+           endpoint(id: "MPI"),
+           section(id: "confirmation")
+         ] =
+           path
+       )
+       when not is_map_key(property, :default) do
+    ~r/(?:\.\s+)?Default\s+`(\w+)`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+        default_new = parse_schema_value(default, property)
+        Map.merge(property, %{default: default_new, description: description_new})
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:default, false)
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(
+         %{type: :string} = property,
+         ["language", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :default) do
+    property
+    |> Map.put_new(:default, "uk")
+    |> Map.replace_lazy(
+      :description,
+      &String.replace(
+        &1,
+        ~r/(?:\.\s+)?The\s+default\s+language\s+is\s+[[:upper:]]\w+(?=\.|$)/i,
+        ""
+      )
+    )
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(
+         %{description: description} = property,
+         [
+           "resp_format",
+           {:schema, :request},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] =
+           path
+       )
+       when not is_map_key(property, :default) do
+    ~r/(?:\.\s+)?If\s+parameter\s+is\s+not\s+passed\s*,\s+will\s+be\s+passed\s+by\s+default\s+`(\w+)`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+        default_new = parse_schema_value(default, property)
+        Map.merge(property, %{default: default_new, description: description_new})
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:default, "json")
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(
+         property,
+         [
+           "resp_format",
+           {:schema, :request},
+           endpoint(id: "compensation_per_day"),
+           section(id: "register") | [section(id: "information")] = rest_path
+         ] =
+           _path
+       ) do
+    parse_property_default(property, [
+      "resp_format",
+      {:schema, :request},
+      endpoint(id: "payment_archive") | rest_path
+    ])
+  end
+
+  defp parse_property_default(
+         %{description: description} = property,
+         [
+           "resp_format",
+           {:schema, :request},
+           endpoint(id: "compensation_report_p2p"),
+           section(id: "register"),
+           section(id: "information")
+         ] =
+           path
+       )
+       when not is_map_key(property, :default) do
+    ~r/\s*\(\s*default\s+"(\w+)"\s*\)(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> IO.inspect(label: description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+        default_new = parse_schema_value(default, property)
+        Map.merge(property, %{default: default_new, description: description_new})
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:default, "csv")
+    |> parse_property_default(path)
+  end
+
   defp parse_property_default(property, _path), do: property
+
+  # defp parse_property_format(
+  #        %{type: :string} = property,
+  #        [boolean_property, {:schema, _schema_type} | _] = path
+  #      )
+  #      when boolean_property in ~w(verifycode) and
+  #             not is_map_key(property, :format) do
+  #   property
+  #   |> Map.put(:format, @boolean_yesno_format)
+  #   |> parse_property_format(path)
+  # end
+
+  # defp parse_property_format(
+  #        %{type: :string} = property,
+  #        [boolean_property, {:schema, _schema_type} | _] = path
+  #      )
+  #      when boolean_property in ~w(subscribe prepare sandbox) and
+  #             not is_map_key(property, :format) do
+  #   property
+  #   |> Map.put(:format, @boolean_integer_format)
+  #   |> parse_property_format(path)
+  # end
+
+  # defp parse_property_format(
+  #        %{type: :string} = property,
+  #        ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+  #      )
+  #      when not is_map_key(property, :format) do
+  #   property
+  #   |> Map.put(:format, @boolean_integer_format)
+  #   |> parse_property_format(path)
+  # end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [url_property, {:schema, _schema_type} | _] = path
+       )
+       when url_property in ~w(result_url server_url product_url) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, :uri)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [datetime_property, {:schema, _schema_type} | _] = path
+       )
+       when datetime_property in ~w(expired_date) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @date_time_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         ["subscribe_date_start", "regular_payment", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @date_time_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(property, _path), do: property
 
   defp parse_property_examples(%{description: description} = property, _path) do
     ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/

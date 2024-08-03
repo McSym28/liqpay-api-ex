@@ -57,8 +57,14 @@
                     ]
                   },
                   "resp_format": {
+                    "default": "json",
                     "type": "string",
-                    "description": "Possible report format `json`, `csv`, `xml`. If parameter is not passed, will be passed by default `json`.",
+                    "enum": [
+                      "json",
+                      "csv",
+                      "xml"
+                    ],
+                    "description": "Report format",
                     "examples": [
                       "json"
                     ]
@@ -960,8 +966,12 @@
                     ]
                   },
                   "resp_format": {
+                    "default": "csv",
                     "type": "string",
-                    "description": "Possible report format: `csv` (default \"csv\")",
+                    "enum": [
+                      "csv"
+                    ],
+                    "description": "Report format",
                     "examples": [
                       "csv"
                     ]

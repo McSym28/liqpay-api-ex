@@ -98,7 +98,7 @@
                   },
                   "customer": {
                     "type": "string",
-                    "description": "Unique customer ID in your shop.",
+                    "description": "Unique customer ID in your shop",
                     "maxLength": 100
                   },
                   "description": {
@@ -148,7 +148,7 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Order_id payment."
+                    "description": "Order_id payment"
                   },
                   "payment_id": {
                     "type": "number",

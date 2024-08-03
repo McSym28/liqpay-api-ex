@@ -130,32 +130,32 @@
                     "properties": {
                       "receiver_account": {
                         "type": "string",
-                        "description": "Recipient's account number."
+                        "description": "Recipient's account number"
                       },
                       "receiver_mfo": {
                         "type": "string",
-                        "description": "Recipient's account MFI."
+                        "description": "Recipient's account MFI"
                       },
                       "receiver_okpo": {
                         "type": "string",
-                        "description": "Recipient's account OKPO."
+                        "description": "Recipient's account OKPO"
                       },
                       "receiver_company": {
                         "type": "string",
-                        "description": "Name of recipient's current account."
+                        "description": "Name of recipient's current account"
                       }
                     }
                   },
                   "receiver_card": {
                     "type": "string",
-                    "description": "Recipient's card number.",
+                    "description": "Recipient's card number",
                     "examples": [
                       "4731195301524633"
                     ]
                   },
                   "receiver_card_token": {
                     "type": "string",
-                    "description": "Recipient's card token.",
+                    "description": "Recipient's card token",
                     "examples": [
                       "B5BВB0D00B88B00ED00A00D0D"
                     ]
@@ -192,14 +192,14 @@
                   },
                   "receiver_first_name": {
                     "type": "string",
-                    "description": "Recipient first name.",
+                    "description": "Recipient first name",
                     "examples": [
                       "FirstName"
                     ]
                   },
                   "receiver_last_name": {
                     "type": "string",
-                    "description": "Recipient last name.",
+                    "description": "Recipient last name",
                     "examples": [
                       "LastName"
                     ]

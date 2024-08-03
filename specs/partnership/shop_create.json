@@ -874,7 +874,7 @@
                           },
                           "doc_type": {
                             "type": "string",
-                            "description": "Document type: required - a required document, allof - the document can be replaced with all other documents from the list, optional - an optional document."
+                            "description": "Document type: required - a required document, allof - the document can be replaced with all other documents from the list, optional - an optional document"
                           },
                           "name": {
                             "type": "string",

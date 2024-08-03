@@ -143,7 +143,7 @@
                     "enum": [
                       "1"
                     ],
-                    "description": "Enables the testing environment for developers. Payer card will not be charged. To enable testing environment you will need to transmit value `1`. All test payments will have the status `sandbox` - successful test payment."
+                    "description": "Enables the testing environment for developers. Payer card will not be charged. To enable testing environment you will need to transmit value `1`. All test payments will have the status `sandbox` - successful test payment"
                   },
                   "is_dcc_debit": {
                     "type": "boolean",
@@ -151,15 +151,14 @@
                       true,
                       false
                     ],
-                    "description": "* `true` - the transaction will be carried out using an alternative DCC amount.\n* `false` - the transaction will be carried out without DCC."
+                    "description": "* `true` - the transaction will be carried out using an alternative DCC amount.\n* `false` - the transaction will be carried out without DCC"
                   },
                   "prepare": {
                     "type": "string",
                     "enum": [
-                      "1",
                       "tariffs"
                     ],
-                    "description": "* `tariffs` - get DCC rate and alternative currency."
+                    "description": "* `tariffs` - get DCC rate and alternative currency"
                   },
                   "sender": {
                     "type": "object",

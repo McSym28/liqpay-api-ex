@@ -150,7 +150,7 @@
                     "enum": [
                       "1"
                     ],
-                    "description": "Enables the testing environment for developers. Payer card will not be charged. To enable testing environment you will need to transmit value `1`. All test payments will have the status `sandbox` - successful test payment."
+                    "description": "Enables the testing environment for developers. Payer card will not be charged. To enable testing environment you will need to transmit value `1`. All test payments will have the status `sandbox` - successful test payment"
                   },
                   "sender": {
                     "type": "object",
