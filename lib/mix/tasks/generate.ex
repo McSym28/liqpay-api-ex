@@ -5,8 +5,15 @@ defmodule Mix.Tasks.Generate do
   alias Jason.OrderedObject
 
   @liqpay_base_url "https://www.liqpay.ua"
-
   @api_url "#{@liqpay_base_url}/en/doc/api"
+
+  @internet_acquiring_regular_payment_fields ~w(subscribe subscribe_date_start subscribe_periodicity)
+  @partnership_card_fields ~w(card card_cvv card_exp_month card_exp_year)
+
+  # @date_time_liqpay_format "date-time-liqpay"
+  @date_time_liqpay_format "date-time"
+  # @date_liqpay_format "date-liqpay"
+  @date_liqpay_format :date
 
   require Record
 
@@ -1714,7 +1721,7 @@ defmodule Mix.Tasks.Generate do
                      type: :string,
                      description: "compensation_id of enrollment"
                    }},
-                  {"create_date", %{type: :string, format: "date-time"}}
+                  {"create_date", %{type: :string, format: @date_time_liqpay_format}}
                 ])
             }
           ]
@@ -1796,7 +1803,7 @@ defmodule Mix.Tasks.Generate do
         type: :object,
         properties:
           OrderedObject.new([
-            {"date", %{type: :string, format: "date"}},
+            {"date", %{type: :string, format: @date_liqpay_format}},
             {"bank", %{type: :string}},
             {"baseCurrency", %{type: :integer}},
             {"baseCurrencyLit", %{type: :string}},
@@ -2658,8 +2665,7 @@ defmodule Mix.Tasks.Generate do
        when datetime_property in ~w(expired_date) and
               not is_map_key(property, :format) do
     property
-    # |> Map.put(:format, "date-time-liqpay")
-    |> Map.put(:format, "date-time")
+    |> Map.put(:format, @date_time_liqpay_format)
     |> initialize_property_processing(path)
   end
 
@@ -2669,8 +2675,7 @@ defmodule Mix.Tasks.Generate do
        )
        when not is_map_key(property, :format) do
     property
-    # |> Map.put(:format, "date-time-liqpay")
-    |> Map.put(:format, "date-time")
+    |> Map.put(:format, @date_time_liqpay_format)
     |> initialize_property_processing(path)
   end
 
@@ -2903,12 +2908,6 @@ defmodule Mix.Tasks.Generate do
     end)
     |> inspect()
   end
-
-  @regular_payment_fields ~w(subscribe subscribe_date_start subscribe_periodicity)
-  @card_fields ~w(card card_cvv card_exp_month card_exp_year)
-
-  defp patch_object_schema_examples(
-         _example,
          %{type: :object} = schema,
          [
            key,
@@ -2918,10 +2917,10 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = _path
        )
-       when key in @card_fields do
+       when key in @partnership_card_fields do
     schema
   end
-
+       when key in @partnership_card_fields do
   defp patch_object_schema_examples(
          _example,
          %{type: :object} = schema,
@@ -2935,7 +2934,7 @@ defmodule Mix.Tasks.Generate do
        when key in @card_fields do
     schema
   end
-
+       when key in @partnership_card_fields do
   defp patch_object_schema_examples(
          example,
          %{type: :object} = schema,
@@ -2944,7 +2943,7 @@ defmodule Mix.Tasks.Generate do
        when key in @regular_payment_fields do
     patch_schema_examples(%{"regular_payment" => %{key => example}}, schema, rest_path)
   end
-
+       when key in @internet_acquiring_regular_payment_fields do
   defp patch_object_schema_examples(
          example,
          %{type: :object} = schema,
@@ -2953,7 +2952,7 @@ defmodule Mix.Tasks.Generate do
        when key in @regular_payment_fields do
     patch_object_schema_examples(
       example,
-      schema,
+       when key in @internet_acquiring_regular_payment_fields do
       [key, {:schema, :request}, section, section(id: "internet_acquiring")]
     )
   end
