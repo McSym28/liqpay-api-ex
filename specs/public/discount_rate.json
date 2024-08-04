@@ -22,7 +22,10 @@
                 "properties": {
                   "year": {
                     "type": "string",
-                    "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`, for example - 2014"
+                    "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`",
+                    "examples": [
+                      "2014"
+                    ]
                   }
                 }
               }

@@ -79,6 +79,7 @@
                     "type": "string",
                     "description": "Shop phone number",
                     "examples": [
+                      "+380950000001",
                       "380950000001"
                     ]
                   },
@@ -145,15 +146,18 @@
                     "properties": {
                       "law_okpo": {
                         "type": "string",
-                        "description": "USREOU of an enterprise. The maximum length is 255 characters"
+                        "description": "USREOU of an enterprise",
+                        "maxLength": 255
                       },
                       "law_name": {
                         "type": "string",
-                        "description": "Enterprise name. The maximum length is 255 characters"
+                        "description": "Enterprise name",
+                        "maxLength": 255
                       },
                       "law_iban": {
                         "type": "string",
-                        "description": "Iban of an enterprise. The maximum length is 255 characters"
+                        "description": "Iban of an enterprise",
+                        "maxLength": 255
                       },
                       "law_contacts": {
                         "type": "object",
@@ -187,7 +191,10 @@
                           },
                           "citizenship": {
                             "type": "string",
-                            "description": "Nationality of the head of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                            "description": "Nationality of the head of an enterprise. Enter the country in Latin letters",
+                            "examples": [
+                              "Ukraine"
+                            ]
                           },
                           "residency": {
                             "type": "string",
@@ -215,7 +222,10 @@
                             },
                             "citizenship": {
                               "type": "string",
-                              "description": "Nationality of the owner of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                              "description": "Nationality of the owner of an enterprise. Enter the country in Latin letters",
+                              "examples": [
+                                "Ukraine"
+                              ]
                             },
                             "share_in_capital": {
                               "type": "string",
@@ -248,7 +258,10 @@
                             },
                             "citizenship": {
                               "type": "string",
-                              "description": "Nationality of the owner of major shareholding. Enter the country in Latin letters. Example: Ukraine. Transfer if the owner is an individual"
+                              "description": "Nationality of the owner of major shareholding. Enter the country in Latin letters. Transfer if the owner is an individual",
+                              "examples": [
+                                "Ukraine"
+                              ]
                             },
                             "share_in_capital": {
                               "type": "string",
@@ -260,11 +273,13 @@
                             },
                             "company_name": {
                               "type": "string",
-                              "description": "Enterprise name. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                              "description": "Enterprise name. Transfer if the owner is a legal entity",
+                              "maxLength": 255
                             },
                             "company_okpo": {
                               "type": "string",
-                              "description": "USREOU of an enterprise. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                              "description": "USREOU of an enterprise. Transfer if the owner is a legal entity",
+                              "maxLength": 255
                             }
                           }
                         }
@@ -362,6 +377,7 @@
                     "type": "string",
                     "description": "Shop phone number",
                     "examples": [
+                      "+380950000001",
                       "380950000001"
                     ]
                   },
@@ -511,15 +527,18 @@
                     "properties": {
                       "law_okpo": {
                         "type": "string",
-                        "description": "USREOU of an enterprise. The maximum length is 255 characters"
+                        "description": "USREOU of an enterprise",
+                        "maxLength": 255
                       },
                       "law_name": {
                         "type": "string",
-                        "description": "Enterprise name. The maximum length is 255 characters"
+                        "description": "Enterprise name",
+                        "maxLength": 255
                       },
                       "law_iban": {
                         "type": "string",
-                        "description": "Iban of an enterprise. The maximum length is 255 characters"
+                        "description": "Iban of an enterprise",
+                        "maxLength": 255
                       },
                       "law_contacts": {
                         "type": "object",
@@ -553,7 +572,10 @@
                           },
                           "citizenship": {
                             "type": "string",
-                            "description": "Nationality of the head of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                            "description": "Nationality of the head of an enterprise. Enter the country in Latin letters",
+                            "examples": [
+                              "Ukraine"
+                            ]
                           },
                           "residency": {
                             "type": "string",
@@ -581,7 +603,10 @@
                             },
                             "citizenship": {
                               "type": "string",
-                              "description": "Nationality of the owner of an enterprise. Enter the country in Latin letters. Example: Ukraine"
+                              "description": "Nationality of the owner of an enterprise. Enter the country in Latin letters",
+                              "examples": [
+                                "Ukraine"
+                              ]
                             },
                             "share_in_capital": {
                               "type": "string",
@@ -614,7 +639,10 @@
                             },
                             "citizenship": {
                               "type": "string",
-                              "description": "Nationality of the owner of major shareholding. Enter the country in Latin letters. Example: Ukraine. Transfer if the owner is an individual"
+                              "description": "Nationality of the owner of major shareholding. Enter the country in Latin letters. Transfer if the owner is an individual",
+                              "examples": [
+                                "Ukraine"
+                              ]
                             },
                             "share_in_capital": {
                               "type": "string",
@@ -626,11 +654,13 @@
                             },
                             "company_name": {
                               "type": "string",
-                              "description": "Enterprise name. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                              "description": "Enterprise name. Transfer if the owner is a legal entity",
+                              "maxLength": 255
                             },
                             "company_okpo": {
                               "type": "string",
-                              "description": "USREOU of an enterprise. The maximum length is 255 characters. Transfer if the owner is a legal entity"
+                              "description": "USREOU of an enterprise. Transfer if the owner is a legal entity",
+                              "maxLength": 255
                             }
                           }
                         }
@@ -826,7 +856,8 @@
                   },
                   "mcc_code": {
                     "type": "number",
-                    "description": "MCC Code Meaning. Maximum length 4 characters"
+                    "description": "MCC Code Meaning",
+                    "maxLength": 4
                   },
                   "public_key": {
                     "type": "string",

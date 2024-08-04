@@ -203,7 +203,11 @@
                   },
                   "phone": {
                     "type": "string",
-                    "description": "The phone number to which the invoice will be sent as a push notification to the Privat24 mobile application (`phone` or `email` required parameters for transmission)"
+                    "description": "The phone number to which the invoice will be sent as a push notification to the Privat24 mobile application (`phone` or `email` required parameters for transmission)",
+                    "examples": [
+                      "+380950000001",
+                      "380950000001"
+                    ]
                   },
                   "action_payment": {
                     "type": "string",

@@ -54,6 +54,7 @@
                     "type": "string",
                     "description": "Shop phone number",
                     "examples": [
+                      "+380950000001",
                       "380950000001"
                     ]
                   }

@@ -769,7 +769,7 @@
                   },
                   "date": {
                     "type": "string",
-                    "description": "If the `compensation_id` parameter is unknown, the payment date for which you want to receive the registry is being passed. For example, `2021-11-23`",
+                    "description": "If the `compensation_id` parameter is unknown, the payment date for which you want to receive the registry is being passed",
                     "examples": [
                       "2021-11-23"
                     ]

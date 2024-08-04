@@ -2844,7 +2844,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_maximum_length(%{description: description} = property, _path) do
-    ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+symbols/
+    ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+(?:character|symbol)s?/
     |> Regex.scan(description)
     |> case do
       [[full_match, "", max_length]] ->
@@ -3276,7 +3276,6 @@ defmodule Mix.Tasks.Generate do
        when not is_map_key(property, :default) do
     ~r/\s*\(\s*default\s+"(\w+)"\s*\)(?=\.|$)/ui
     |> Regex.scan(description)
-    |> IO.inspect(label: description)
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
@@ -3358,34 +3357,209 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_format(property, _path), do: property
 
-  defp parse_property_examples(%{description: description} = property, _path) do
-    ~r/(?:\.\s+)?(?:For\s+example):?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/
+  defp parse_property_examples(%{description: description} = property, path) do
+    ~r/(?:\.\s+)?(?:For\s+example)[:,]?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/
     |> Regex.scan(description)
     |> case do
       [[full_match, examples_match]] ->
-        process_examples_match_in_description(property, full_match, examples_match)
+        property
+        |> process_examples_match_in_description(full_match, examples_match)
+        |> parse_property_examples_specific(path)
 
       [[full_match, examples_match, explanation]] ->
         description_new = String.replace(description, full_match, "#{full_match}. #{explanation}")
-        property_new = %{property | description: description_new}
-        process_examples_match_in_description(property_new, full_match, examples_match)
+
+        %{property | description: description_new}
+        |> process_examples_match_in_description(full_match, examples_match)
+        |> parse_property_examples_specific(path)
 
       [] ->
-        property
+        parse_property_examples_specific(property, path)
     end
   end
 
-  defp parse_property_examples(property, _path), do: property
+  defp parse_property_examples(property, path),
+    do: parse_property_examples_specific(property, path)
+
+  defp parse_property_examples_specific(
+         %{description: description} = property,
+         ["phone", {:schema, :request} | _] = _path
+       ) do
+    ~r/(?:\.\s+)?For\s+example:?(.*?)(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, examples]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        ~r/\s*(\+?\d+)(?:\s+\(\s*\w+\s+\+\))?/
+        |> Regex.scan(examples, capture: :all_but_first)
+        |> Enum.reduce(%{property | description: description_new}, fn [example], property ->
+          example_new = parse_schema_value(example, property)
+          Map.update(property, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+        end)
+
+      [] ->
+        examples = ["+380950000001", "380950000001"]
+        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+    end
+  end
+
+  defp parse_property_examples_specific(
+         %{description: description} = property,
+         [
+           "citizenship",
+           "law_cto_info",
+           "aggregator",
+           {:schema, :request}
+           | [endpoint(), section(id: "shop_create"), section(id: "partnership")]
+         ] = _path
+       ) do
+    ~r/(?:\.\s+)?Example:?\s*(\w+)\s*(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, example]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        example_new = parse_schema_value(example, property)
+
+        %{property | description: description_new}
+        |> Map.update(:examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+
+      [] ->
+        examples = ["Ukraine"]
+        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+    end
+  end
+
+  defp parse_property_examples_specific(
+         property,
+         [
+           "citizenship",
+           [],
+           _
+           | [
+               "aggregator",
+               {:schema, :request},
+               endpoint(),
+               section(id: "shop_create"),
+               section(id: "partnership")
+             ] = rest_path
+         ] = _path
+       ) do
+    parse_property_examples_specific(property, ["citizenship", "law_cto_info" | rest_path])
+  end
+
+  defp parse_property_examples_specific(
+         %{description: description} = property,
+         [
+           "browserLanguage",
+           "threeDSInfo",
+           {:schema, :request},
+           endpoint(id: "MPI"),
+           section(id: "confirmation")
+         ] =
+           _path
+       ) do
+    ~r/(?:\.\s+)?For\s+example[:,]?\s*([\w\-]+)(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, example]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        example_new = parse_schema_value(example, property)
+
+        %{property | description: description_new}
+        |> Map.update(:examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+
+      [] ->
+        examples = ["en-US"]
+        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+    end
+  end
+
+  defp parse_property_examples_specific(
+         %{description: description} = property,
+         [
+           "browserTZ",
+           "threeDSInfo",
+           {:schema, :request},
+           endpoint(id: "MPI"),
+           section(id: "confirmation")
+         ] =
+           _path
+       ) do
+    ~r/(?:\.\s+)?Example\s+of\s+[^\:]+\:(.*?)(?=\.|$)/uis
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, examples]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        ~r/[\-\-]\s*if\s+UTC\s+(?:is\s+)?[\-\–\+]\d+\s+hours\s*,\s*then\s+the\s+value\s+is\s+([\-\–]?\d+)\s*/iu
+        |> Regex.scan(examples, capture: :all_but_first)
+        |> Enum.reduce(%{property | description: description_new}, fn [example], property ->
+          example_new = parse_schema_value(example, property)
+          Map.update(property, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+        end)
+
+      [] ->
+        examples = [300, -300]
+        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+    end
+  end
+
+  defp parse_property_examples_specific(
+         %{description: description} = property,
+         ["year", {:schema, :request}, endpoint(id: "discount_rate"), section(id: "public")] =
+           _path
+       ) do
+    ~r/,\s*for\s+example\s*[\-\–]\s*(\d+)(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, example]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        example_new = parse_schema_value(example, property)
+
+        %{property | description: description_new}
+        |> Map.update(:examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+
+      [] ->
+        examples = ["Ukraine"]
+        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+    end
+  end
+
+  defp parse_property_examples_specific(property, _path), do: property
 
   defp process_examples_match_in_description(
          %{description: description} = property,
          full_match,
          match
        ) do
-    examples =
-      ~r/`([^`]+?)`/
-      |> Regex.scan(match, capture: :all_but_first)
-      |> Enum.map(fn [example] ->
+    description_new =
+      description
+      |> String.replace(full_match, "")
+      |> String.replace(~r/^\s*\.\s*/, "")
+
+    ~r/`([^`]+?)`/
+    |> Regex.scan(match, capture: :all_but_first)
+    |> Enum.reduce(%{property | description: description_new}, fn [example], property ->
+      example_new =
         ~r/^«(.+)»$/s
         |> Regex.scan(example, capture: :all_but_first)
         |> case do
@@ -3393,15 +3567,9 @@ defmodule Mix.Tasks.Generate do
           [] -> example
         end
         |> parse_schema_value(property)
-      end)
-      |> Enum.uniq()
 
-    description_new =
-      description
-      |> String.replace(full_match, "")
-      |> String.trim()
-
-    Map.merge(property, %{examples: examples, description: description_new})
+      Map.update(property, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+    end)
   end
 
   defp node_classes(node) do

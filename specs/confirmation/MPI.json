@@ -181,23 +181,31 @@
                     "properties": {
                       "notificationURL": {
                         "type": "string",
-                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified.\nThe maximum length is 256 characters"
+                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified",
+                        "maxLength": 256
                       },
                       "browserLanguage": {
                         "type": "string",
-                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser. For example, en-US.\nThe maximum length is 8 characters"
+                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser",
+                        "maxLength": 8,
+                        "examples": [
+                          "en-US"
+                        ]
                       },
                       "threeDSRequestorURL": {
                         "type": "string",
-                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information.\nThe maximum length is 2048 characters"
+                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information",
+                        "maxLength": 2048
                       },
                       "browserScreenHeight": {
                         "type": "string",
-                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser.\nThe maximum length is 6 characters"
+                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser",
+                        "maxLength": 6
                       },
                       "browserColorDepth": {
                         "type": "string",
-                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nThe maximum length is 2 characters.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits"
+                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits",
+                        "maxLength": 2
                       },
                       "browserJavascriptEnabled": {
                         "default": true,
@@ -211,19 +219,26 @@
                       },
                       "browserScreenWidth": {
                         "type": "string",
-                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser.\nThe maximum length is 6 characters"
+                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser",
+                        "maxLength": 6
                       },
                       "browserAcceptHeader": {
                         "type": "string",
-                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part"
+                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part",
+                        "maxLength": 2048
                       },
                       "browserTZ": {
                         "type": "string",
-                        "description": "Time zone offset between Greenwich and the payer's local time, in minutes. Example of time zone offset values in minutes:\n- if UTC is –5 hours, then the value is 300,\n- if UTC +5 hours, then the value is –300"
+                        "description": "Time zone offset between Greenwich and the payer's local time, in minutes",
+                        "examples": [
+                          "300",
+                          "–300"
+                        ]
                       },
                       "browserUserAgent": {
                         "type": "string",
-                        "description": "The precise content of the user-agent HTTP header.\nThe maximum length is 2048 characters.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part"
+                        "description": "The precise content of the user-agent HTTP header.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part",
+                        "maxLength": 2048
                       }
                     }
                   },
