@@ -54,7 +54,10 @@ defmodule Mix.Tasks.Generate do
     title: nil,
     id: nil,
     request: nil,
-    response: nil
+    response: nil,
+    method: :post,
+    parameters: nil,
+    url: nil
   )
 
   Record.defrecordp(:parse_settings,
@@ -231,43 +234,66 @@ defmodule Mix.Tasks.Generate do
                 |> Enum.map(fn endpoint(
                                  id: id,
                                  request: request_schema,
-                                 response: response_schema
+                                 response: response_schema,
+                                 method: method,
+                                 parameters: parameters,
+                                 url: url
                                ) ->
                   url =
-                    [id | endpoint_path]
-                    |> Enum.reverse()
-                    |> then(&["/" | &1])
-                    |> Path.join()
+                    url ||
+                      [id | endpoint_path]
+                      |> Enum.reverse()
+                      |> then(&["/" | &1])
+                      |> Path.join()
 
                   {url,
-                   OrderedObject.new(
-                     post:
-                       OrderedObject.new(
-                         summary: "Checkout",
-                         operationId: "checkout",
-                         requestBody:
-                           OrderedObject.new(
-                             content:
-                               OrderedObject.new([
-                                 {"application/json", OrderedObject.new(schema: request_schema)}
-                               ])
-                           ),
-                         responses:
-                           OrderedObject.new([
-                             {"200",
-                              OrderedObject.new(
-                                description: "200",
-                                content:
-                                  OrderedObject.new([
-                                    {"application/json",
-                                     OrderedObject.new(
-                                       schema: response_schema || %{type: :object}
-                                     )}
-                                  ])
-                              )}
-                           ])
-                       )
-                   )}
+                   OrderedObject.new([
+                     {method,
+                      OrderedObject.new(
+                        List.flatten([
+                          [summary: "Checkout", operationId: "checkout"],
+                          if parameters do
+                            [parameters: parameters]
+                          else
+                            []
+                          end,
+                          if request_schema do
+                            [
+                              requestBody:
+                                OrderedObject.new(
+                                  content:
+                                    OrderedObject.new([
+                                      {"application/json",
+                                       OrderedObject.new(schema: request_schema)}
+                                    ])
+                                )
+                            ]
+                          else
+                            []
+                          end,
+                          if response_schema do
+                            [
+                              responses:
+                                OrderedObject.new([
+                                  {"200",
+                                   OrderedObject.new(
+                                     description: "200",
+                                     content:
+                                       OrderedObject.new([
+                                         {"application/json",
+                                          OrderedObject.new(
+                                            schema: response_schema || %{type: :object}
+                                          )}
+                                       ])
+                                   )}
+                                ])
+                            ]
+                          else
+                            []
+                          end
+                        ])
+                      )}
+                   ])}
                 end)
                 |> OrderedObject.new()
             )
@@ -588,6 +614,119 @@ defmodule Mix.Tasks.Generate do
 
     endpoints_new = [previous_endpoint, top_endpoint_new | rest_endpoints]
     {endpoints_new, code_blocks_new, path}
+  end
+
+  defp process_block_data(
+         {[] = endpoints, code_blocks,
+          [section(id: "exchange" = id, title: title) | [section(id: "public")] = rest_path] =
+            _path},
+         block(update_operation: :new_endpoint) = _block_data,
+         _block_parse_settings
+       ) do
+    parameters = [
+      %{
+        name: "coursid",
+        in: :query,
+        required: true,
+        schema: %{type: :integer, enum: [5, 11]},
+        description: """
+        Possible values:
+        * `5` - Cash rate of PrivatBank (in the branches)
+        * `11` - Non-cash exchange rate of PrivatBank (conversion by cards, Privat24, replenishment of deposits)
+        """
+      }
+    ]
+
+    endpoint =
+      endpoint(
+        id: id,
+        title: title,
+        method: :get,
+        parameters: parameters,
+        url: "/p24api/pubinfo?exchange&json"
+      )
+
+    endpoints_new = [endpoint | endpoints]
+    path_new = [endpoint | rest_path]
+
+    {endpoints_new, code_blocks, path_new}
+  end
+
+  defp process_block_data(
+         {[] = endpoints, code_blocks,
+          [section(id: "archive" = id, title: title) | [section(id: "public")] = rest_path] =
+            _path},
+         block(update_operation: :new_endpoint) = _block_data,
+         _block_parse_settings
+       ) do
+    parameters = [
+      %{
+        name: "date",
+        in: :query,
+        required: true,
+        schema: %{type: :string, format: @date_liqpay_format},
+        description: "Exchange rate date"
+      }
+    ]
+
+    endpoint =
+      endpoint(
+        id: id,
+        title: title,
+        method: :get,
+        parameters: parameters,
+        url: "/p24api/exchange_rates?json"
+      )
+
+    endpoints_new = [endpoint | endpoints]
+    path_new = [endpoint | rest_path]
+
+    {endpoints_new, code_blocks, path_new}
+  end
+
+  defp process_block_data(
+         {[] = endpoints, code_blocks,
+          [section(id: "discount_rate" = id, title: title) | [section(id: "public")] = rest_path] =
+            _path},
+         block(update_operation: :new_endpoint) = block_data,
+         block_parse_settings
+       ) do
+    endpoint = endpoint(id: id, title: title, method: :get, url: "/ratenbu.php")
+    endpoints_new = [endpoint | endpoints]
+    path_new = [endpoint | rest_path]
+
+    block_data_new =
+      block(block_data,
+        is_request: true,
+        update_operation: :patch,
+        update_name: nil
+      )
+
+    {[
+       endpoint(
+         request: %{
+           type: :object,
+           properties: request_properties
+         }
+       ) = endpoint_new
+       | rest_endpoints
+     ], code_blocks_new,
+     path_new} =
+      process_block_data(
+        {endpoints_new, code_blocks, path_new},
+        block_data_new,
+        block_parse_settings
+      )
+
+    parameters =
+      Enum.map(request_properties, fn {"year" = key, %{description: description} = schema} ->
+        schema_new = Map.delete(schema, :description)
+        %{name: key, in: :query, required: true, schema: schema_new, description: description}
+      end)
+
+    endpoint_new = endpoint(endpoint_new, request: nil, parameters: parameters)
+    endpoints_new = [endpoint_new | rest_endpoints]
+    {endpoints_new, code_blocks_new, path_new}
   end
 
   defp process_block_data(

@@ -10,29 +10,25 @@
     }
   ],
   "paths": {
-    "/public/exchange": {
-      "post": {
+    "/p24api/pubinfo?exchange&json": {
+      "get": {
         "summary": "Checkout",
         "operationId": "checkout",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "USD": {
-                    "type": "string",
-                    "description": "U.S. dollar"
-                  },
-                  "EUR": {
-                    "type": "string",
-                    "description": "Euro"
-                  }
-                }
-              }
+        "parameters": [
+          {
+            "in": "query",
+            "name": "coursid",
+            "description": "Possible values:\n* `5` - Cash rate of PrivatBank (in the branches)\n* `11` - Non-cash exchange rate of PrivatBank (conversion by cards, Privat24, replenishment of deposits)\n",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "enum": [
+                5,
+                11
+              ]
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "200",

@@ -10,28 +10,24 @@
     }
   ],
   "paths": {
-    "/public/discount_rate": {
-      "post": {
+    "/ratenbu.php": {
+      "get": {
         "summary": "Checkout",
         "operationId": "checkout",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "year": {
-                    "type": "string",
-                    "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`",
-                    "examples": [
-                      "2014"
-                    ]
-                  }
-                }
-              }
+        "parameters": [
+          {
+            "in": "query",
+            "name": "year",
+            "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "examples": [
+                "2014"
+              ]
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "200",

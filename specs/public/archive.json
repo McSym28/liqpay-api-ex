@@ -10,53 +10,22 @@
     }
   ],
   "paths": {
-    "/public/archive": {
-      "post": {
+    "/p24api/exchange_rates?json": {
+      "get": {
         "summary": "Checkout",
         "operationId": "checkout",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "USD": {
-                    "type": "string",
-                    "description": "U.S. dollar"
-                  },
-                  "EUR": {
-                    "type": "string",
-                    "description": "Euro"
-                  },
-                  "CHF": {
-                    "type": "string",
-                    "description": "Swiss Franc"
-                  },
-                  "GBP": {
-                    "type": "string",
-                    "description": "British pound"
-                  },
-                  "PLZ": {
-                    "type": "string",
-                    "description": "Polish Zloty"
-                  },
-                  "SEK": {
-                    "type": "string",
-                    "description": "Swedish krone"
-                  },
-                  "XAU": {
-                    "type": "string",
-                    "description": "Gold"
-                  },
-                  "CAD": {
-                    "type": "string",
-                    "description": "Canadian Dollar"
-                  }
-                }
-              }
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "description": "Exchange rate date",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date-liqpay"
             }
           }
-        },
+        ],
         "responses": {
           "200": {
             "description": "200",
