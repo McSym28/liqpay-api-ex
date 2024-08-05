@@ -257,18 +257,6 @@
               }
             }
           }
-        },
-        "responses": {
-          "200": {
-            "description": "200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
         }
       }
     },
@@ -368,18 +356,6 @@
                     "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
                     "maxLength": 510
                   }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
                 }
               }
             }
