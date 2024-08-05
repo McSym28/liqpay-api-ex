@@ -224,32 +224,53 @@
                     "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
                   },
                   "goods": {
-                    "type": "string",
+                    "type": "array",
                     "description": "Units of measurement can be passed in two ways: independently through the `unit` parameter, or using the invoice_units API reference",
-                    "examples": [
-                      [
-                        {
-                          "amount": 1,
-                          "count": 2,
-                          "name": "USB",
-                          "unit": "pcs."
-                        },
-                        {
-                          "amount": 10,
-                          "count": 1,
-                          "name": "Phone",
-                          "unit": "pcs."
-                        }
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "amount",
+                        "count",
+                        "unit",
+                        "price"
                       ],
-                      [
-                        {
-                          "amount": 100,
-                          "count": 2,
-                          "name": "телефон",
-                          "unit": "шт."
+                      "properties": {
+                        "amount": {
+                          "type": "number",
+                          "description": "Quantity/volume",
+                          "examples": [
+                            1,
+                            10,
+                            100
+                          ]
+                        },
+                        "count": {
+                          "type": "integer",
+                          "description": "Count",
+                          "examples": [
+                            2,
+                            1
+                          ]
+                        },
+                        "unit": {
+                          "type": "string",
+                          "description": "Unit",
+                          "examples": [
+                            "pcs.",
+                            "шт."
+                          ]
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name",
+                          "examples": [
+                            "USB",
+                            "Phone",
+                            "телефон"
+                          ]
                         }
-                      ]
-                    ]
+                      }
+                    }
                   },
                   "language": {
                     "default": "uk",

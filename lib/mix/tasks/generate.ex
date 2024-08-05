@@ -2792,14 +2792,44 @@ defmodule Mix.Tasks.Generate do
          %{type: :string} = property,
          [
            rate_property,
-           [], "exchangeRate",
+           [],
+           "exchangeRate",
            {:schema, :response},
            endpoint(id: "archive"),
            section(id: "public")
          ] = path
-       ) when rate_property in ~w(saleRateNB/purchaseRateNB saleRateNB purchaseRateNB saleRate purchaseRate) do
+       )
+       when rate_property in ~w(saleRateNB/purchaseRateNB saleRateNB purchaseRateNB saleRate purchaseRate) do
     property
     |> Map.put(:type, :number)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           "goods",
+           {:schema, :request},
+           endpoint(id: "issue"),
+           section(id: "invoice"),
+           section(id: "internet_acquiring")
+         ] = path
+       ) do
+    property
+    |> Map.merge(%{
+      type: :array,
+      items: %{
+        type: :object,
+        required: ["amount", "count", "unit", "price"],
+        properties:
+          OrderedObject.new([
+            {"amount", %{type: :number, description: "Quantity/volume"}},
+            {"count", %{type: :integer, description: "Count"}},
+            {"unit", %{type: :string, description: "Unit"}},
+            {"name", %{type: :string, description: "Name"}}
+          ])
+      }
+    })
     |> initialize_property_processing(path)
   end
 
