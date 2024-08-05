@@ -216,11 +216,11 @@
                         "description": "Sender's zip code"
                       },
                       "mpi_eci": {
-                        "type": "number",
+                        "type": "integer",
                         "enum": [
-                          5.0,
-                          6.0,
-                          7.0
+                          5,
+                          6,
+                          7
                         ],
                         "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure"
                       },

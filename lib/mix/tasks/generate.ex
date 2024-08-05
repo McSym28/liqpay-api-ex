@@ -2604,6 +2604,14 @@ defmodule Mix.Tasks.Generate do
 
   defp initialize_property_processing(
          %{type: :number} = property,
+         ["mpi_eci", "sender" | [{:schema, _schema_type}, endpoint(id: "p2pdebit")] = rest_path] =
+           _path
+       ) do
+    initialize_property_processing(property, ["mpi_eci" | rest_path])
+  end
+
+  defp initialize_property_processing(
+         %{type: :number} = property,
          ["id", [], "items", "rro_info", {:schema, :request} | _] = path
        ) do
     property
