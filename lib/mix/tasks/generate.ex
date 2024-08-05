@@ -3537,6 +3537,32 @@ defmodule Mix.Tasks.Generate do
     |> parse_property_enum_specific(path)
   end
 
+  defp parse_property_enum_specific(
+         %{description: description} = property,
+         ["mpi_version", {:schema, :response}, endpoint(id: "MPI"), section(id: "confirmation")] =
+           path
+       )
+       when not is_map_key(property, :enum) do
+    ~r/(?:\.\s+)?Value\s+`"([^`]+?)"`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, enum]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        %{property | description: "`#{enum}`"}
+        |> parse_property_enum_list(path)
+        |> Map.put(:description, description_new)
+
+      [] ->
+        property
+    end
+    |> Map.put_new(:enum, ["2.0"])
+    |> parse_property_enum_specific(path)
+  end
+
   defp parse_property_enum_specific(property, _path), do: property
 
   defp parse_property_default(

@@ -300,7 +300,10 @@
                     },
                     "mpi_version": {
                       "type": "string",
-                      "description": "Returned when the card supports 3DS version 2.0. Value `\"2.0\"`",
+                      "enum": [
+                        "2.0"
+                      ],
+                      "description": "Returned when the card supports 3DS version 2.0",
                       "examples": [
                         "2.0"
                       ]
