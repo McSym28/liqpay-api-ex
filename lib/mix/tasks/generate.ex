@@ -2974,6 +2974,9 @@ defmodule Mix.Tasks.Generate do
     %{schema | oneOf: schemas_new}
   end
 
+  defp patch_schema_examples(nil, schema, _path), do: schema
+  defp patch_schema_examples("null", schema, _path), do: schema
+
   defp patch_schema_examples(example, schema, _path) do
     example_new = parse_schema_value(example, schema)
     Map.update(schema, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
@@ -3862,14 +3865,14 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, examples_match]] ->
         property
-        |> process_examples_match_in_description(full_match, examples_match)
+        |> process_examples_match_in_description(full_match, examples_match, path)
         |> parse_property_examples_specific(path)
 
       [[full_match, examples_match, explanation]] ->
         description_new = String.replace(description, full_match, "#{full_match}. #{explanation}")
 
         %{property | description: description_new}
-        |> process_examples_match_in_description(full_match, examples_match)
+        |> process_examples_match_in_description(full_match, examples_match, path)
         |> parse_property_examples_specific(path)
 
       [] ->
@@ -3882,7 +3885,7 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_examples_specific(
          %{description: description} = property,
-         ["phone", {:schema, :request} | _] = _path
+         ["phone", {:schema, :request} | _] = path
        ) do
     ~r/(?:\.\s+)?For\s+example:?(.*?)(?=\.|$)/ui
     |> Regex.scan(description)
@@ -3896,13 +3899,15 @@ defmodule Mix.Tasks.Generate do
         ~r/\s*(\+?\d+)(?:\s+\(\s*\w+\s+\+\))?/
         |> Regex.scan(examples, capture: :all_but_first)
         |> Enum.reduce(%{property | description: description_new}, fn [example], property ->
-          example_new = parse_schema_value(example, property)
-          Map.update(property, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+          patch_schema_examples(example, property, path)
         end)
 
       [] ->
-        examples = ["+380950000001", "380950000001"]
-        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+        Enum.reduce(
+          ["+380950000001", "380950000001"],
+          property,
+          &patch_schema_examples(&1, &2, path)
+        )
     end
   end
 
@@ -3916,7 +3921,7 @@ defmodule Mix.Tasks.Generate do
            endpoint(),
            section(id: "shop_create"),
            section(id: "partnership")
-         ] = _path
+         ] = path
        ) do
     ~r/(?:\.\s+)?Example:?\s*(\w+)\s*(?=\.|$)/ui
     |> Regex.scan(description)
@@ -3927,14 +3932,10 @@ defmodule Mix.Tasks.Generate do
           |> String.replace(full_match, "")
           |> String.replace(~r/^\s*\.\s*/, "")
 
-        example_new = parse_schema_value(example, property)
-
-        %{property | description: description_new}
-        |> Map.update(:examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+        patch_schema_examples(example, %{property | description: description_new}, path)
 
       [] ->
-        examples = ["Ukraine"]
-        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+        patch_schema_examples("Ukraine", property, path)
     end
   end
 
@@ -3965,7 +3966,7 @@ defmodule Mix.Tasks.Generate do
            endpoint(id: "MPI"),
            section(id: "confirmation")
          ] =
-           _path
+           path
        ) do
     ~r/(?:\.\s+)?For\s+example[:,]?\s*([\w\-]+)(?=\.|$)/ui
     |> Regex.scan(description)
@@ -3976,14 +3977,10 @@ defmodule Mix.Tasks.Generate do
           |> String.replace(full_match, "")
           |> String.replace(~r/^\s*\.\s*/, "")
 
-        example_new = parse_schema_value(example, property)
-
-        %{property | description: description_new}
-        |> Map.update(:examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+        patch_schema_examples(example, %{property | description: description_new}, path)
 
       [] ->
-        examples = ["en-US"]
-        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+        patch_schema_examples("en-US", property, path)
     end
   end
 
@@ -3996,7 +3993,7 @@ defmodule Mix.Tasks.Generate do
            endpoint(id: "MPI"),
            section(id: "confirmation")
          ] =
-           _path
+           path
        ) do
     ~r/(?:\.\s+)?Example\s+of\s+[^\:]+\:(.*?)(?=\.|$)/uis
     |> Regex.scan(description)
@@ -4010,20 +4007,18 @@ defmodule Mix.Tasks.Generate do
         ~r/[\-\-]\s*if\s+UTC\s+(?:is\s+)?[\-\–\+]\d+\s+hours\s*,\s*then\s+the\s+value\s+is\s+([\-\–]?\d+)\s*/iu
         |> Regex.scan(examples, capture: :all_but_first)
         |> Enum.reduce(%{property | description: description_new}, fn [example], property ->
-          example_new = parse_schema_value(example, property)
-          Map.update(property, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+          patch_schema_examples(example, property, path)
         end)
 
       [] ->
-        examples = [300, -300]
-        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+        Enum.reduce([300, -300], property, &patch_schema_examples(&1, &2, path))
     end
   end
 
   defp parse_property_examples_specific(
          %{description: description} = property,
          ["year", {:schema, :request}, endpoint(id: "discount_rate"), section(id: "public")] =
-           _path
+           path
        ) do
     ~r/,\s*for\s+example\s*[\-\–]\s*(\d+)(?=\.|$)/ui
     |> Regex.scan(description)
@@ -4034,14 +4029,10 @@ defmodule Mix.Tasks.Generate do
           |> String.replace(full_match, "")
           |> String.replace(~r/^\s*\.\s*/, "")
 
-        example_new = parse_schema_value(example, property)
-
-        %{property | description: description_new}
-        |> Map.update(:examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+        patch_schema_examples(example, %{property | description: description_new}, path)
 
       [] ->
-        examples = ["Ukraine"]
-        Map.update(property, :examples, examples, &Enum.uniq(&1 ++ examples))
+        patch_schema_examples("2014", property, path)
     end
   end
 
@@ -4050,7 +4041,8 @@ defmodule Mix.Tasks.Generate do
   defp process_examples_match_in_description(
          %{description: description} = property,
          full_match,
-         match
+         match,
+         path
        ) do
     description_new =
       description
@@ -4067,9 +4059,8 @@ defmodule Mix.Tasks.Generate do
           [[stripped_example]] -> stripped_example
           [] -> example
         end
-        |> parse_schema_value(property)
 
-      Map.update(property, :examples, [example_new], &Enum.uniq(&1 ++ [example_new]))
+      patch_schema_examples(example_new, property, path)
     end)
   end
 

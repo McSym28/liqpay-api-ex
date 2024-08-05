@@ -312,15 +312,13 @@
                       "type": "string",
                       "description": "Returned when the card supports 3DS version 2.0. The form to which the client should be sent for authentication. The encrypted verification result will be returned by the issuer to notificationURL in the parameter: `cres`. To make a payment with passed 3DS, when creating a payment, you need to pass parameter - `cres` with the cres value that was received from the issuing bank",
                       "examples": [
-                        "< form action = 'https://acs4.privatbank.ua/acs/creq' method = 'post' > < input type = 'hidden' name = 'creq' value = 'eyJhY3NUcmFuc0lEIjoiNDJlYmRkOWMtNzU0Zi00YzMwLTg5NDMtNDJhODQzMDY4ZTMwIiwibWVzc2FnZVR5cGUiOiJDUmVxIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiZTc1YmEyOGItNjE0YS00NDE5LWFjMzQtNzkxZDlmMjkwZjE3IiwiY2hhbGxlbmdlV2luZG93U2l6ZSI6IjAyIn0=' / > < /form>",
-                        "null"
+                        "< form action = 'https://acs4.privatbank.ua/acs/creq' method = 'post' > < input type = 'hidden' name = 'creq' value = 'eyJhY3NUcmFuc0lEIjoiNDJlYmRkOWMtNzU0Zi00YzMwLTg5NDMtNDJhODQzMDY4ZTMwIiwibWVzc2FnZVR5cGUiOiJDUmVxIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiZTc1YmEyOGItNjE0YS00NDE5LWFjMzQtNzkxZDlmMjkwZjE3IiwiY2hhbGxlbmdlV2luZG93U2l6ZSI6IjAyIn0=' / > < /form>"
                       ]
                     },
                     "mpi_cres": {
                       "type": "string",
                       "description": "Parameter required for the sender's authentication. Returned when receiving status `Y` or `N`",
                       "examples": [
-                        null,
                         "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
                       ]
                     },
@@ -351,7 +349,6 @@
                       "description": "CRes",
                       "nullable": true,
                       "examples": [
-                        null,
                         "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
                       ]
                     }

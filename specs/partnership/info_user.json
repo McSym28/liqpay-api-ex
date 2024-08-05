@@ -114,10 +114,7 @@
                           },
                           "logo": {
                             "type": "string",
-                            "description": "Company's logo",
-                            "examples": [
-                              null
-                            ]
+                            "description": "Company's logo"
                           },
                           "name": {
                             "type": "string",

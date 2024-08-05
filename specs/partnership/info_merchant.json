@@ -88,10 +88,7 @@
                     },
                     "company_name": {
                       "type": "string",
-                      "description": "Full company name",
-                      "examples": [
-                        null
-                      ]
+                      "description": "Full company name"
                     },
                     "create_date": {
                       "type": "integer",
@@ -117,17 +114,11 @@
                     },
                     "logo": {
                       "type": "string",
-                      "description": "Company's logo",
-                      "examples": [
-                        null
-                      ]
+                      "description": "Company's logo"
                     },
                     "mfo": {
                       "type": "string",
-                      "description": "Company accounts MFI",
-                      "examples": [
-                        null
-                      ]
+                      "description": "Company accounts MFI"
                     },
                     "name": {
                       "type": "string",
@@ -138,10 +129,7 @@
                     },
                     "okpo": {
                       "type": "string",
-                      "description": "Company accounts OKPO",
-                      "examples": [
-                        null
-                      ]
+                      "description": "Company accounts OKPO"
                     },
                     "phone": {
                       "type": "string",

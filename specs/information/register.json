@@ -138,10 +138,7 @@
                                   "personal",
                                   "promo"
                                 ],
-                                "description": "Bonus type, ",
-                                "examples": [
-                                  null
-                                ]
+                                "description": "Bonus type, "
                               },
                               "channel": {
                                 "type": "string",
@@ -166,10 +163,7 @@
                               "customer": {
                                 "type": "string",
                                 "description": "Unique customer ID in your shop",
-                                "maxLength": 100,
-                                "examples": [
-                                  null
-                                ]
+                                "maxLength": 100
                               },
                               "description": {
                                 "type": "string",
@@ -267,10 +261,7 @@
                               },
                               "sender_email": {
                                 "type": "string",
-                                "description": "Email payer",
-                                "examples": [
-                                  null
-                                ]
+                                "description": "Email payer"
                               },
                               "sender_first_name": {
                                 "type": "string",
@@ -497,10 +488,7 @@
                               "personal",
                               "promo"
                             ],
-                            "description": "Bonus type, ",
-                            "examples": [
-                              null
-                            ]
+                            "description": "Bonus type, "
                           },
                           "channel": {
                             "type": "string",
@@ -525,10 +513,7 @@
                           "customer": {
                             "type": "string",
                             "description": "Unique customer ID in your shop",
-                            "maxLength": 100,
-                            "examples": [
-                              null
-                            ]
+                            "maxLength": 100
                           },
                           "description": {
                             "type": "string",
@@ -626,10 +611,7 @@
                           },
                           "sender_email": {
                             "type": "string",
-                            "description": "Email payer",
-                            "examples": [
-                              null
-                            ]
+                            "description": "Email payer"
                           },
                           "sender_first_name": {
                             "type": "string",
