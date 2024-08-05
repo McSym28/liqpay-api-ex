@@ -10,12 +10,12 @@ defmodule Mix.Tasks.Generate do
   @internet_acquiring_regular_payment_fields ~w(subscribe subscribe_date_start subscribe_periodicity)
   @partnership_card_fields ~w(card card_cvv card_exp_month card_exp_year)
 
-  # @date_time_liqpay_format "date-time-liqpay"
-  @date_time_liqpay_format "date-time"
-  # @date_liqpay_format "date-liqpay"
-  @date_liqpay_format :date
-  # @boolean_yesno_format "boolean-yesno"
-  # @boolean_integer_format "boolean-integer"
+  @date_time_liqpay_format "date-time-liqpay"
+  @date_liqpay_format "date-liqpay"
+  @boolean_yesno_format "boolean-yesno"
+  @boolean_integer_format "boolean-integer"
+  @timestamp_ms_format "timestamp-ms"
+  @month_year_liqpay_format "month-year-liqpay"
 
   require Record
 
@@ -2177,20 +2177,21 @@ defmodule Mix.Tasks.Generate do
          [{:schema, :response}, endpoint(id: "payment_archive"), section(id: "information")] =
            path
        ) do
+    was_empty =
+      case schema do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+
     {properties, required} =
       do_parse_block_properties(
         schema,
         block_data,
         block_parse_settings,
-        path
+        if(was_empty, do: [[], "data" | path], else: path)
       )
 
-    schema
-    |> case do
-      %{properties: properties} -> Enum.empty?(properties)
-      _ -> true
-    end
-    |> if do
+    if was_empty do
       data_items = %{type: :object, properties: properties}
 
       data_items_new =
@@ -2230,20 +2231,21 @@ defmodule Mix.Tasks.Generate do
            path
        )
        when endpoint_id in ~w(compensation_per_day compensation_per_transaction) do
+    was_empty =
+      case schema do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+
     {properties, required} =
       do_parse_block_properties(
         schema,
         block_data,
         block_parse_settings,
-        path
+        if(was_empty, do: [[], "data" | path], else: path)
       )
 
-    schema
-    |> case do
-      %{properties: properties} -> Enum.empty?(properties)
-      _ -> true
-    end
-    |> if do
+    if was_empty do
       data_items = %{type: :object, properties: properties}
 
       data_items_new =
@@ -2277,20 +2279,21 @@ defmodule Mix.Tasks.Generate do
          [{:schema, :response}, endpoint(id: "info_user"), section(id: "partnership")] =
            path
        ) do
+    was_empty =
+      case schema do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
+
     {properties, required} =
       do_parse_block_properties(
         schema,
         block_data,
         block_parse_settings,
-        path
+        if(was_empty, do: [[], "data" | path], else: path)
       )
 
-    schema
-    |> case do
-      %{properties: properties} -> Enum.empty?(properties)
-      _ -> true
-    end
-    |> if do
+    if was_empty do
       {result_property, properties_new} = pop_in(properties, ["result"])
       data_items = %{type: :object, properties: properties_new}
 
@@ -2380,10 +2383,10 @@ defmodule Mix.Tasks.Generate do
         property_schema =
           %{type: type, description: description}
           |> initialize_property_processing(path_new)
+          |> parse_property_format(path_new)
           |> parse_property_maximum_length(path_new)
           |> parse_property_enum(path_new)
           |> parse_property_default(path_new)
-          |> parse_property_format(path_new)
           |> parse_property_examples(path_new)
           |> parse_property_separate_example(example_nodes, path_new)
 
@@ -2575,11 +2578,10 @@ defmodule Mix.Tasks.Generate do
 
   defp initialize_property_processing(
          %{type: :number} = property,
-         ["mpi_eci", [], "data", {:schema, :request} | _] = path
-       ) do
-    property
-    |> Map.put(:type, :integer)
-    |> initialize_property_processing(path)
+         [integer_property, [], "data" | [{:schema, _schema_type} | _] = rest_path] = _path
+       )
+       when integer_property in ~w(version mpi_eci) do
+    initialize_property_processing(property, [integer_property | rest_path])
   end
 
   defp initialize_property_processing(
@@ -2613,6 +2615,143 @@ defmodule Mix.Tasks.Generate do
        ) do
     property
     |> Map.put(:type, :string)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           timestamp_property,
+           {:schema, :request},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       )
+       when timestamp_property in ~w(date_from date_to) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           timestamp_property,
+           {:schema, :request},
+           endpoint(id: "callback")
+         ] = path
+       )
+       when timestamp_property in ~w(completion_date create_date end_date refund_date_last) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           "completion_date",
+           {:schema, :response},
+           endpoint(id: "complete"),
+           section(id: "two_step"),
+           section(id: "internet_acquiring")
+         ] = path
+       ) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           date_property,
+           {:schema, :response},
+           endpoint(id: "register"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = _path
+       )
+       when date_property in ~w(create_date update_date) do
+    property
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           date_property,
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: endpoint_id),
+           section(id: "register"),
+           section(id: "information")
+         ] = _path
+       )
+       when endpoint_id in ~w(compensation_per_day compensation_per_transaction) and
+              date_property in ~w(create_date end_date) do
+    property
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           date_property,
+           {:schema, :response},
+           endpoint(id: "register"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = _path
+       )
+       when date_property in ~w(create_date update_date) do
+    property
+  end
+
+  defp initialize_property_processing(
+         property,
+         [timestamp_property, [], "data" | [{:schema, :response} | _] = rest_path] = _path
+       )
+       when timestamp_property in ~w(create_date end_date) do
+    initialize_property_processing(property, [timestamp_property | rest_path])
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [timestamp_property, {:schema, :response} | _] = path
+       )
+       when timestamp_property in ~w(create_date end_date) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           "update_date",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "info_user"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    property
+    |> Map.put(:type, :integer)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           "update_date",
+           {:schema, :response},
+           endpoint(id: "info_merchant"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    property
+    |> Map.put(:type, :integer)
     |> initialize_property_processing(path)
   end
 
@@ -2842,6 +2981,301 @@ defmodule Mix.Tasks.Generate do
 
     %{schema | properties: properties_new}
   end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [boolean_property, {:schema, _schema_type} | _] = path
+       )
+       when boolean_property in ~w(verifycode) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @boolean_yesno_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [boolean_property, {:schema, _schema_type} | _] = path
+       )
+       when boolean_property in ~w(subscribe prepare sandbox) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @boolean_integer_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @boolean_integer_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [url_property, {:schema, _schema_type} | _] = path
+       )
+       when url_property in ~w(result_url server_url product_url) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, :uri)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [datetime_property, {:schema, _schema_type} | _] = path
+       )
+       when datetime_property in ~w(expired_date) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @date_time_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         ["subscribe_date_start", "regular_payment", {:schema, :request} | _] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @date_time_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         ["rate_date", {:schema, :response}, endpoint(id: "discount_rate"), section(id: "public")] =
+           path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @date_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [
+           "birth_date",
+           "law_cto_info",
+           "aggregator",
+           {:schema, :request},
+           endpoint(),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, :date)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         property,
+         [
+           "birth_date",
+           [],
+           _
+           | [
+               "aggregator",
+               {:schema, :request},
+               endpoint(),
+               section(id: "shop_create"),
+               section(id: "partnership")
+             ] = rest_path
+         ] = _path
+       ) do
+    parse_property_format(property, ["birth_date", "law_cto_info" | rest_path])
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [
+           date_property,
+           {:schema, :response},
+           endpoint(id: "register"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
+       )
+       when date_property in ~w(create_date update_date) and not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, :date)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [
+           "date",
+           {:schema, :request},
+           endpoint(id: endpoint_id),
+           section(id: "register"),
+           section(id: "information")
+         ] = path
+       )
+       when endpoint_id in ~w(compensation_per_day compensation_per_transaction compensation_report compensation_report_p2p) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, :date)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [
+           date_property,
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: endpoint_id),
+           section(id: "register"),
+           section(id: "information")
+         ] = path
+       )
+       when endpoint_id in ~w(compensation_per_day compensation_per_transaction) and
+              date_property in ~w(create_date end_date) and not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @date_time_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [
+           date_property,
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       )
+       when date_property in ~w(create_date end_date) and not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         property,
+         [timestamp_property, [], "data" | [{:schema, :response} | _] = rest_path] = _path
+       )
+       when timestamp_property in ~w(create_date end_date) do
+    parse_property_format(property, [timestamp_property | rest_path])
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [timestamp_property, {:schema, :response} | _] = path
+       )
+       when timestamp_property in ~w(create_date end_date) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [
+           date_property,
+           {:schema, :request},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       )
+       when date_property in ~w(date_from date_to) and not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [
+           timestamp_property,
+           {:schema, :request},
+           endpoint(id: "callback")
+         ] = path
+       )
+       when timestamp_property in ~w(completion_date create_date end_date refund_date_last) and
+              not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :string} = property,
+         [
+           "tokenExpDate",
+           "card_token_info",
+           {:schema, :response},
+           endpoint(id: endpoint_id),
+           section(id: "tokens")
+         ] = path
+       )
+       when endpoint_id in ~w(obtain change_status) and not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @month_year_liqpay_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [
+           "completion_date",
+           {:schema, :response},
+           endpoint(id: "complete"),
+           section(id: "two_step"),
+           section(id: "internet_acquiring")
+         ] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [
+           "update_date",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "info_user"),
+           section(id: "partnership")
+         ] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         %{type: :integer} = property,
+         [
+           "update_date",
+           {:schema, :response},
+           endpoint(id: "info_merchant"),
+           section(id: "partnership")
+         ] = path
+       )
+       when not is_map_key(property, :format) do
+    property
+    |> Map.put(:format, @timestamp_ms_format)
+    |> parse_property_format(path)
+  end
+
+  defp parse_property_format(property, _path), do: property
 
   defp parse_property_maximum_length(%{description: description} = property, _path) do
     ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+(?:character|symbol)s?/
@@ -3127,6 +3561,13 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_default(
+         property,
+         ["version", [], "data" | [{:schema, _schema_type} | _] = rest_path] = _path
+       ) do
+    parse_property_default(property, ["version" | rest_path])
+  end
+
+  defp parse_property_default(
          %{description: description} = property,
          ["action_payment", {:schema, :request}, endpoint(id: "MPI"), section(id: "confirmation")] =
            path
@@ -3291,72 +3732,6 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_default(property, _path), do: property
 
-  # defp parse_property_format(
-  #        %{type: :string} = property,
-  #        [boolean_property, {:schema, _schema_type} | _] = path
-  #      )
-  #      when boolean_property in ~w(verifycode) and
-  #             not is_map_key(property, :format) do
-  #   property
-  #   |> Map.put(:format, @boolean_yesno_format)
-  #   |> parse_property_format(path)
-  # end
-
-  # defp parse_property_format(
-  #        %{type: :string} = property,
-  #        [boolean_property, {:schema, _schema_type} | _] = path
-  #      )
-  #      when boolean_property in ~w(subscribe prepare sandbox) and
-  #             not is_map_key(property, :format) do
-  #   property
-  #   |> Map.put(:format, @boolean_integer_format)
-  #   |> parse_property_format(path)
-  # end
-
-  # defp parse_property_format(
-  #        %{type: :string} = property,
-  #        ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
-  #      )
-  #      when not is_map_key(property, :format) do
-  #   property
-  #   |> Map.put(:format, @boolean_integer_format)
-  #   |> parse_property_format(path)
-  # end
-
-  defp parse_property_format(
-         %{type: :string} = property,
-         [url_property, {:schema, _schema_type} | _] = path
-       )
-       when url_property in ~w(result_url server_url product_url) and
-              not is_map_key(property, :format) do
-    property
-    |> Map.put(:format, :uri)
-    |> parse_property_format(path)
-  end
-
-  defp parse_property_format(
-         %{type: :string} = property,
-         [datetime_property, {:schema, _schema_type} | _] = path
-       )
-       when datetime_property in ~w(expired_date) and
-              not is_map_key(property, :format) do
-    property
-    |> Map.put(:format, @date_time_liqpay_format)
-    |> parse_property_format(path)
-  end
-
-  defp parse_property_format(
-         %{type: :string} = property,
-         ["subscribe_date_start", "regular_payment", {:schema, :request} | _] = path
-       )
-       when not is_map_key(property, :format) do
-    property
-    |> Map.put(:format, @date_time_liqpay_format)
-    |> parse_property_format(path)
-  end
-
-  defp parse_property_format(property, _path), do: property
-
   defp parse_property_examples(%{description: description} = property, path) do
     ~r/(?:\.\s+)?(?:For\s+example)[:,]?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/
     |> Regex.scan(description)
@@ -3413,8 +3788,10 @@ defmodule Mix.Tasks.Generate do
            "citizenship",
            "law_cto_info",
            "aggregator",
-           {:schema, :request}
-           | [endpoint(), section(id: "shop_create"), section(id: "partnership")]
+           {:schema, :request},
+           endpoint(),
+           section(id: "shop_create"),
+           section(id: "partnership")
          ] = _path
        ) do
     ~r/(?:\.\s+)?Example:?\s*(\w+)\s*(?=\.|$)/ui

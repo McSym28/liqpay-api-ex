@@ -67,7 +67,7 @@
                   "properties": {
                     "date": {
                       "type": "string",
-                      "format": "date",
+                      "format": "date-liqpay",
                       "examples": [
                         "01.12.2014"
                       ]

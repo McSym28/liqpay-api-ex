@@ -166,7 +166,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501754644818
@@ -201,7 +202,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501754644818

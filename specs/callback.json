@@ -77,11 +77,13 @@
                     "description": "Commission from the sender in `currency_debit`"
                   },
                   "completion_date": {
-                    "type": "string",
+                    "type": "integer",
+                    "format": "timestamp-ms",
                     "description": "Charge date"
                   },
                   "create_date": {
-                    "type": "string",
+                    "type": "integer",
+                    "format": "timestamp-ms",
                     "description": "Date of payment creation"
                   },
                   "currency": {
@@ -106,7 +108,8 @@
                     "description": "Payment description"
                   },
                   "end_date": {
-                    "type": "string",
+                    "type": "integer",
+                    "format": "timestamp-ms",
                     "description": "Date of payment edition/end"
                   },
                   "err_code": {
@@ -180,7 +183,8 @@
                     "description": "The link to which a customer has to be redirected to confirm the payment with 3D-Secure"
                   },
                   "refund_date_last": {
-                    "type": "string",
+                    "type": "integer",
+                    "format": "timestamp-ms",
                     "description": "Last return date for payment"
                   },
                   "rrn_credit": {
@@ -312,6 +316,7 @@
                   },
                   "verifycode": {
                     "type": "string",
+                    "format": "boolean-yesno",
                     "enum": [
                       "Y"
                     ],

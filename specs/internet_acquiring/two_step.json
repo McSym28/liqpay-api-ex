@@ -168,6 +168,7 @@
                   },
                   "prepare": {
                     "type": "string",
+                    "format": "boolean-integer",
                     "enum": [
                       "1"
                     ],
@@ -419,7 +420,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation"
                     },
                     "currency": {
@@ -451,7 +453,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end"
                     },
                     "ip": {
@@ -879,14 +882,16 @@
                       ]
                     },
                     "completion_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Charge date",
                       "examples": [
                         1501681656973
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501681569734
@@ -921,7 +926,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501681657732

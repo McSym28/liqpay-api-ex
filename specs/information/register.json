@@ -71,6 +71,7 @@
                   },
                   "date": {
                     "type": "string",
+                    "format": "date",
                     "description": "If parameter is unknown `compensation_id`, then date by which you need to get a list `compensation_id`"
                   }
                 }
@@ -156,6 +157,7 @@
                               },
                               "create_date": {
                                 "type": "string",
+                                "format": "date-time-liqpay",
                                 "description": "Date of payment creation",
                                 "examples": [
                                   "2017-01-31 07:51:37"
@@ -178,6 +180,7 @@
                               },
                               "end_date": {
                                 "type": "string",
+                                "format": "date-time-liqpay",
                                 "description": "Date of payment edition/end",
                                 "examples": [
                                   "2017-01-31 07:51:54"
@@ -359,7 +362,7 @@
                               },
                               "create_date": {
                                 "type": "string",
-                                "format": "date-time",
+                                "format": "date-time-liqpay",
                                 "examples": [
                                   "2016-11-15 00:02:14"
                                 ]
@@ -427,6 +430,7 @@
                   },
                   "date": {
                     "type": "string",
+                    "format": "date",
                     "description": "Date for which the registry will be uploaded",
                     "examples": [
                       "2017-01-31"
@@ -512,6 +516,7 @@
                           },
                           "create_date": {
                             "type": "string",
+                            "format": "date-time-liqpay",
                             "description": "Date of payment creation",
                             "examples": [
                               "2017-01-31 07:51:37"
@@ -534,6 +539,7 @@
                           },
                           "end_date": {
                             "type": "string",
+                            "format": "date-time-liqpay",
                             "description": "Date of payment edition/end",
                             "examples": [
                               "2017-01-31 07:51:54"
@@ -769,6 +775,7 @@
                   },
                   "date": {
                     "type": "string",
+                    "format": "date",
                     "description": "If the `compensation_id` parameter is unknown, the payment date for which you want to receive the registry is being passed",
                     "examples": [
                       "2021-11-23"
@@ -978,6 +985,7 @@
                   },
                   "date": {
                     "type": "string",
+                    "format": "date",
                     "description": "Date for which the registry will be uploaded",
                     "examples": [
                       "2021-11-23"

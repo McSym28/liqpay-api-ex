@@ -148,6 +148,7 @@
                   },
                   "prepare": {
                     "type": "string",
+                    "format": "boolean-integer",
                     "enum": [
                       "1"
                     ],
@@ -190,7 +191,7 @@
                       },
                       "subscribe_date_start": {
                         "type": "string",
-                        "format": "date-time",
+                        "format": "date-time-liqpay",
                         "description": "Date of the first payment. Time must be specified in the following format `2015-03-31 00:00:00` by `UTC`. If past date is indicated - subscription will be activated with the date and time of request",
                         "examples": [
                           "2015-03-31 00:00:00"
@@ -371,7 +372,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501680854599
@@ -406,7 +408,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501680854599
@@ -721,7 +724,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501680852705
@@ -756,7 +760,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501681041689
@@ -1095,7 +1100,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501680854599
@@ -1130,7 +1136,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501680854599

@@ -95,7 +95,7 @@
                   },
                   "expired_date": {
                     "type": "string",
-                    "format": "date-time",
+                    "format": "date-time-liqpay",
                     "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
                   },
                   "language": {
@@ -136,6 +136,7 @@
                   },
                   "verifycode": {
                     "type": "string",
+                    "format": "boolean-yesno",
                     "enum": [
                       "Y"
                     ],
@@ -242,7 +243,7 @@
                       },
                       "subscribe_date_start": {
                         "type": "string",
-                        "format": "date-time",
+                        "format": "date-time-liqpay",
                         "description": "Date of the first payment. Time must be specified in the following format `2015-03-31 00:00:00` by `UTC`. If past date is indicated - subscription will be activated with the date and time of request"
                       },
                       "subscribe_periodicity": {
@@ -268,6 +269,7 @@
                       },
                       "recurringbytoken": {
                         "type": "string",
+                        "format": "boolean-integer",
                         "enum": [
                           "1"
                         ],

@@ -144,6 +144,7 @@
                   },
                   "sandbox": {
                     "type": "string",
+                    "format": "boolean-integer",
                     "enum": [
                       "1"
                     ],
@@ -159,6 +160,7 @@
                   },
                   "prepare": {
                     "type": "string",
+                    "format": "boolean-integer",
                     "enum": [
                       "tariffs"
                     ],
@@ -321,7 +323,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501685446633
@@ -356,7 +359,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501685446633

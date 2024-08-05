@@ -91,7 +91,8 @@
                             ]
                           },
                           "create_date": {
-                            "type": "string",
+                            "type": "integer",
+                            "format": "timestamp-ms",
                             "description": "Date of company creation",
                             "examples": [
                               1491294687862
@@ -140,7 +141,8 @@
                             ]
                           },
                           "update_date": {
-                            "type": "string",
+                            "type": "integer",
+                            "format": "timestamp-ms",
                             "description": "Date of information update on the company",
                             "examples": [
                               1491294687862

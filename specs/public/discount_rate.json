@@ -44,6 +44,7 @@
                     "properties": {
                       "rate_date": {
                         "type": "string",
+                        "format": "date-liqpay",
                         "description": "Date of establishing «NBU Accounting Rate»",
                         "examples": [
                           "17.07.2014",

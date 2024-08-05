@@ -94,7 +94,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of company creation",
                       "examples": [
                         1501764124764
@@ -194,7 +195,8 @@
                       "description": "Link to the merchant's LiqPay Business Cabinet"
                     },
                     "update_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of information update on the company",
                       "examples": [
                         1501764124764

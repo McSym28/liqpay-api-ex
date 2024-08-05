@@ -187,6 +187,7 @@
                           },
                           "birth_date": {
                             "type": "string",
+                            "format": "date",
                             "description": "Birth date of the head of an enterprise. Enter the date in this format: 2015-03-31"
                           },
                           "citizenship": {
@@ -218,6 +219,7 @@
                             },
                             "birth_date": {
                               "type": "string",
+                              "format": "date",
                               "description": "Birth date of the owner of an enterprise. Enter the date in this format: 2015-03-31"
                             },
                             "citizenship": {
@@ -254,6 +256,7 @@
                             },
                             "birth_date": {
                               "type": "string",
+                              "format": "date",
                               "description": "Birth date of the owner of major shareholding. Transfer if the owner is an individual"
                             },
                             "citizenship": {
@@ -568,6 +571,7 @@
                           },
                           "birth_date": {
                             "type": "string",
+                            "format": "date",
                             "description": "Birth date of the head of an enterprise. Enter the date in this format: 2015-03-31"
                           },
                           "citizenship": {
@@ -599,6 +603,7 @@
                             },
                             "birth_date": {
                               "type": "string",
+                              "format": "date",
                               "description": "Birth date of the owner of an enterprise. Enter the date in this format: 2015-03-31"
                             },
                             "citizenship": {
@@ -635,6 +640,7 @@
                             },
                             "birth_date": {
                               "type": "string",
+                              "format": "date",
                               "description": "Birth date of the owner of major shareholding. Transfer if the owner is an individual"
                             },
                             "citizenship": {
@@ -690,6 +696,7 @@
                     },
                     "create_date": {
                       "type": "string",
+                      "format": "date",
                       "description": "Date of creation"
                     },
                     "email": {
@@ -718,6 +725,7 @@
                     },
                     "update_date": {
                       "type": "string",
+                      "format": "date",
                       "description": "Update date"
                     },
                     "url": {

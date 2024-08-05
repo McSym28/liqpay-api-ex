@@ -96,6 +96,7 @@
                   },
                   "verifycode": {
                     "type": "string",
+                    "format": "boolean-yesno",
                     "enum": [
                       "Y"
                     ],
@@ -189,7 +190,8 @@
                       ]
                     },
                     "create_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment creation",
                       "examples": [
                         1501687647977
@@ -224,7 +226,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
                       "examples": [
                         1501687647977
@@ -407,6 +410,7 @@
                     },
                     "verifycode": {
                       "type": "string",
+                      "format": "boolean-yesno",
                       "enum": [
                         "Y"
                       ],

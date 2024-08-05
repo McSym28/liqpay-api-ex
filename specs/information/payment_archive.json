@@ -60,17 +60,19 @@
                     "description": "Report format"
                   },
                   "date_from": {
-                    "type": "string",
+                    "type": "integer",
+                    "format": "timestamp-ms",
                     "description": "Start date of a report in `timestamp` in milliseconds",
                     "examples": [
-                      "1443161386000"
+                      1443161386000
                     ]
                   },
                   "date_to": {
-                    "type": "string",
+                    "type": "integer",
+                    "format": "timestamp-ms",
                     "description": "End date of a report in `timestamp` in milliseconds",
                     "examples": [
-                      "1443164386000"
+                      1443164386000
                     ]
                   }
                 }
@@ -190,7 +192,8 @@
                             ]
                           },
                           "create_date": {
-                            "type": "string",
+                            "type": "integer",
+                            "format": "timestamp-ms",
                             "description": "Date of payment creation",
                             "examples": [
                               1498226196229
@@ -225,7 +228,8 @@
                             ]
                           },
                           "end_date": {
-                            "type": "string",
+                            "type": "integer",
+                            "format": "timestamp-ms",
                             "description": "Date of payment edition/end",
                             "examples": [
                               1498226199886

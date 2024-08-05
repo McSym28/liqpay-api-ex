@@ -105,7 +105,7 @@
                   },
                   "expired_date": {
                     "type": "string",
-                    "format": "date-time",
+                    "format": "date-time-liqpay",
                     "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
                   },
                   "language": {
@@ -119,6 +119,7 @@
                   },
                   "prepare": {
                     "type": "string",
+                    "format": "boolean-integer",
                     "enum": [
                       "1"
                     ],
@@ -336,7 +337,8 @@
                       ]
                     },
                     "end_date": {
-                      "type": "string",
+                      "type": "integer",
+                      "format": "timestamp-ms",
                       "description": "Date of payment edition/end"
                     },
                     "ip": {
