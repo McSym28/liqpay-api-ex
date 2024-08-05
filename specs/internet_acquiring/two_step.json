@@ -184,10 +184,6 @@
                   },
                   "recurring": {
                     "type": "boolean",
-                    "enum": [
-                      true,
-                      false
-                    ],
                     "description": "Token recurring payment flag. Used for payments with tokens of international payment systems (MasterCard, Visa). Possible values:\n* `true` - the operation is performed without the participation of the client\n* `false` - the operation is performed by the client"
                   },
                   "server_url": {
@@ -467,10 +463,6 @@
                     },
                     "is_3ds": {
                       "type": "boolean",
-                      "enum": [
-                        true,
-                        false
-                      ],
                       "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS"
                     },
                     "liqpay_order_id": {
@@ -936,10 +928,6 @@
                     },
                     "is_3ds": {
                       "type": "boolean",
-                      "enum": [
-                        true,
-                        false
-                      ],
                       "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS"
                     },
                     "liqpay_order_id": {

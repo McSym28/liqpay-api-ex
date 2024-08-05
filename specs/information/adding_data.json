@@ -252,10 +252,6 @@
                     },
                     "is_3ds": {
                       "type": "boolean",
-                      "enum": [
-                        true,
-                        false
-                      ],
                       "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS"
                     },
                     "liqpay_order_id": {

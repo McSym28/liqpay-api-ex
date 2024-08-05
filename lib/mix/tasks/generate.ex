@@ -3431,18 +3431,11 @@ defmodule Mix.Tasks.Generate do
             |> String.replace(~r/^\s*\.\s*/, "")
           end
 
-        enum =
-          enum_options
-          |> Enum.map(fn {key, _} ->
-            parse_schema_value(key, property)
-          end)
-          |> Enum.uniq()
-
-        property
-        |> Map.merge(%{
-          enum: enum,
-          description: description_new
-        })
+        enum_options
+        |> Enum.reduce(
+          %{property | description: description_new},
+          fn {key, _}, property -> patch_property_enum(property, key, path) end
+        )
         |> parse_property_enum_specific(path)
 
       [] ->
@@ -3466,11 +3459,7 @@ defmodule Mix.Tasks.Generate do
                 description_new =
                   String.replace(description, full_match, "* `#{key}` - #{key_description}")
 
-                key_new = parse_schema_value(key, property_new)
-
-                property_new
-                |> Map.update(:enum, [key_new], &Enum.uniq(&1 ++ [key_new]))
-                |> Map.put(:description, description_new)
+                patch_property_enum(%{property_new | description: description_new}, key, path)
               end)
               |> parse_property_enum_specific(path)
           end
@@ -3480,14 +3469,11 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_enum(property, path), do: parse_property_enum_specific(property, path)
 
-  defp parse_property_enum_list(%{description: description} = property, _path) do
+  defp parse_property_enum_list(%{description: description} = property, path) do
     ~r/`([^`]+?)`/
     |> Regex.scan(description, capture: :all_but_first)
     |> Enum.flat_map(fn [str] -> String.split(str, ",") end)
-    |> Enum.reduce(property, fn enum, property ->
-      enum_new = enum |> String.trim() |> parse_schema_value(property)
-      Map.update(property, :enum, [enum_new], &Enum.uniq(&1 ++ [enum_new]))
-    end)
+    |> Enum.reduce(property, &patch_property_enum(&2, String.trim(&1), path))
   end
 
   defp parse_property_enum_specific(
@@ -3517,10 +3503,9 @@ defmodule Mix.Tasks.Generate do
             |> Map.put(:description, description_new)
 
           [] ->
-            property
+            Enum.reduce(["uk", "en"], property, &patch_property_enum(&2, &1, path))
         end
     end
-    |> Map.put_new(:enum, ["uk", "en"])
     |> parse_property_enum_specific(path)
   end
 
@@ -3549,9 +3534,8 @@ defmodule Mix.Tasks.Generate do
         |> Map.put(:description, description_new)
 
       [] ->
-        property
+        Enum.reduce(["json", "csv", "xml"], property, &patch_property_enum(&2, &1, path))
     end
-    |> Map.put_new(:enum, ["json", "csv", "xml"])
     |> parse_property_enum_specific(path)
   end
 
@@ -3598,9 +3582,8 @@ defmodule Mix.Tasks.Generate do
         |> Map.put(:description, description_new)
 
       [] ->
-        property
+        patch_property_enum(property, "csv", path)
     end
-    |> Map.put_new(:enum, ["csv"])
     |> parse_property_enum_specific(path)
   end
 
@@ -3611,7 +3594,7 @@ defmodule Mix.Tasks.Generate do
        when boolean_property in ~w(verifycode) and
               not is_map_key(property, :enum) do
     property
-    |> Map.put(:enum, ["Y"])
+    |> patch_property_enum("Y", path)
     |> parse_property_enum_specific(path)
   end
 
@@ -3621,7 +3604,7 @@ defmodule Mix.Tasks.Generate do
        )
        when boolean_property in ~w(subscribe prepare sandbox) and not is_map_key(property, :enum) do
     property
-    |> Map.put(:enum, ["1"])
+    |> patch_property_enum("1", path)
     |> parse_property_enum_specific(path)
   end
 
@@ -3631,7 +3614,7 @@ defmodule Mix.Tasks.Generate do
        )
        when not is_map_key(property, :enum) do
     property
-    |> Map.put(:enum, ["1"])
+    |> patch_property_enum("1", path)
     |> parse_property_enum_specific(path)
   end
 
@@ -3664,11 +3647,17 @@ defmodule Mix.Tasks.Generate do
       [] ->
         property
     end
-    |> Map.put_new(:enum, ["2.0"])
     |> parse_property_enum_specific(path)
   end
 
   defp parse_property_enum_specific(property, _path), do: property
+
+  defp patch_property_enum(%{type: :boolean} = property, _enum, _path), do: property
+
+  defp patch_property_enum(property, enum, _path) do
+    enum_new = parse_schema_value(enum, property)
+    Map.update(property, :enum, [enum_new], &Enum.uniq(&1 ++ [enum_new]))
+  end
 
   defp parse_property_default(
          %{description: description} = property,
@@ -3681,13 +3670,16 @@ defmodule Mix.Tasks.Generate do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
         default_new = parse_schema_value(default, property)
-        Map.merge(property, %{default: default_new, description: description_new})
+
+        %{property | description: description_new}
+        |> Map.put_new(:default, default_new)
+        |> patch_property_enum(default_new, path)
 
       [] ->
         property
+        |> Map.put_new(:default, 3)
+        |> patch_property_enum(3, path)
     end
-    |> Map.put_new(:default, 3)
-    |> Map.put_new(:enum, [3])
     |> parse_property_default(path)
   end
 
