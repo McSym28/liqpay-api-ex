@@ -3084,12 +3084,19 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_format(
          %{type: :string} = property,
-         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+         ["recurringbytoken", {:schema, :request} | _] = path
        )
        when not is_map_key(property, :format) do
     property
     |> Map.put(:format, @boolean_integer_format)
     |> parse_property_format(path)
+  end
+
+  defp parse_property_format(
+         property,
+         ["recurringbytoken", "one_click_payment" | [{:schema, :request} | _] = rest_path] = _path
+       ) do
+    parse_property_format(property, ["recurringbytoken" | rest_path])
   end
 
   defp parse_property_format(
@@ -3613,12 +3620,19 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_enum_specific(
          %{type: :string} = property,
-         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
+         ["recurringbytoken", {:schema, :request} | _] = path
        )
        when not is_map_key(property, :enum) do
     property
     |> Map.put(:enum, ["1"])
     |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         property,
+         ["recurringbytoken", "one_click_payment" | [{:schema, :request} | _] = rest_path] = _path
+       ) do
+    parse_property_enum_specific(property, ["recurringbytoken" | rest_path])
   end
 
   defp parse_property_enum_specific(
