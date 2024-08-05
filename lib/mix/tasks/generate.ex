@@ -3669,15 +3669,14 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
-        default_new = parse_schema_value(default, property)
 
         %{property | description: description_new}
-        |> Map.put_new(:default, default_new)
-        |> patch_property_enum(default_new, path)
+        |> patch_property_default(default, path)
+        |> patch_property_enum(default, path)
 
       [] ->
         property
-        |> Map.put_new(:default, 3)
+        |> patch_property_default(3, path)
         |> patch_property_enum(3, path)
     end
     |> parse_property_default(path)
@@ -3701,13 +3700,11 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
-        default_new = parse_schema_value(default, property)
-        Map.merge(property, %{default: default_new, description: description_new})
+        patch_property_default(%{property | description: description_new}, default, path)
 
       [] ->
-        property
+        patch_property_default(property, "pay", path)
     end
-    |> Map.put_new(:default, 3)
     |> parse_property_default(path)
   end
 
@@ -3728,13 +3725,11 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
-        default_new = parse_schema_value(default, property)
-        Map.merge(property, %{default: default_new, description: description_new})
+        patch_property_default(%{property | description: description_new}, default, path)
 
       [] ->
-        property
+        patch_property_default(property, true, path)
     end
-    |> Map.put_new(:default, true)
     |> parse_property_default(path)
   end
 
@@ -3755,13 +3750,11 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
-        default_new = parse_schema_value(default, property)
-        Map.merge(property, %{default: default_new, description: description_new})
+        patch_property_default(%{property | description: description_new}, default, path)
 
       [] ->
-        property
+        patch_property_default(property, false, path)
     end
-    |> Map.put_new(:default, false)
     |> parse_property_default(path)
   end
 
@@ -3771,7 +3764,7 @@ defmodule Mix.Tasks.Generate do
        )
        when not is_map_key(property, :default) do
     property
-    |> Map.put_new(:default, "uk")
+    |> patch_property_default("uk", path)
     |> Map.replace_lazy(
       :description,
       &String.replace(
@@ -3799,13 +3792,11 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
-        default_new = parse_schema_value(default, property)
-        Map.merge(property, %{default: default_new, description: description_new})
+        patch_property_default(%{property | description: description_new}, default, path)
 
       [] ->
-        property
+        patch_property_default(property, "json", path)
     end
-    |> Map.put_new(:default, "json")
     |> parse_property_default(path)
   end
 
@@ -3843,17 +3834,21 @@ defmodule Mix.Tasks.Generate do
     |> case do
       [[full_match, default]] ->
         description_new = String.replace(description, full_match, "")
-        default_new = parse_schema_value(default, property)
-        Map.merge(property, %{default: default_new, description: description_new})
+        patch_property_default(%{property | description: description_new}, default, path)
 
       [] ->
+        patch_property_default(property, "csv", path)
         property
     end
-    |> Map.put_new(:default, "csv")
     |> parse_property_default(path)
   end
 
   defp parse_property_default(property, _path), do: property
+
+  defp patch_property_default(property, default, _path) when not is_map_key(property, :default) do
+    default_new = parse_schema_value(default, property)
+    Map.put(property, :default, default_new)
+  end
 
   defp parse_property_examples(%{description: description} = property, path) do
     ~r/(?:\.\s+)?(?:For\s+example)[:,]?((?:\s*`[^`]+?`,?)+)\s*(?:\(([^\)]+)\))?(?=\.|$)/
