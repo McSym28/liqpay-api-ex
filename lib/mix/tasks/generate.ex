@@ -1745,15 +1745,21 @@ defmodule Mix.Tasks.Generate do
          ] =
            path
        ) do
-    schema_new =
-      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+    was_empty =
+      case schema do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
 
-    schema
-    |> case do
-      %{properties: properties} -> Enum.empty?(properties)
-      _ -> true
-    end
-    |> if do
+    schema_new =
+      do_parse_block_schema(
+        schema,
+        block_data,
+        block_parse_settings,
+        if(was_empty, do: [[] | path], else: path)
+      )
+
+    if was_empty do
       %{type: :array, items: schema_new}
     else
       schema_new
@@ -1771,15 +1777,21 @@ defmodule Mix.Tasks.Generate do
          ] =
            path
        ) do
-    schema_new =
-      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+    was_empty =
+      case schema do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
 
-    schema
-    |> case do
-      %{properties: properties} -> Enum.empty?(properties)
-      _ -> true
-    end
-    |> if do
+    schema_new =
+      do_parse_block_schema(
+        schema,
+        block_data,
+        block_parse_settings,
+        if(was_empty, do: [[], "exchangeRate" | path], else: path)
+      )
+
+    if was_empty do
       %{properties: properties} = schema_new
 
       properties_new =
@@ -1828,15 +1840,21 @@ defmodule Mix.Tasks.Generate do
          ] =
            path
        ) do
-    schema_new =
-      do_parse_block_schema(schema, block_data, block_parse_settings, path)
+    was_empty =
+      case schema do
+        %{properties: properties} -> Enum.empty?(properties)
+        _ -> true
+      end
 
-    schema
-    |> case do
-      %{properties: properties} -> Enum.empty?(properties)
-      _ -> true
-    end
-    |> if do
+    schema_new =
+      do_parse_block_schema(
+        schema,
+        block_data,
+        block_parse_settings,
+        if(was_empty, do: [[] | path], else: path)
+      )
+
+    if was_empty do
       %{type: :array, items: schema_new}
     else
       schema_new
@@ -2755,6 +2773,36 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           "rate_value",
+           [],
+           {:schema, :response},
+           endpoint(id: "discount_rate"),
+           section(id: "public")
+         ] = path
+       ) do
+    property
+    |> Map.put(:type, :number)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         %{type: :string} = property,
+         [
+           rate_property,
+           [], "exchangeRate",
+           {:schema, :response},
+           endpoint(id: "archive"),
+           section(id: "public")
+         ] = path
+       ) when rate_property in ~w(saleRateNB/purchaseRateNB saleRateNB purchaseRateNB saleRate purchaseRate) do
+    property
+    |> Map.put(:type, :number)
+    |> initialize_property_processing(path)
+  end
+
   defp initialize_property_processing(property, _path), do: property
 
   defp search_code_blocks(
@@ -3048,7 +3096,13 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_format(
          %{type: :string} = property,
-         ["rate_date", {:schema, :response}, endpoint(id: "discount_rate"), section(id: "public")] =
+         [
+           "rate_date",
+           [],
+           {:schema, :response},
+           endpoint(id: "discount_rate"),
+           section(id: "public")
+         ] =
            path
        )
        when not is_map_key(property, :format) do

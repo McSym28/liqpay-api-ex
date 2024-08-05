@@ -118,7 +118,7 @@
                             ]
                           },
                           "saleRateNB": {
-                            "type": "string",
+                            "type": "number",
                             "description": "The sale rate of NBU",
                             "examples": [
                               15.638975,
@@ -133,7 +133,7 @@
                             ]
                           },
                           "purchaseRateNB": {
-                            "type": "string",
+                            "type": "number",
                             "description": "The purchase rate of NBU",
                             "examples": [
                               15.638975,
@@ -148,7 +148,7 @@
                             ]
                           },
                           "saleRate": {
-                            "type": "string",
+                            "type": "number",
                             "description": "The sale rate of PrivatBank",
                             "examples": [
                               17.0,
@@ -160,7 +160,7 @@
                             ]
                           },
                           "purchaseRate": {
-                            "type": "string",
+                            "type": "number",
                             "description": "Buying rate of PrivatBank",
                             "examples": [
                               15.5,

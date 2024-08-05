@@ -52,11 +52,11 @@
                         ]
                       },
                       "rate_value": {
-                        "type": "string",
+                        "type": "number",
                         "description": "The value of the «NBU Discount Rate»",
                         "examples": [
-                          "12.5",
-                          "9.5"
+                          12.5,
+                          9.5
                         ]
                       }
                     }
