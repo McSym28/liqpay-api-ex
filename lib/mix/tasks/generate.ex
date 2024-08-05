@@ -2938,6 +2938,10 @@ defmodule Mix.Tasks.Generate do
     parse_property_separate_example(schema, Floki.find(node, "code.language-json"), path)
   end
 
+  defp patch_schema_examples(_example, %{type: :boolean} = schema, _path) do
+    schema
+  end
+
   defp patch_schema_examples(example, %{type: :object, properties: _properties} = schema, path)
        when is_map(example) do
     Enum.reduce(

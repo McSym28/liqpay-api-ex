@@ -425,10 +425,7 @@
                         true,
                         false
                       ],
-                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS",
-                      "examples": [
-                        false
-                      ]
+                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS"
                     },
                     "liqpay_order_id": {
                       "type": "string",
@@ -777,10 +774,7 @@
                         true,
                         false
                       ],
-                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS",
-                      "examples": [
-                        false
-                      ]
+                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS"
                     },
                     "liqpay_order_id": {
                       "type": "string",
@@ -1153,10 +1147,7 @@
                         true,
                         false
                       ],
-                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS",
-                      "examples": [
-                        false
-                      ]
+                      "description": "Possible values:\n* `true` - transaction passed with 3DS\n* `false` - transaction passed without 3DS"
                     },
                     "liqpay_order_id": {
                       "type": "string",
