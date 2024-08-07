@@ -10,11 +10,35 @@
     }
   ],
   "paths": {
-    "/p24api/pubinfo?exchange&json": {
+    "/p24api/pubinfo": {
       "get": {
         "summary": "Public. Exchange rates of PrivatBank",
         "operationId": "public.exchange",
         "parameters": [
+          {
+            "in": "query",
+            "name": "exchange",
+            "required": true,
+            "schema": {
+              "default": true,
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "json",
+            "required": true,
+            "schema": {
+              "default": true,
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            }
+          },
           {
             "in": "query",
             "name": "coursid",

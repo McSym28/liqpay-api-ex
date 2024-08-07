@@ -10,11 +10,23 @@
     }
   ],
   "paths": {
-    "/p24api/exchange_rates?json": {
+    "/p24api/exchange_rates": {
       "get": {
         "summary": "Public. Exchange rates archive",
         "operationId": "public.archive",
         "parameters": [
+          {
+            "in": "query",
+            "name": "json",
+            "required": true,
+            "schema": {
+              "default": true,
+              "type": "boolean",
+              "enum": [
+                true
+              ]
+            }
+          },
           {
             "in": "query",
             "name": "date",

@@ -638,6 +638,18 @@ defmodule Mix.Tasks.Generate do
        ) do
     parameters = [
       %{
+        name: "exchange",
+        in: :query,
+        required: true,
+        schema: %{type: :boolean, default: true, enum: [true]}
+      },
+      %{
+        name: "json",
+        in: :query,
+        required: true,
+        schema: %{type: :boolean, default: true, enum: [true]}
+      },
+      %{
         name: "coursid",
         in: :query,
         required: true,
@@ -656,7 +668,7 @@ defmodule Mix.Tasks.Generate do
         title: title,
         method: :get,
         parameters: parameters,
-        url: "/p24api/pubinfo?exchange&json"
+        url: "/p24api/pubinfo"
       )
 
     endpoints_new = [endpoint | endpoints]
@@ -674,6 +686,12 @@ defmodule Mix.Tasks.Generate do
        ) do
     parameters = [
       %{
+        name: "json",
+        in: :query,
+        required: true,
+        schema: %{type: :boolean, default: true, enum: [true]}
+      },
+      %{
         name: "date",
         in: :query,
         required: true,
@@ -688,7 +706,7 @@ defmodule Mix.Tasks.Generate do
         title: title,
         method: :get,
         parameters: parameters,
-        url: "/p24api/exchange_rates?json"
+        url: "/p24api/exchange_rates"
       )
 
     endpoints_new = [endpoint | endpoints]
