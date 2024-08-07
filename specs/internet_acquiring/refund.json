@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Refund",
-        "operationId": "internet_acquiring.refund",
+        "operationId": "internet_acquiring/refund",
         "requestBody": {
           "content": {
             "application/json": {

@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Apple Pay. Encrypted token",
-        "operationId": "internet_acquiring.apay.encrypted_token",
+        "operationId": "internet_acquiring/apay/encrypted_token",
         "requestBody": {
           "content": {
             "application/json": {
@@ -263,7 +263,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Apple Pay. Decrypted token",
-        "operationId": "internet_acquiring.apay.decrypted_token",
+        "operationId": "internet_acquiring/apay/decrypted_token",
         "requestBody": {
           "content": {
             "application/json": {

@@ -13,7 +13,7 @@
     "/p24api/exchange_rates": {
       "get": {
         "summary": "Public. Exchange rates archive",
-        "operationId": "public.archive",
+        "operationId": "public/archive",
         "parameters": [
           {
             "in": "query",

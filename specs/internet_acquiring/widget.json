@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Payment widget",
-        "operationId": "internet_acquiring.widget",
+        "operationId": "internet_acquiring/widget",
         "requestBody": {
           "content": {
             "application/json": {

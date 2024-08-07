@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. QR-code payment",
-        "operationId": "internet_acquiring.qr",
+        "operationId": "internet_acquiring/qr",
         "requestBody": {
           "content": {
             "application/json": {

@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Company editing",
-        "operationId": "partnership.shop_edit",
+        "operationId": "partnership/shop_edit",
         "requestBody": {
           "content": {
             "application/json": {

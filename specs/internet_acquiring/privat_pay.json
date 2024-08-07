@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. PrivatPay button",
-        "operationId": "internet_acquiring.privat_pay",
+        "operationId": "internet_acquiring/privat_pay",
         "requestBody": {
           "content": {
             "application/json": {

@@ -13,7 +13,7 @@
     "/ratenbu.php": {
       "get": {
         "summary": "Public. Accounting rate of NBU",
-        "operationId": "public.discount_rate",
+        "operationId": "public/discount_rate",
         "parameters": [
           {
             "in": "query",

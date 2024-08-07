@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Verification. 3D-Secure",
-        "operationId": "confirmation.3ds",
+        "operationId": "confirmation/3ds",
         "requestBody": {
           "content": {
             "application/json": {

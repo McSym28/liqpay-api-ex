@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. DCC",
-        "operationId": "internet_acquiring.dcc",
+        "operationId": "internet_acquiring/dcc",
         "requestBody": {
           "content": {
             "application/json": {

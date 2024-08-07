@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Checkout",
-        "operationId": "internet_acquiring.checkout",
+        "operationId": "internet_acquiring/checkout",
         "requestBody": {
           "content": {
             "application/json": {

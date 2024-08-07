@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Payments archive",
-        "operationId": "information.payment_archive",
+        "operationId": "information/payment_archive",
         "requestBody": {
           "content": {
             "application/json": {

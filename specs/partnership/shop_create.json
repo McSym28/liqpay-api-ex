@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Company creation. Company creation create",
-        "operationId": "partnership.shop_create.create",
+        "operationId": "partnership/shop_create/create",
         "requestBody": {
           "content": {
             "application/json": {
@@ -337,7 +337,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Company creation. Company creation register",
-        "operationId": "partnership.shop_create.register",
+        "operationId": "partnership/shop_create/register",
         "requestBody": {
           "content": {
             "application/json": {
@@ -743,7 +743,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Company creation. Available МСС",
-        "operationId": "partnership.shop_create.available_mcc",
+        "operationId": "partnership/shop_create/available_mcc",
         "requestBody": {
           "content": {
             "application/json": {
@@ -837,7 +837,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Company creation. Documents",
-        "operationId": "partnership.shop_create.documents",
+        "operationId": "partnership/shop_create/documents",
         "requestBody": {
           "content": {
             "application/json": {

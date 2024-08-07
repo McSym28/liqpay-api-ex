@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Receive a receipt",
-        "operationId": "information.receive_a_receipt",
+        "operationId": "information/receive_a_receipt",
         "requestBody": {
           "content": {
             "application/json": {

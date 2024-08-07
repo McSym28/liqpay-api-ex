@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Verification. Cardverification",
-        "operationId": "confirmation.cardverification",
+        "operationId": "confirmation/cardverification",
         "requestBody": {
           "content": {
             "application/json": {

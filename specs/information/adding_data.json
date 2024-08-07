@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Adding data",
-        "operationId": "information.adding_data",
+        "operationId": "information/adding_data",
         "requestBody": {
           "content": {
             "application/json": {

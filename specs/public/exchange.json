@@ -13,7 +13,7 @@
     "/p24api/pubinfo": {
       "get": {
         "summary": "Public. Exchange rates of PrivatBank",
-        "operationId": "public.exchange",
+        "operationId": "public/exchange",
         "parameters": [
           {
             "in": "query",

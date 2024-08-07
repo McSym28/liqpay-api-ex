@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Verification. OTP confirmation",
-        "operationId": "confirmation.OTP",
+        "operationId": "confirmation/OTP",
         "requestBody": {
           "content": {
             "application/json": {

@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Information about company",
-        "operationId": "partnership.info_merchant",
+        "operationId": "partnership/info_merchant",
         "requestBody": {
           "content": {
             "application/json": {

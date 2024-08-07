@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Partner's. Information about partner",
-        "operationId": "partnership.info_user",
+        "operationId": "partnership/info_user",
         "requestBody": {
           "content": {
             "application/json": {

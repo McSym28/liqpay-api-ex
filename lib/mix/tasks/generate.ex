@@ -257,7 +257,7 @@ defmodule Mix.Tasks.Generate do
                   operation_id =
                     [id | endpoint_ids]
                     |> Enum.reverse()
-                    |> Enum.join(".")
+                    |> Enum.join("/")
 
                   {url,
                    OrderedObject.new([

@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Cash payment",
-        "operationId": "internet_acquiring.cash",
+        "operationId": "internet_acquiring/cash",
         "requestBody": {
           "content": {
             "application/json": {

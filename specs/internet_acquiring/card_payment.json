@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Card payment",
-        "operationId": "internet_acquiring.card_payment",
+        "operationId": "internet_acquiring/card_payment",
         "requestBody": {
           "content": {
             "application/json": {

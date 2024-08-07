@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Registers. Compensation once a day",
-        "operationId": "information.register.compensation_per_day",
+        "operationId": "information/register/compensation_per_day",
         "requestBody": {
           "content": {
             "application/json": {
@@ -374,7 +374,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Registers. Compensation per transaction",
-        "operationId": "information.register.compensation_per_transaction",
+        "operationId": "information/register/compensation_per_transaction",
         "requestBody": {
           "content": {
             "application/json": {
@@ -703,7 +703,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Registers. Getting the compensation registry",
-        "operationId": "information.register.compensation_report",
+        "operationId": "information/register/compensation_report",
         "requestBody": {
           "content": {
             "application/json": {
@@ -813,7 +813,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Registers. Getting the compensation registry status",
-        "operationId": "information.register.compensation_report_status",
+        "operationId": "information/register/compensation_report_status",
         "requestBody": {
           "content": {
             "application/json": {
@@ -915,7 +915,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Registers. Registry by p2p operation",
-        "operationId": "information.register.compensation_report_p2p",
+        "operationId": "information/register/compensation_report_p2p",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1034,7 +1034,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Registers. p2p operation registry status",
-        "operationId": "information.register.compensation_report_p2p_status",
+        "operationId": "information/register/compensation_report_p2p_status",
         "requestBody": {
           "content": {
             "application/json": {

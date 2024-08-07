@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Invoice. ",
-        "operationId": "internet_acquiring.invoice.units",
+        "operationId": "internet_acquiring/invoice/units",
         "requestBody": {
           "content": {
             "application/json": {
@@ -119,7 +119,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Invoice. Issuing the invoice",
-        "operationId": "internet_acquiring.invoice.issue",
+        "operationId": "internet_acquiring/invoice/issue",
         "requestBody": {
           "content": {
             "application/json": {
@@ -409,7 +409,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Invoice. Invoice cancelation",
-        "operationId": "internet_acquiring.invoice.cancel",
+        "operationId": "internet_acquiring/invoice/cancel",
         "requestBody": {
           "content": {
             "application/json": {

@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Verification. CVV confirmation",
-        "operationId": "confirmation.CVV",
+        "operationId": "confirmation/CVV",
         "requestBody": {
           "content": {
             "application/json": {

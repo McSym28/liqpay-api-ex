@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Google Pay. Encrypted token",
-        "operationId": "internet_acquiring.gpay.encrypted_token",
+        "operationId": "internet_acquiring/gpay/encrypted_token",
         "requestBody": {
           "content": {
             "application/json": {
@@ -263,7 +263,7 @@
     "/api/request": {
       "post": {
         "summary": "Internet acquiring. Google Pay. Decrypted token",
-        "operationId": "internet_acquiring.gpay.decrypted_token",
+        "operationId": "internet_acquiring/gpay/decrypted_token",
         "requestBody": {
           "content": {
             "application/json": {

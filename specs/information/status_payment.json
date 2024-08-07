@@ -13,7 +13,7 @@
     "/api/request": {
       "post": {
         "summary": "Informational. Payment status",
-        "operationId": "information.status_payment",
+        "operationId": "information/status_payment",
         "requestBody": {
           "content": {
             "application/json": {
