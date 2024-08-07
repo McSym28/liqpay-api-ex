@@ -7,14 +7,15 @@ defmodule LiqpayAPI.MixProject do
       version: "0.1.0",
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      dialyzer: [plt_add_apps: [:mix, :wallaby]]
     ]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :jason, :httpoison]
     ]
   end
 
@@ -34,5 +35,5 @@ defmodule LiqpayAPI.MixProject do
   defp opts_for_open_api_client_ex(:dev), do: [{:env, :dev} | opts_for_open_api_client_ex(:prod)]
 
   defp opts_for_open_api_client_ex(_env),
-    do: [git: "../../../open-api-client-ex", ref: "5eeb3c00f7f8f779cede16fb10fca9c784d14ea0"]
+    do: [git: "../../../open-api-client-ex", ref: "af32b718cb51b61a947ddde4ddcb9b56b2af09cd"]
 end

@@ -70,6 +70,7 @@ defmodule Mix.Tasks.Generate do
 
   @requirements ["app.start"]
   @shortdoc "Generates library's modules"
+  @impl true
   def run(_) do
     {:ok, _} = Application.ensure_all_started(:wallaby)
 
