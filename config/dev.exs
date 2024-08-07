@@ -6,10 +6,14 @@ config :oapi_generator,
   default: [
     processor: LiqpayAPI.Generator.Processor,
     renderer: LiqpayAPI.Generator.Renderer,
+    naming: [
+      rename: [
+        {~r/^(.+\.(?:Request|Response))([^\.].+)$/, "\\1.\\2"}
+      ]
+    ],
     output: [
       base_module: LiqpayAPI,
-      location: "lib",
-      schema_subdirectory: "schemas"
+      location: "lib"
     ]
   ]
 

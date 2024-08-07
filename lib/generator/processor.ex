@@ -4,19 +4,28 @@ if Mix.env() in [:dev] do
     alias OpenAPI.Processor.Schema
 
     @impl OpenAPI.Processor
-    def schema_module_and_type(state, %Schema{context: [{:request, _, _, _}]} = schema) do
+    def schema_module_and_type(state, %Schema{context: [{:request, module, type, _}]} = schema) do
       OpenAPIClient.Generator.Processor.schema_module_and_type(state, schema)
-      {Request, :t}
+      module_new = schema_module(module, type, Request)
+      {module_new, :t}
     end
 
-    def schema_module_and_type(state, %Schema{context: [{:response, _, _, _, _}]} = schema) do
+    def schema_module_and_type(
+          state,
+          %Schema{context: [{:response, module, type, _, _}]} = schema
+        ) do
       OpenAPIClient.Generator.Processor.schema_module_and_type(state, schema)
-      {Response, :t}
+      module_new = schema_module(module, type, Response)
+      {module_new, :t}
     end
 
     def schema_module_and_type(state, schema) do
       OpenAPIClient.Generator.Processor.schema_module_and_type(state, schema)
-      |> tap(&IO.inspect(schema, label: inspect(&1)))
+    end
+
+    defp schema_module(module, type, schema_module) do
+      type_new = type |> Atom.to_string() |> OpenAPI.Processor.Naming.normalize_identifier(:camel)
+      Module.concat([module, type_new, schema_module])
     end
 
     @impl OpenAPI.Processor
