@@ -12,8 +12,8 @@
   "paths": {
     "/p24api/pubinfo?exchange&json": {
       "get": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Public. Exchange rates of PrivatBank",
+        "operationId": "public.exchange",
         "parameters": [
           {
             "in": "query",

@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/invoice/units": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Invoice. ",
+        "operationId": "internet_acquiring.invoice.units",
         "requestBody": {
           "content": {
             "application/json": {
@@ -116,10 +116,10 @@
         }
       }
     },
-    "/internet_acquiring/invoice/issue": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Invoice. Issuing the invoice",
+        "operationId": "internet_acquiring.invoice.issue",
         "requestBody": {
           "content": {
             "application/json": {
@@ -406,10 +406,10 @@
         }
       }
     },
-    "/internet_acquiring/invoice/cancel": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Invoice. Invoice cancelation",
+        "operationId": "internet_acquiring.invoice.cancel",
         "requestBody": {
           "content": {
             "application/json": {

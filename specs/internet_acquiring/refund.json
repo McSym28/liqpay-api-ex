@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/refund": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Refund",
+        "operationId": "internet_acquiring.refund",
         "requestBody": {
           "content": {
             "application/json": {

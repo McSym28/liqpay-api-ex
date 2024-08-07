@@ -57,7 +57,7 @@ defmodule Mix.Tasks.Generate do
     response: nil,
     method: :post,
     parameters: nil,
-    url: nil
+    url: "/api/request"
   )
 
   Record.defrecordp(:parse_settings,
@@ -211,7 +211,10 @@ defmodule Mix.Tasks.Generate do
       {:ok, endpoints} = result ->
         case path do
           [section(type: :menu) | _] ->
-            path_ids = Enum.map(path, fn section(id: id) -> id end)
+            {path_ids, path_titles} =
+              path
+              |> Enum.map(fn section(id: id, title: title) -> {id, title} end)
+              |> Enum.unzip()
 
             json_file =
               path_ids
@@ -224,7 +227,12 @@ defmodule Mix.Tasks.Generate do
             |> Path.dirname()
             |> File.mkdir_p!()
 
-            endpoint_path = if Enum.count(endpoints) == 1, do: tl(path_ids), else: path_ids
+            {endpoint_ids, endpoint_titles} =
+              if Enum.count(endpoints) == 1 do
+                {tl(path_ids), tl(path_titles)}
+              else
+                {path_ids, path_titles}
+              end
 
             OrderedObject.new(
               openapi: "3.1.0",
@@ -238,21 +246,25 @@ defmodule Mix.Tasks.Generate do
                                  response: response_schema,
                                  method: method,
                                  parameters: parameters,
-                                 url: url
+                                 url: url,
+                                 title: title
                                ) ->
-                  url =
-                    url ||
-                      [id | endpoint_path]
-                      |> Enum.reverse()
-                      |> then(&["/" | &1])
-                      |> Path.join()
+                  summary =
+                    [title | endpoint_titles]
+                    |> Enum.reverse()
+                    |> Enum.join(". ")
+
+                  operation_id =
+                    [id | endpoint_ids]
+                    |> Enum.reverse()
+                    |> Enum.join(".")
 
                   {url,
                    OrderedObject.new([
                      {method,
                       OrderedObject.new(
                         List.flatten([
-                          [summary: "Checkout", operationId: "checkout"],
+                          [summary: summary, operationId: operation_id],
                           if parameters do
                             [parameters: parameters]
                           else
@@ -758,7 +770,12 @@ defmodule Mix.Tasks.Generate do
          block(update_operation: :new_endpoint, update_name: id) = block_data,
          block_parse_settings
        ) do
-    endpoint = endpoint(id: id)
+    title =
+      case block_data do
+        block(description: description) when is_binary(description) -> description
+      end
+
+    endpoint = endpoint(id: id, title: title)
     endpoints_new = [endpoint | endpoints]
     path_new = [endpoint | rest_path]
 
@@ -1565,7 +1582,8 @@ defmodule Mix.Tasks.Generate do
          {:ok,
           block(block_data,
             update_operation: :new_endpoint,
-            update_name: "compensation_report_status"
+            update_name: "compensation_report_status",
+            description: "Getting the compensation registry status"
           )}
 
   defp process_block_title(
@@ -1630,7 +1648,8 @@ defmodule Mix.Tasks.Generate do
          {:ok,
           block(block_data,
             update_operation: :new_endpoint,
-            update_name: "compensation_report_p2p_status"
+            update_name: "compensation_report_p2p_status",
+            description: "p2p operation registry status"
           )}
 
   defp process_block_title(

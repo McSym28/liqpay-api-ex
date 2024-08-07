@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/information/receive_a_receipt": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Receive a receipt",
+        "operationId": "information.receive_a_receipt",
         "requestBody": {
           "content": {
             "application/json": {

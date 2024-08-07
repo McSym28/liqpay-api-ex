@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/information/register/compensation_per_day": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Registers. Compensation once a day",
+        "operationId": "information.register.compensation_per_day",
         "requestBody": {
           "content": {
             "application/json": {
@@ -371,10 +371,10 @@
         }
       }
     },
-    "/information/register/compensation_per_transaction": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Registers. Compensation per transaction",
+        "operationId": "information.register.compensation_per_transaction",
         "requestBody": {
           "content": {
             "application/json": {
@@ -700,10 +700,10 @@
         }
       }
     },
-    "/information/register/compensation_report": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Registers. Getting the compensation registry",
+        "operationId": "information.register.compensation_report",
         "requestBody": {
           "content": {
             "application/json": {
@@ -810,10 +810,10 @@
         }
       }
     },
-    "/information/register/compensation_report_status": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Registers. Getting the compensation registry status",
+        "operationId": "information.register.compensation_report_status",
         "requestBody": {
           "content": {
             "application/json": {
@@ -912,10 +912,10 @@
         }
       }
     },
-    "/information/register/compensation_report_p2p": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Registers. Registry by p2p operation",
+        "operationId": "information.register.compensation_report_p2p",
         "requestBody": {
           "content": {
             "application/json": {
@@ -1031,10 +1031,10 @@
         }
       }
     },
-    "/information/register/compensation_report_p2p_status": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Registers. p2p operation registry status",
+        "operationId": "information.register.compensation_report_p2p_status",
         "requestBody": {
           "content": {
             "application/json": {

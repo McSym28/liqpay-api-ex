@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/widget": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Payment widget",
+        "operationId": "internet_acquiring.widget",
         "requestBody": {
           "content": {
             "application/json": {

@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/two_step/block": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Two-step payment. Funds blocking",
+        "operationId": "internet_acquiring.two_step.block",
         "requestBody": {
           "content": {
             "application/json": {
@@ -650,10 +650,10 @@
         }
       }
     },
-    "/internet_acquiring/two_step/complete": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Two-step payment. Completion of payment",
+        "operationId": "internet_acquiring.two_step.complete",
         "requestBody": {
           "content": {
             "application/json": {

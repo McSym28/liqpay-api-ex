@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/apay/encrypted_token": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Apple Pay. Encrypted token",
+        "operationId": "internet_acquiring.apay.encrypted_token",
         "requestBody": {
           "content": {
             "application/json": {
@@ -260,10 +260,10 @@
         }
       }
     },
-    "/internet_acquiring/apay/decrypted_token": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Apple Pay. Decrypted token",
+        "operationId": "internet_acquiring.apay.decrypted_token",
         "requestBody": {
           "content": {
             "application/json": {

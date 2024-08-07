@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/confirmation/OTP": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Verification. OTP confirmation",
+        "operationId": "confirmation.OTP",
         "requestBody": {
           "content": {
             "application/json": {

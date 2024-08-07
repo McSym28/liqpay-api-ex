@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/confirmation/CVV": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Verification. CVV confirmation",
+        "operationId": "confirmation.CVV",
         "requestBody": {
           "content": {
             "application/json": {

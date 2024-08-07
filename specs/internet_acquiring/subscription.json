@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/subscription/create": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Subscription. Create subscribtion",
+        "operationId": "internet_acquiring.subscription.create",
         "requestBody": {
           "content": {
             "application/json": {
@@ -576,10 +576,10 @@
         }
       }
     },
-    "/internet_acquiring/subscription/unsubscribe": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Subscription. Unsubscribe",
+        "operationId": "internet_acquiring.subscription.unsubscribe",
         "requestBody": {
           "content": {
             "application/json": {
@@ -914,10 +914,10 @@
         }
       }
     },
-    "/internet_acquiring/subscription/edit": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Subscription. Edit subscribtion",
+        "operationId": "internet_acquiring.subscription.edit",
         "requestBody": {
           "content": {
             "application/json": {

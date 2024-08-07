@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/confirmation/sender_verify": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Verification. Sender's verification",
+        "operationId": "confirmation.sender_verify",
         "requestBody": {
           "content": {
             "application/json": {

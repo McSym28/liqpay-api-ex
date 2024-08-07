@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/information/payment_archive": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Payments archive",
+        "operationId": "information.payment_archive",
         "requestBody": {
           "content": {
             "application/json": {

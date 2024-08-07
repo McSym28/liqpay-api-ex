@@ -12,8 +12,8 @@
   "paths": {
     "/p24api/exchange_rates?json": {
       "get": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Public. Exchange rates archive",
+        "operationId": "public.archive",
         "parameters": [
           {
             "in": "query",

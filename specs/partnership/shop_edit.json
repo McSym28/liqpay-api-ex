@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/partnership/shop_edit": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Partner's. Company editing",
+        "operationId": "partnership.shop_edit",
         "requestBody": {
           "content": {
             "application/json": {

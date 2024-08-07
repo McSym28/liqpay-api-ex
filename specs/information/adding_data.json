@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/information/adding_data": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Adding data",
+        "operationId": "information.adding_data",
         "requestBody": {
           "content": {
             "application/json": {

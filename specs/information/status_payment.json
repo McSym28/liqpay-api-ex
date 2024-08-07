@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/information/status_payment": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Informational. Payment status",
+        "operationId": "information.status_payment",
         "requestBody": {
           "content": {
             "application/json": {

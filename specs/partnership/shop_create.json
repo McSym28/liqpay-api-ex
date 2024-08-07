@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/partnership/shop_create/create": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Partner's. Company creation. Company creation create",
+        "operationId": "partnership.shop_create.create",
         "requestBody": {
           "content": {
             "application/json": {
@@ -334,10 +334,10 @@
         }
       }
     },
-    "/partnership/shop_create/register": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Partner's. Company creation. Company creation register",
+        "operationId": "partnership.shop_create.register",
         "requestBody": {
           "content": {
             "application/json": {
@@ -740,10 +740,10 @@
         }
       }
     },
-    "/partnership/shop_create/available_mcc": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Partner's. Company creation. Available МСС",
+        "operationId": "partnership.shop_create.available_mcc",
         "requestBody": {
           "content": {
             "application/json": {
@@ -834,10 +834,10 @@
         }
       }
     },
-    "/partnership/shop_create/documents": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Partner's. Company creation. Documents",
+        "operationId": "partnership.shop_create.documents",
         "requestBody": {
           "content": {
             "application/json": {

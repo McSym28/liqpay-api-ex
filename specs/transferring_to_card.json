@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/transferring_to_card": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Transfer of funds from account to card",
+        "operationId": "transferring_to_card",
         "requestBody": {
           "content": {
             "application/json": {

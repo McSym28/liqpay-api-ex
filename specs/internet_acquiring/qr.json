@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/qr": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. QR-code payment",
+        "operationId": "internet_acquiring.qr",
         "requestBody": {
           "content": {
             "application/json": {

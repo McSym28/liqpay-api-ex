@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/confirmation/cardverification": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Verification. Cardverification",
+        "operationId": "confirmation.cardverification",
         "requestBody": {
           "content": {
             "application/json": {

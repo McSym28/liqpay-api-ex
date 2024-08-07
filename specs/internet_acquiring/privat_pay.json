@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/privat_pay": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. PrivatPay button",
+        "operationId": "internet_acquiring.privat_pay",
         "requestBody": {
           "content": {
             "application/json": {

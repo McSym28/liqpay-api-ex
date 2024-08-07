@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/confirmation/MPI": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Verification. MPI",
+        "operationId": "confirmation.MPI",
         "requestBody": {
           "content": {
             "application/json": {

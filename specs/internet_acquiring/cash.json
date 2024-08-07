@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/cash": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. Cash payment",
+        "operationId": "internet_acquiring.cash",
         "requestBody": {
           "content": {
             "application/json": {

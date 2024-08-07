@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/partnership/info_merchant": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Partner's. Information about company",
+        "operationId": "partnership.info_merchant",
         "requestBody": {
           "content": {
             "application/json": {

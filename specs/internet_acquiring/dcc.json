@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/internet_acquiring/dcc": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Internet acquiring. DCC",
+        "operationId": "internet_acquiring.dcc",
         "requestBody": {
           "content": {
             "application/json": {

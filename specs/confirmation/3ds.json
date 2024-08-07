@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/confirmation/3ds": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Verification. 3D-Secure",
+        "operationId": "confirmation.3ds",
         "requestBody": {
           "content": {
             "application/json": {

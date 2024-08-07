@@ -10,10 +10,10 @@
     }
   ],
   "paths": {
-    "/callback": {
+    "/api/request": {
       "post": {
-        "summary": "Checkout",
-        "operationId": "checkout",
+        "summary": "Callback",
+        "operationId": "callback",
         "requestBody": {
           "content": {
             "application/json": {
