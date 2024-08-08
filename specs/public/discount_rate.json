@@ -16,16 +16,16 @@
         "operationId": "public/discount_rate",
         "parameters": [
           {
-            "in": "query",
             "name": "year",
-            "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "string",
               "examples": [
                 "2014"
               ]
-            }
+            },
+            "required": true,
+            "description": "The identifier of the year from which you want to display the «NBU Accounting Rate».\n The parameter takes meanings in the format `YYYY`"
           }
         ],
         "responses": {

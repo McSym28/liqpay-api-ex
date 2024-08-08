@@ -16,41 +16,41 @@
         "operationId": "public/exchange",
         "parameters": [
           {
-            "in": "query",
             "name": "exchange",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "boolean",
               "enum": [
                 true
               ],
               "default": true
-            }
+            },
+            "required": true
           },
           {
-            "in": "query",
             "name": "json",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "boolean",
               "enum": [
                 true
               ],
               "default": true
-            }
+            },
+            "required": true
           },
           {
-            "in": "query",
             "name": "coursid",
-            "description": "Possible values:\n* `5` - Cash rate of PrivatBank (in the branches)\n* `11` - Non-cash exchange rate of PrivatBank (conversion by cards, Privat24, replenishment of deposits)\n",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "integer",
               "enum": [
                 5,
                 11
               ]
-            }
+            },
+            "required": true,
+            "description": "Possible values:\n* `5` - Cash rate of PrivatBank (in the branches)\n* `11` - Non-cash exchange rate of PrivatBank (conversion by cards, Privat24, replenishment of deposits)\n"
           }
         ],
         "responses": {

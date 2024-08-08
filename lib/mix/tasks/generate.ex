@@ -56,7 +56,7 @@ defmodule Mix.Tasks.Generate do
     request: nil,
     response: nil,
     method: :post,
-    parameters: nil,
+    parameters: [],
     url: "/api/request"
   )
 
@@ -81,6 +81,14 @@ defmodule Mix.Tasks.Generate do
     required: nil,
     description: nil,
     examples: []
+  )
+
+  Record.defrecord(:parameter,
+    name: nil,
+    in: :query,
+    schema: nil,
+    required: false,
+    description: nil
   )
 
   @requirements ["app.start"]
@@ -280,10 +288,10 @@ defmodule Mix.Tasks.Generate do
                       OrderedObject.new(
                         List.flatten([
                           [summary: summary, operationId: operation_id],
-                          if parameters do
-                            [parameters: parameters]
-                          else
+                          if parameters == [] do
                             []
+                          else
+                            [parameters: parameters]
                           end,
                           if request_schema do
                             [
@@ -653,19 +661,19 @@ defmodule Mix.Tasks.Generate do
          _block_parse_settings
        ) do
     parameters = [
-      %{
+      parameter(
         name: "exchange",
         in: :query,
         required: true,
         schema: schema(type: :boolean, default: true, enum: [true])
-      },
-      %{
+      ),
+      parameter(
         name: "json",
         in: :query,
         required: true,
         schema: schema(type: :boolean, default: true, enum: [true])
-      },
-      %{
+      ),
+      parameter(
         name: "coursid",
         in: :query,
         required: true,
@@ -675,7 +683,7 @@ defmodule Mix.Tasks.Generate do
         * `5` - Cash rate of PrivatBank (in the branches)
         * `11` - Non-cash exchange rate of PrivatBank (conversion by cards, Privat24, replenishment of deposits)
         """
-      }
+      )
     ]
 
     endpoint =
@@ -701,19 +709,19 @@ defmodule Mix.Tasks.Generate do
          _block_parse_settings
        ) do
     parameters = [
-      %{
+      parameter(
         name: "json",
         in: :query,
         required: true,
         schema: schema(type: :boolean, default: true, enum: [true])
-      },
-      %{
+      ),
+      parameter(
         name: "date",
         in: :query,
         required: true,
         schema: schema(type: :string, format: @date_liqpay_format),
         description: "Exchange rate date"
-      }
+      )
     ]
 
     endpoint =
@@ -769,7 +777,14 @@ defmodule Mix.Tasks.Generate do
     parameters =
       Enum.map(request_properties, fn {"year" = key, schema(description: description) = schema} ->
         schema_new = schema(schema, description: nil)
-        %{name: key, in: :query, required: true, schema: schema_new, description: description}
+
+        parameter(
+          name: key,
+          in: :query,
+          required: true,
+          schema: schema_new,
+          description: description
+        )
       end)
 
     endpoint_new = endpoint(endpoint_new, request: nil, parameters: parameters)
@@ -4567,6 +4582,18 @@ defimpl Jason.Encoder, for: Tuple do
     |> Enum.filter(fn
       {_key, nil} -> false
       {:examples, []} -> false
+      _ -> true
+    end)
+    |> Jason.OrderedObject.new()
+    |> Jason.Encoder.encode(opts)
+  end
+
+  def encode(Mix.Tasks.Generate.parameter() = parameter, opts) do
+    parameter
+    |> Mix.Tasks.Generate.parameter()
+    |> Enum.filter(fn
+      {_key, nil} -> false
+      {:required, false} -> false
       _ -> true
     end)
     |> Jason.OrderedObject.new()

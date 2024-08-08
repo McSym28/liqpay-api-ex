@@ -16,26 +16,26 @@
         "operationId": "public/archive",
         "parameters": [
           {
-            "in": "query",
             "name": "json",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "boolean",
               "enum": [
                 true
               ],
               "default": true
-            }
+            },
+            "required": true
           },
           {
-            "in": "query",
             "name": "date",
-            "description": "Exchange rate date",
-            "required": true,
+            "in": "query",
             "schema": {
               "type": "string",
               "format": "date-liqpay"
-            }
+            },
+            "required": true,
+            "description": "Exchange rate date"
           }
         ],
         "responses": {
