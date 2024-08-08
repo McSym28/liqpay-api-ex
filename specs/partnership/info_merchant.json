@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=partnership%2Finfo_merchant": {
       "post": {
         "summary": "Partner's. Information about company",
         "operationId": "partnership/info_merchant",

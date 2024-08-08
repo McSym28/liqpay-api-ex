@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=partnership%2Fshop_create%2Fcreate": {
       "post": {
         "summary": "Partner's. Company creation. Company creation create",
         "operationId": "partnership/shop_create/create",
@@ -334,7 +334,7 @@
         }
       }
     },
-    "/api/request": {
+    "/api/request?path=partnership%2Fshop_create%2Fregister": {
       "post": {
         "summary": "Partner's. Company creation. Company creation register",
         "operationId": "partnership/shop_create/register",
@@ -740,7 +740,7 @@
         }
       }
     },
-    "/api/request": {
+    "/api/request?path=partnership%2Fshop_create%2Favailable_mcc": {
       "post": {
         "summary": "Partner's. Company creation. Available МСС",
         "operationId": "partnership/shop_create/available_mcc",
@@ -834,7 +834,7 @@
         }
       }
     },
-    "/api/request": {
+    "/api/request?path=partnership%2Fshop_create%2Fdocuments": {
       "post": {
         "summary": "Partner's. Company creation. Documents",
         "operationId": "partnership/shop_create/documents",

@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=information%2Fstatus_payment": {
       "post": {
         "summary": "Informational. Payment status",
         "operationId": "information/status_payment",

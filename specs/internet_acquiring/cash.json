@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=internet_acquiring%2Fcash": {
       "post": {
         "summary": "Internet acquiring. Cash payment",
         "operationId": "internet_acquiring/cash",

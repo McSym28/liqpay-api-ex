@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=confirmation%2FMPI": {
       "post": {
         "summary": "Verification. MPI",
         "operationId": "confirmation/MPI",

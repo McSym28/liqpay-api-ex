@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=internet_acquiring%2Fqr": {
       "post": {
         "summary": "Internet acquiring. QR-code payment",
         "operationId": "internet_acquiring/qr",

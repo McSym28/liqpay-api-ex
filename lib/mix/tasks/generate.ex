@@ -57,7 +57,7 @@ defmodule Mix.Tasks.Generate do
     response: nil,
     method: :post,
     parameters: [],
-    url: "/api/request"
+    url: nil
   )
 
   Record.defrecordp(:parse_settings,
@@ -282,7 +282,15 @@ defmodule Mix.Tasks.Generate do
                     |> Enum.reverse()
                     |> Enum.join("/")
 
-                  {url,
+                  url_new =
+                    if url do
+                      url
+                    else
+                      %URI{path: "/api/request", query: URI.encode_query(%{path: operation_id})}
+                      |> URI.to_string()
+                    end
+
+                  {url_new,
                    OrderedObject.new([
                      {method,
                       OrderedObject.new(

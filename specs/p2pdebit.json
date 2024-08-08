@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=p2pdebit": {
       "post": {
         "summary": "Transfer of funds from cards to account",
         "operationId": "p2pdebit",

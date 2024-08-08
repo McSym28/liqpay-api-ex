@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=confirmation%2F3ds": {
       "post": {
         "summary": "Verification. 3D-Secure",
         "operationId": "confirmation/3ds",

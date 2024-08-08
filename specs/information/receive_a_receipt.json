@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=information%2Freceive_a_receipt": {
       "post": {
         "summary": "Informational. Receive a receipt",
         "operationId": "information/receive_a_receipt",

@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=internet_acquiring%2Finvoice%2Funits": {
       "post": {
         "summary": "Internet acquiring. Invoice. ",
         "operationId": "internet_acquiring/invoice/units",
@@ -116,7 +116,7 @@
         }
       }
     },
-    "/api/request": {
+    "/api/request?path=internet_acquiring%2Finvoice%2Fissue": {
       "post": {
         "summary": "Internet acquiring. Invoice. Issuing the invoice",
         "operationId": "internet_acquiring/invoice/issue",
@@ -406,7 +406,7 @@
         }
       }
     },
-    "/api/request": {
+    "/api/request?path=internet_acquiring%2Finvoice%2Fcancel": {
       "post": {
         "summary": "Internet acquiring. Invoice. Invoice cancelation",
         "operationId": "internet_acquiring/invoice/cancel",

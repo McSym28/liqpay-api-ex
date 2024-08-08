@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request": {
+    "/api/request?path=transferring_to_card": {
       "post": {
         "summary": "Transfer of funds from account to card",
         "operationId": "transferring_to_card",
