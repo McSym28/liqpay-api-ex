@@ -19,19 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "merchant_public_key"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -58,15 +52,21 @@
                     ]
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "merchant_public_key"
+                ]
               }
             }
           }

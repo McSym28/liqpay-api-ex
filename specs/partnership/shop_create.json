@@ -19,23 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "description",
-                  "email",
-                  "name",
-                  "phone",
-                  "site"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -92,8 +82,8 @@
                   },
                   "iban": {
                     "type": "string",
-                    "description": "IBAN to receive payments in this store",
-                    "maxLength": 34
+                    "maxLength": 34,
+                    "description": "IBAN to receive payments in this store"
                   },
                   "company": {
                     "type": "string",
@@ -133,35 +123,24 @@
                   },
                   "aggregator": {
                     "type": "object",
-                    "description": "Parameters for aggregators",
-                    "required": [
-                      "law_okpo",
-                      "law_name",
-                      "law_iban",
-                      "law_contacts",
-                      "law_cto_info",
-                      "law_owners_info",
-                      "law_co_owners_info"
-                    ],
                     "properties": {
                       "law_okpo": {
                         "type": "string",
-                        "description": "USREOU of an enterprise",
-                        "maxLength": 255
+                        "maxLength": 255,
+                        "description": "USREOU of an enterprise"
                       },
                       "law_name": {
                         "type": "string",
-                        "description": "Enterprise name",
-                        "maxLength": 255
+                        "maxLength": 255,
+                        "description": "Enterprise name"
                       },
                       "law_iban": {
                         "type": "string",
-                        "description": "Iban of an enterprise",
-                        "maxLength": 255
+                        "maxLength": 255,
+                        "description": "Iban of an enterprise"
                       },
                       "law_contacts": {
                         "type": "object",
-                        "description": "Contact details of an enterprise",
                         "properties": {
                           "phone": {
                             "type": "string",
@@ -171,11 +150,11 @@
                             "type": "string",
                             "description": "Contact email of an enterprise"
                           }
-                        }
+                        },
+                        "description": "Contact details of an enterprise"
                       },
                       "law_cto_info": {
                         "type": "object",
-                        "description": "Information about the head of an enterprise",
                         "properties": {
                           "name": {
                             "type": "string",
@@ -201,11 +180,11 @@
                             "type": "string",
                             "description": "Residence of the head of an enterprise"
                           }
-                        }
+                        },
+                        "description": "Information about the head of an enterprise"
                       },
                       "law_owners_info": {
                         "type": "array",
-                        "description": "Information on the final beneficial owners of an enterprise",
                         "items": {
                           "type": "object",
                           "properties": {
@@ -238,11 +217,11 @@
                               "description": "Residence of the owner of the enterprise"
                             }
                           }
-                        }
+                        },
+                        "description": "Information on the final beneficial owners of an enterprise"
                       },
                       "law_co_owners_info": {
                         "type": "array",
-                        "description": "Information about owners of major shareholding",
                         "items": {
                           "type": "object",
                           "properties": {
@@ -276,20 +255,41 @@
                             },
                             "company_name": {
                               "type": "string",
-                              "description": "Enterprise name. Transfer if the owner is a legal entity",
-                              "maxLength": 255
+                              "maxLength": 255,
+                              "description": "Enterprise name. Transfer if the owner is a legal entity"
                             },
                             "company_okpo": {
                               "type": "string",
-                              "description": "USREOU of an enterprise. Transfer if the owner is a legal entity",
-                              "maxLength": 255
+                              "maxLength": 255,
+                              "description": "USREOU of an enterprise. Transfer if the owner is a legal entity"
                             }
                           }
-                        }
+                        },
+                        "description": "Information about owners of major shareholding"
                       }
-                    }
+                    },
+                    "required": [
+                      "law_okpo",
+                      "law_name",
+                      "law_iban",
+                      "law_contacts",
+                      "law_cto_info",
+                      "law_owners_info",
+                      "law_co_owners_info"
+                    ],
+                    "description": "Parameters for aggregators"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "description",
+                  "email",
+                  "name",
+                  "phone",
+                  "site"
+                ]
               }
             }
           }
@@ -343,21 +343,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "phone",
-                  "email",
-                  "name"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -435,8 +427,8 @@
                   },
                   "iban": {
                     "type": "string",
-                    "description": "IBAN to receive payments in this store",
-                    "maxLength": 34
+                    "maxLength": 34,
+                    "description": "IBAN to receive payments in this store"
                   },
                   "okpo": {
                     "type": "string",
@@ -452,14 +444,8 @@
                   },
                   "docs": {
                     "type": "array",
-                    "description": "Documents for store activation",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "file",
-                        "name",
-                        "file_name"
-                      ],
                       "properties": {
                         "file": {
                           "type": "string",
@@ -477,8 +463,14 @@
                           "type": "string",
                           "description": "File name"
                         }
-                      }
-                    }
+                      },
+                      "required": [
+                        "file",
+                        "name",
+                        "file_name"
+                      ]
+                    },
+                    "description": "Documents for store activation"
                   },
                   "amount_procent_agent": {
                     "type": "number",
@@ -517,35 +509,24 @@
                   },
                   "aggregator": {
                     "type": "object",
-                    "description": "Parameters for aggregators",
-                    "required": [
-                      "law_okpo",
-                      "law_name",
-                      "law_iban",
-                      "law_contacts",
-                      "law_cto_info",
-                      "law_owners_info",
-                      "law_co_owners_info"
-                    ],
                     "properties": {
                       "law_okpo": {
                         "type": "string",
-                        "description": "USREOU of an enterprise",
-                        "maxLength": 255
+                        "maxLength": 255,
+                        "description": "USREOU of an enterprise"
                       },
                       "law_name": {
                         "type": "string",
-                        "description": "Enterprise name",
-                        "maxLength": 255
+                        "maxLength": 255,
+                        "description": "Enterprise name"
                       },
                       "law_iban": {
                         "type": "string",
-                        "description": "Iban of an enterprise",
-                        "maxLength": 255
+                        "maxLength": 255,
+                        "description": "Iban of an enterprise"
                       },
                       "law_contacts": {
                         "type": "object",
-                        "description": "Contact details of an enterprise",
                         "properties": {
                           "phone": {
                             "type": "string",
@@ -555,11 +536,11 @@
                             "type": "string",
                             "description": "Contact email of an enterprise"
                           }
-                        }
+                        },
+                        "description": "Contact details of an enterprise"
                       },
                       "law_cto_info": {
                         "type": "object",
-                        "description": "Information about the head of an enterprise",
                         "properties": {
                           "name": {
                             "type": "string",
@@ -585,11 +566,11 @@
                             "type": "string",
                             "description": "Residence of the head of an enterprise"
                           }
-                        }
+                        },
+                        "description": "Information about the head of an enterprise"
                       },
                       "law_owners_info": {
                         "type": "array",
-                        "description": "Information on the final beneficial owners of an enterprise",
                         "items": {
                           "type": "object",
                           "properties": {
@@ -622,11 +603,11 @@
                               "description": "Residence of the owner of the enterprise"
                             }
                           }
-                        }
+                        },
+                        "description": "Information on the final beneficial owners of an enterprise"
                       },
                       "law_co_owners_info": {
                         "type": "array",
-                        "description": "Information about owners of major shareholding",
                         "items": {
                           "type": "object",
                           "properties": {
@@ -660,20 +641,39 @@
                             },
                             "company_name": {
                               "type": "string",
-                              "description": "Enterprise name. Transfer if the owner is a legal entity",
-                              "maxLength": 255
+                              "maxLength": 255,
+                              "description": "Enterprise name. Transfer if the owner is a legal entity"
                             },
                             "company_okpo": {
                               "type": "string",
-                              "description": "USREOU of an enterprise. Transfer if the owner is a legal entity",
-                              "maxLength": 255
+                              "maxLength": 255,
+                              "description": "USREOU of an enterprise. Transfer if the owner is a legal entity"
                             }
                           }
-                        }
+                        },
+                        "description": "Information about owners of major shareholding"
                       }
-                    }
+                    },
+                    "required": [
+                      "law_okpo",
+                      "law_name",
+                      "law_iban",
+                      "law_contacts",
+                      "law_cto_info",
+                      "law_owners_info",
+                      "law_co_owners_info"
+                    ],
+                    "description": "Parameters for aggregators"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "phone",
+                  "email",
+                  "name"
+                ]
               }
             }
           }
@@ -749,22 +749,17 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "action",
-                  "version",
-                  "public_key"
-                ],
                 "properties": {
                   "action": {
                     "type": "string",
                     "description": "agent_info_mcc_codes"
                   },
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "public_key": {
@@ -772,15 +767,20 @@
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "en",
                       "uk"
                     ],
+                    "default": "uk",
                     "description": "Locale in which to return the answer"
                   }
-                }
+                },
+                "required": [
+                  "action",
+                  "version",
+                  "public_key"
+                ]
               }
             }
           }
@@ -795,7 +795,6 @@
                   "properties": {
                     "mcc_codes": {
                       "type": "array",
-                      "description": "Array with code data",
                       "items": {
                         "type": "object",
                         "properties": {
@@ -816,7 +815,8 @@
                             "description": "Code category identifier. Blank for code categories, contains value for MCC"
                           }
                         }
-                      }
+                      },
+                      "description": "Array with code data"
                     },
                     "result": {
                       "type": "string",
@@ -843,44 +843,44 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "action",
-                  "version",
-                  "mcc_code",
-                  "public_key"
-                ],
                 "properties": {
                   "action": {
                     "type": "string",
                     "description": "agent_info_mcc_docs"
                   },
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "mcc_code": {
                     "type": "number",
-                    "description": "MCC Code Meaning",
-                    "maxLength": 4
+                    "maxLength": 4,
+                    "description": "MCC Code Meaning"
                   },
                   "public_key": {
                     "type": "string",
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "en",
                       "uk"
                     ],
+                    "default": "uk",
                     "description": "Locale in which to return the answer"
                   }
-                }
+                },
+                "required": [
+                  "action",
+                  "version",
+                  "mcc_code",
+                  "public_key"
+                ]
               }
             }
           }
@@ -903,7 +903,6 @@
                     },
                     "expected_docs": {
                       "type": "array",
-                      "description": "An array containing the data of documents required for the received MCC",
                       "items": {
                         "type": "object",
                         "properties": {
@@ -928,7 +927,8 @@
                             "description": "Description of the document"
                           }
                         }
-                      }
+                      },
+                      "description": "An array containing the data of documents required for the received MCC"
                     }
                   }
                 }

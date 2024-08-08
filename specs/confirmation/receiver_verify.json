@@ -19,21 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "confirm_token",
-                  "receiver_first_name",
-                  "receiver_last_name"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -73,7 +65,15 @@
                       "last name"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "confirm_token",
+                  "receiver_first_name",
+                  "receiver_last_name"
+                ]
               }
             }
           }
@@ -372,11 +372,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3

@@ -19,27 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "currency",
-                  "description",
-                  "order_id",
-                  "paytype",
-                  "tavv",
-                  "card",
-                  "card_exp_month",
-                  "card_exp_year"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "public_key": {
@@ -76,8 +62,8 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
-                    "maxLength": 255
+                    "maxLength": 255,
+                    "description": "Unique purchase ID in your shop"
                   },
                   "phone": {
                     "type": "string",
@@ -98,25 +84,25 @@
                     "description": "A cryptogram is a dynamic one-time code for each transaction that accompanies a token. It is obtained when decrypting payment data from the Android device"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "result_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase"
                   },
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   },
                   "card": {
                     "type": "string",
@@ -138,7 +124,6 @@
                   },
                   "sender": {
                     "type": "object",
-                    "description": "Sender parameters",
                     "properties": {
                       "sender_address": {
                         "type": "string",
@@ -164,16 +149,13 @@
                         "type": "string",
                         "description": "Sender's zip code"
                       }
-                    }
+                    },
+                    "description": "Sender parameters"
                   },
                   "split_rules": {
                     "type": "array",
-                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "amount"
-                      ],
                       "properties": {
                         "public_key": {
                           "type": "string",
@@ -192,12 +174,12 @@
                           ]
                         },
                         "commission_payer": {
-                          "default": "sender",
                           "type": "string",
                           "enum": [
                             "sender",
                             "receiver"
                           ],
+                          "default": "sender",
                           "description": "Commission payer",
                           "examples": [
                             "sender",
@@ -207,8 +189,8 @@
                         "server_url": {
                           "type": "string",
                           "format": "uri",
-                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
                           "maxLength": 510,
+                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
                           "examples": [
                             "https://server1/callback",
                             "https://server2/callback"
@@ -218,8 +200,12 @@
                           "type": "string",
                           "description": "Payment description"
                         }
-                      }
-                    }
+                      },
+                      "required": [
+                        "amount"
+                      ]
+                    },
+                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`"
                   },
                   "dae": {
                     "type": "string",
@@ -234,26 +220,40 @@
                   },
                   "product_category": {
                     "type": "string",
-                    "description": "Product category in your shop",
-                    "maxLength": 25
+                    "maxLength": 25,
+                    "description": "Product category in your shop"
                   },
                   "product_description": {
                     "type": "string",
-                    "description": "Product description in your shop",
-                    "maxLength": 500
+                    "maxLength": 500,
+                    "description": "Product description in your shop"
                   },
                   "product_name": {
                     "type": "string",
-                    "description": "Product name in your shop",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "description": "Product name in your shop"
                   },
                   "product_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "Product page address",
-                    "maxLength": 2000
+                    "maxLength": 2000,
+                    "description": "Product page address"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "order_id",
+                  "paytype",
+                  "tavv",
+                  "card",
+                  "card_exp_month",
+                  "card_exp_year"
+                ]
               }
             }
           }
@@ -269,24 +269,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "paytype",
-                  "amount",
-                  "gpay_token",
-                  "order_id",
-                  "currency",
-                  "description"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "public_key": {
@@ -319,8 +308,8 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
-                    "maxLength": 255
+                    "maxLength": 255,
+                    "description": "Unique purchase ID in your shop"
                   },
                   "currency": {
                     "type": "string",
@@ -336,27 +325,38 @@
                     "description": "Payment description"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "result_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase"
                   },
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "paytype",
+                  "amount",
+                  "gpay_token",
+                  "order_id",
+                  "currency",
+                  "description"
+                ]
               }
             }
           }

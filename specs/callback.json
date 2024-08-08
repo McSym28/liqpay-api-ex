@@ -100,8 +100,8 @@
                   },
                   "customer": {
                     "type": "string",
-                    "description": "Unique customer ID in your shop",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "description": "Unique customer ID in your shop"
                   },
                   "description": {
                     "type": "string",
@@ -278,11 +278,11 @@
                     "description": "Payment type"
                   },
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "err_erc": {

@@ -19,24 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "confirm_token",
-                  "sender_address",
-                  "sender_city",
-                  "sender_country_code",
-                  "sender_first_name",
-                  "sender_postal_code"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -101,7 +90,18 @@
                     "type": "string",
                     "description": "Sender's zip code"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "confirm_token",
+                  "sender_address",
+                  "sender_city",
+                  "sender_country_code",
+                  "sender_first_name",
+                  "sender_postal_code"
+                ]
               }
             }
           }
@@ -400,11 +400,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3

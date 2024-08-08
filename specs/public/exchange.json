@@ -20,11 +20,11 @@
             "name": "exchange",
             "required": true,
             "schema": {
-              "default": true,
               "type": "boolean",
               "enum": [
                 true
-              ]
+              ],
+              "default": true
             }
           },
           {
@@ -32,11 +32,11 @@
             "name": "json",
             "required": true,
             "schema": {
-              "default": true,
               "type": "boolean",
               "enum": [
                 true
-              ]
+              ],
+              "default": true
             }
           },
           {

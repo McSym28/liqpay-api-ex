@@ -19,28 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "card",
-                  "card_cvv",
-                  "card_exp_month",
-                  "card_exp_year",
-                  "currency",
-                  "description",
-                  "ip",
-                  "order_id",
-                  "threeDSInfo"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -127,14 +112,13 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
                   },
                   "action_payment": {
-                    "default": "pay",
                     "type": "string",
                     "enum": [
                       "pay",
@@ -145,15 +129,16 @@
                       "p2p",
                       "p2pdebit"
                     ],
+                    "default": "pay",
                     "description": "A parameter defining the payment type. Pass the value of the action parameter of the payment, which will be carried out after passing 3DS. Possible values:\n* `pay` - payment\n* `hold` - blocking funds on the sender’s account\n* `subscribe` - regular payment\n* `paydonate` - donation\n* `auth` - card preauthorization\n* `p2p` - transfer from card to card\n* `p2pdebit` - payment using p2p debit"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "sender_first_name": {
@@ -166,66 +151,54 @@
                   },
                   "threeDSInfo": {
                     "type": "object",
-                    "description": "Additional data to check a transaction",
-                    "required": [
-                      "notificationURL",
-                      "browserLanguage",
-                      "threeDSRequestorURL",
-                      "browserScreenHeight",
-                      "browserColorDepth",
-                      "browserScreenWidth",
-                      "browserAcceptHeader",
-                      "browserTZ",
-                      "browserUserAgent"
-                    ],
                     "properties": {
                       "notificationURL": {
                         "type": "string",
-                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified",
-                        "maxLength": 256
+                        "maxLength": 256,
+                        "description": "The address to which the verification result will be sent.\nURL to send CRes or error message. The CRes message is sent from the issuer’s ACS via the cardholder's browser after being verified"
                       },
                       "browserLanguage": {
                         "type": "string",
-                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser",
                         "maxLength": 8,
+                        "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser",
                         "examples": [
                           "en-US"
                         ]
                       },
                       "threeDSRequestorURL": {
                         "type": "string",
-                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information",
-                        "maxLength": 2048
+                        "maxLength": 2048,
+                        "description": "The website's URL where the payment is made. This element provides additional data to the 3-D Secure system in case of a problem and should provide contact information"
                       },
                       "browserScreenHeight": {
                         "type": "string",
-                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser",
-                        "maxLength": 6
+                        "maxLength": 6,
+                        "description": "Total payer screen height in pixels. Returned by the option screen.height of the user's browser"
                       },
                       "browserColorDepth": {
                         "type": "string",
-                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits",
-                        "maxLength": 2
+                        "maxLength": 2,
+                        "description": "Value that represents the bit depth of the color palette for displaying images in bits per pixel. Returned by the option screen.colorDepth of the user's browser.\nAllowed values: 1 = 1 bit, 4 = 4 bits, 8 = 8 bits, 15 = 15 bits, 16 = 16 bits, 24 = 24 bits, 32 = 32 bits, 48 = 48 bits"
                       },
                       "browserJavascriptEnabled": {
-                        "default": true,
                         "type": "boolean",
+                        "default": true,
                         "description": "Parameter describing whether the payer's browser can perform JavaScript"
                       },
                       "browserJavaEnabled": {
-                        "default": false,
                         "type": "boolean",
+                        "default": false,
                         "description": "A parameter describing whether the payer's browser can perform Java"
                       },
                       "browserScreenWidth": {
                         "type": "string",
-                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser",
-                        "maxLength": 6
+                        "maxLength": 6,
+                        "description": "Total payer screen width in pixels. Returned by the option screen.width of the user's browser"
                       },
                       "browserAcceptHeader": {
                         "type": "string",
-                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part",
-                        "maxLength": 2048
+                        "maxLength": 2048,
+                        "description": "The precise value of the HTTP accept headers sent from the payer's browser to the resource where the payment is made.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part"
                       },
                       "browserTZ": {
                         "type": "string",
@@ -237,10 +210,22 @@
                       },
                       "browserUserAgent": {
                         "type": "string",
-                        "description": "The precise content of the user-agent HTTP header.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part",
-                        "maxLength": 2048
+                        "maxLength": 2048,
+                        "description": "The precise content of the user-agent HTTP header.\nIf the value of headers is longer than 2048 characters, the 3DS server will cut off the extra part"
                       }
-                    }
+                    },
+                    "required": [
+                      "notificationURL",
+                      "browserLanguage",
+                      "threeDSRequestorURL",
+                      "browserScreenHeight",
+                      "browserColorDepth",
+                      "browserScreenWidth",
+                      "browserAcceptHeader",
+                      "browserTZ",
+                      "browserUserAgent"
+                    ],
+                    "description": "Additional data to check a transaction"
                   },
                   "phone": {
                     "type": "string",
@@ -249,7 +234,22 @@
                       "380950000001"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
+                  "currency",
+                  "description",
+                  "ip",
+                  "order_id",
+                  "threeDSInfo"
+                ]
               }
             }
           }
@@ -346,8 +346,8 @@
                     },
                     "cres": {
                       "type": "string",
-                      "description": "CRes",
                       "nullable": true,
+                      "description": "CRes",
                       "examples": [
                         "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
                       ]

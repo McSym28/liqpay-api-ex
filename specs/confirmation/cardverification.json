@@ -19,25 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "card",
-                  "card_cvv",
-                  "card_exp_month",
-                  "card_exp_year",
-                  "description",
-                  "ip",
-                  "order_id"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "public_key": {
@@ -82,16 +70,16 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
-                    "maxLength": 255
+                    "maxLength": 255,
+                    "description": "Unique purchase ID in your shop"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "verifycode": {
@@ -102,7 +90,19 @@
                     ],
                     "description": "Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
+                  "description",
+                  "ip",
+                  "order_id"
+                ]
               }
             }
           }
@@ -391,11 +391,11 @@
                       "description": "Payment type"
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3

@@ -19,25 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "currency",
-                  "description",
-                  "ip",
-                  "order_id",
-                  "phone",
-                  "tavv"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -128,8 +116,8 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
@@ -158,12 +146,12 @@
                     "description": "Previous transaction ID. For recurring payments using tokens of Visa international payment system"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "prepare": {
@@ -189,8 +177,8 @@
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   },
                   "tavv": {
                     "type": "string",
@@ -198,14 +186,6 @@
                   },
                   "sender": {
                     "type": "object",
-                    "description": "Sender parameters",
-                    "required": [
-                      "phone",
-                      "sender_country_code",
-                      "sender_city",
-                      "sender_address",
-                      "sender_postal_code"
-                    ],
                     "properties": {
                       "sender_first_name": {
                         "type": "string",
@@ -247,16 +227,20 @@
                         "type": "string",
                         "description": "Sender's zip code"
                       }
-                    }
+                    },
+                    "required": [
+                      "phone",
+                      "sender_country_code",
+                      "sender_city",
+                      "sender_address",
+                      "sender_postal_code"
+                    ],
+                    "description": "Sender parameters"
                   },
                   "split_rules": {
                     "type": "array",
-                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "amount"
-                      ],
                       "properties": {
                         "public_key": {
                           "type": "string",
@@ -275,12 +259,12 @@
                           ]
                         },
                         "commission_payer": {
-                          "default": "sender",
                           "type": "string",
                           "enum": [
                             "sender",
                             "receiver"
                           ],
+                          "default": "sender",
                           "description": "Commission payer",
                           "examples": [
                             "sender",
@@ -290,8 +274,8 @@
                         "server_url": {
                           "type": "string",
                           "format": "uri",
-                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
                           "maxLength": 510,
+                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
                           "examples": [
                             "https://server1/callback",
                             "https://server2/callback"
@@ -301,13 +285,17 @@
                           "type": "string",
                           "description": "Payment description"
                         }
-                      }
-                    }
+                      },
+                      "required": [
+                        "amount"
+                      ]
+                    },
+                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`"
                   },
                   "customer": {
                     "type": "string",
-                    "description": "Unique customer ID in your shop",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "description": "Unique customer ID in your shop"
                   },
                   "dae": {
                     "type": "string",
@@ -320,7 +308,19 @@
                       "External information for payments"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "ip",
+                  "order_id",
+                  "phone",
+                  "tavv"
+                ]
               }
             }
           }
@@ -632,11 +632,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3
@@ -659,20 +659,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "order_id"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -701,27 +694,19 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
                   },
                   "rro_info": {
                     "type": "object",
-                    "description": "Data for fiscalization",
                     "properties": {
                       "items": {
                         "type": "array",
-                        "description": "Data about products for which payment is performed",
                         "items": {
                           "type": "object",
-                          "required": [
-                            "amount",
-                            "cost",
-                            "id",
-                            "price"
-                          ],
                           "properties": {
                             "amount": {
                               "type": "number",
@@ -751,12 +736,18 @@
                                 202
                               ]
                             }
-                          }
-                        }
+                          },
+                          "required": [
+                            "amount",
+                            "cost",
+                            "id",
+                            "price"
+                          ]
+                        },
+                        "description": "Data about products for which payment is performed"
                       },
                       "delivery_emails": {
                         "type": "array",
-                        "description": "List of e-mails to which receipts should be sent after fiscalization",
                         "items": {
                           "type": "string",
                           "format": "email",
@@ -764,11 +755,20 @@
                             "email1@email.com",
                             "email2@email.com"
                           ]
-                        }
+                        },
+                        "description": "List of e-mails to which receipts should be sent after fiscalization"
                       }
-                    }
+                    },
+                    "description": "Data for fiscalization"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "order_id"
+                ]
               }
             }
           }
@@ -1096,11 +1096,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3

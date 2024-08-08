@@ -19,20 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "otp",
-                  "confirm_token"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -65,7 +58,14 @@
                       "JmV2qDgC3LotB8njGDcEYjHFpmpAZR"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "otp",
+                  "confirm_token"
+                ]
               }
             }
           }
@@ -416,11 +416,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3

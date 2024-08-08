@@ -19,29 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "card",
-                  "card_cvv",
-                  "card_exp_month",
-                  "card_exp_year",
-                  "card_token",
-                  "currency",
-                  "description",
-                  "order_id",
-                  "phone",
-                  "sandbox"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "public_key": {
@@ -106,8 +90,8 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
-                    "maxLength": 255
+                    "maxLength": 255,
+                    "description": "Unique purchase ID in your shop"
                   },
                   "phone": {
                     "type": "string",
@@ -118,12 +102,12 @@
                     ]
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "prepare": {
@@ -145,14 +129,14 @@
                   "result_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase"
                   },
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   },
                   "sandbox": {
                     "type": "string",
@@ -164,16 +148,6 @@
                   },
                   "sender": {
                     "type": "object",
-                    "description": "Sender parameters",
-                    "required": [
-                      "phone",
-                      "sender_country_code",
-                      "sender_city",
-                      "sender_address",
-                      "sender_postal_code",
-                      "mpi_eci",
-                      "mpi_cres"
-                    ],
                     "properties": {
                       "sender_first_name": {
                         "type": "string",
@@ -228,9 +202,35 @@
                         "type": "string",
                         "description": "The value returned to ACS by the issuer's page after cardholder authentication"
                       }
-                    }
+                    },
+                    "required": [
+                      "phone",
+                      "sender_country_code",
+                      "sender_city",
+                      "sender_address",
+                      "sender_postal_code",
+                      "mpi_eci",
+                      "mpi_cres"
+                    ],
+                    "description": "Sender parameters"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
+                  "card_token",
+                  "currency",
+                  "description",
+                  "order_id",
+                  "phone",
+                  "sandbox"
+                ]
               }
             }
           }

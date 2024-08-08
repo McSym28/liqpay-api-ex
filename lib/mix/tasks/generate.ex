@@ -69,17 +69,17 @@ defmodule Mix.Tasks.Generate do
   )
 
   Record.defrecord(:schema,
-    default: nil,
     type: nil,
     format: nil,
+    maxLength: nil,
     enum: nil,
-    description: nil,
-    required: nil,
-    properties: nil,
     items: nil,
+    default: nil,
     oneOf: nil,
     nullable: nil,
-    maxLength: nil,
+    properties: nil,
+    required: nil,
+    description: nil,
     examples: []
   )
 

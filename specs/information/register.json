@@ -19,18 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -57,13 +52,13 @@
                     ]
                   },
                   "resp_format": {
-                    "default": "json",
                     "type": "string",
                     "enum": [
                       "json",
                       "csv",
                       "xml"
                     ],
+                    "default": "json",
                     "description": "Report format",
                     "examples": [
                       "json"
@@ -74,7 +69,12 @@
                     "format": "date",
                     "description": "If parameter is unknown `compensation_id`, then date by which you need to get a list `compensation_id`"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ]
               }
             }
           }
@@ -162,8 +162,8 @@
                               },
                               "customer": {
                                 "type": "string",
-                                "description": "Unique customer ID in your shop",
-                                "maxLength": 100
+                                "maxLength": 100,
+                                "description": "Unique customer ID in your shop"
                               },
                               "description": {
                                 "type": "string",
@@ -380,20 +380,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "format",
-                  "date"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -427,7 +420,14 @@
                       "2017-01-31"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "format",
+                  "date"
+                ]
               }
             }
           }
@@ -512,8 +512,8 @@
                           },
                           "customer": {
                             "type": "string",
-                            "description": "Unique customer ID in your shop",
-                            "maxLength": 100
+                            "maxLength": 100,
+                            "description": "Unique customer ID in your shop"
                           },
                           "description": {
                             "type": "string",
@@ -709,18 +709,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -763,7 +758,12 @@
                       "2021-11-23"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ]
               }
             }
           }
@@ -775,11 +775,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "register_token",
-                    "result",
-                    "status"
-                  ],
                   "properties": {
                     "register_token": {
                       "type": "string",
@@ -802,7 +797,12 @@
                         "processing"
                       ]
                     }
-                  }
+                  },
+                  "required": [
+                    "register_token",
+                    "result",
+                    "status"
+                  ]
                 }
               }
             }
@@ -819,19 +819,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "register_token"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -860,7 +854,13 @@
                       "compensation_i123456789_2021.11.23.csv"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "register_token"
+                ]
               }
             }
           }
@@ -921,18 +921,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -955,11 +950,11 @@
                     ]
                   },
                   "resp_format": {
-                    "default": "csv",
                     "type": "string",
                     "enum": [
                       "csv"
                     ],
+                    "default": "csv",
                     "description": "Report format",
                     "examples": [
                       "csv"
@@ -984,7 +979,12 @@
                       "p2p"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ]
               }
             }
           }
@@ -996,11 +996,6 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "required": [
-                    "register_token",
-                    "result",
-                    "status"
-                  ],
                   "properties": {
                     "register_token": {
                       "type": "string",
@@ -1023,7 +1018,12 @@
                         "processing"
                       ]
                     }
-                  }
+                  },
+                  "required": [
+                    "register_token",
+                    "result",
+                    "status"
+                  ]
                 }
               }
             }
@@ -1040,19 +1040,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "register_token"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -1081,7 +1075,13 @@
                       "compensation_i123456789_2021.11.23.csv"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "register_token"
+                ]
               }
             }
           }

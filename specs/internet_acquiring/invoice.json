@@ -19,18 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "action",
-                  "action"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API"
                   },
                   "action": {
@@ -46,15 +41,20 @@
                     "description": "`true`, `false` - only as `language` is passed"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "action",
+                  "action"
+                ]
               }
             }
           }
@@ -125,24 +125,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "currency",
-                  "description",
-                  "email",
-                  "order_id",
-                  "phone"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -195,8 +184,8 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
@@ -225,15 +214,8 @@
                   },
                   "goods": {
                     "type": "array",
-                    "description": "Units of measurement can be passed in two ways: independently through the `unit` parameter, or using the invoice_units API reference",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "amount",
-                        "count",
-                        "unit",
-                        "price"
-                      ],
                       "properties": {
                         "amount": {
                           "type": "number",
@@ -269,31 +251,49 @@
                             "телефон"
                           ]
                         }
-                      }
-                    }
+                      },
+                      "required": [
+                        "amount",
+                        "count",
+                        "unit",
+                        "price"
+                      ]
+                    },
+                    "description": "Units of measurement can be passed in two ways: independently through the `unit` parameter, or using the invoice_units API reference"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "result_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase"
                   },
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "email",
+                  "order_id",
+                  "phone"
+                ]
               }
             }
           }
@@ -415,19 +415,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "order_id"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -448,13 +442,19 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "order_id"
+                ]
               }
             }
           }

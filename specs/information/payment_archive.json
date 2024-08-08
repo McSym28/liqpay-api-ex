@@ -19,18 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -50,13 +45,13 @@
                     ]
                   },
                   "resp_format": {
-                    "default": "json",
                     "type": "string",
                     "enum": [
                       "json",
                       "csv",
                       "xml"
                     ],
+                    "default": "json",
                     "description": "Report format"
                   },
                   "date_from": {
@@ -75,7 +70,12 @@
                       1443164386000
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action"
+                ]
               }
             }
           }
@@ -413,11 +413,11 @@
                             ]
                           },
                           "version": {
-                            "default": 3,
                             "type": "integer",
                             "enum": [
                               3
                             ],
+                            "default": 3,
                             "description": "Version API",
                             "examples": [
                               3

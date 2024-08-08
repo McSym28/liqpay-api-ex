@@ -19,22 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "currency",
-                  "description",
-                  "order_id"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -87,27 +78,19 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
                   },
                   "rro_info": {
                     "type": "object",
-                    "description": "Data for fiscalization",
                     "properties": {
                       "items": {
                         "type": "array",
-                        "description": "Data about products for which payment is performed",
                         "items": {
                           "type": "object",
-                          "required": [
-                            "amount",
-                            "cost",
-                            "id",
-                            "price"
-                          ],
                           "properties": {
                             "amount": {
                               "type": "number",
@@ -137,12 +120,18 @@
                                 202
                               ]
                             }
-                          }
-                        }
+                          },
+                          "required": [
+                            "amount",
+                            "cost",
+                            "id",
+                            "price"
+                          ]
+                        },
+                        "description": "Data about products for which payment is performed"
                       },
                       "delivery_emails": {
                         "type": "array",
-                        "description": "List of e-mails to which receipts should be sent after fiscalization",
                         "items": {
                           "type": "string",
                           "format": "email",
@@ -150,9 +139,11 @@
                             "email1@email.com",
                             "email2@email.com"
                           ]
-                        }
+                        },
+                        "description": "List of e-mails to which receipts should be sent after fiscalization"
                       }
-                    }
+                    },
+                    "description": "Data for fiscalization"
                   },
                   "expired_date": {
                     "type": "string",
@@ -160,12 +151,12 @@
                     "description": "Date and time until which customer is able to pay invoice by `UTC`. Should be sent in the following format `2016-04-24 00:00:00`"
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "paytypes": {
@@ -186,14 +177,14 @@
                   "result_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL of your shop where the buyer would be redirected after completion of the purchase"
                   },
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   },
                   "verifycode": {
                     "type": "string",
@@ -205,12 +196,8 @@
                   },
                   "split_rules": {
                     "type": "array",
-                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`",
                     "items": {
                       "type": "object",
-                      "required": [
-                        "amount"
-                      ],
                       "properties": {
                         "public_key": {
                           "type": "string",
@@ -229,12 +216,12 @@
                           ]
                         },
                         "commission_payer": {
-                          "default": "sender",
                           "type": "string",
                           "enum": [
                             "sender",
                             "receiver"
                           ],
+                          "default": "sender",
                           "description": "Commission payer",
                           "examples": [
                             "sender",
@@ -244,8 +231,8 @@
                         "server_url": {
                           "type": "string",
                           "format": "uri",
-                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
                           "maxLength": 510,
+                          "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
                           "examples": [
                             "https://server1/callback",
                             "https://server2/callback"
@@ -255,12 +242,15 @@
                           "type": "string",
                           "description": "Payment description"
                         }
-                      }
-                    }
+                      },
+                      "required": [
+                        "amount"
+                      ]
+                    },
+                    "description": "Payment with split amount for a few receivers. This parameter is a `JSON` array containing split rules. While using `split_rules` parameter, card is being charged and amount is split and credited to a few receivers. If you need to convey your purpose for each amount use the parameter `description`. Acquiring fee is being charged from each shop in the `split_rules`"
                   },
                   "sender": {
                     "type": "object",
-                    "description": "Sender parameters",
                     "properties": {
                       "sender_address": {
                         "type": "string",
@@ -286,14 +276,11 @@
                         "type": "string",
                         "description": "Sender's zip code"
                       }
-                    }
+                    },
+                    "description": "Sender parameters"
                   },
                   "regular_payment": {
                     "type": "object",
-                    "description": "Regular payment parameters",
-                    "required": [
-                      "subscribe_date_start"
-                    ],
                     "properties": {
                       "subscribe": {
                         "type": "string",
@@ -317,16 +304,19 @@
                         ],
                         "description": "Period of payments. Possible values:\n* `day` - daily\n* `week` - weekly\n* `month` - once in a month\n* `year` - once in a year"
                       }
-                    }
+                    },
+                    "required": [
+                      "subscribe_date_start"
+                    ],
+                    "description": "Regular payment parameters"
                   },
                   "one_click_payment": {
                     "type": "object",
-                    "description": "Parameters for 1-click payment",
                     "properties": {
                       "customer": {
                         "type": "string",
-                        "description": "Unique customer ID in your shop. When you transfer the parameter LiqPay stores the payment details of the customer and his ID - the next payment can be made in 1-click. (When using the parameter for **Masterpass 1-click**, the valid payer's phone number is transmitted in this field)",
-                        "maxLength": 100
+                        "maxLength": 100,
+                        "description": "Unique customer ID in your shop. When you transfer the parameter LiqPay stores the payment details of the customer and his ID - the next payment can be made in 1-click. (When using the parameter for **Masterpass 1-click**, the valid payer's phone number is transmitted in this field)"
                       },
                       "recurringbytoken": {
                         "type": "string",
@@ -340,7 +330,8 @@
                         "type": "string",
                         "description": "The user ID in the system of the merchant is transferred with each user’s payment (doesn’t have to match `customer` it is used for payment with the help of **Masterpass 1-click** wallet)"
                       }
-                    }
+                    },
+                    "description": "Parameters for 1-click payment"
                   },
                   "dae": {
                     "type": "string",
@@ -355,26 +346,35 @@
                   },
                   "product_category": {
                     "type": "string",
-                    "description": "Product category in your shop",
-                    "maxLength": 25
+                    "maxLength": 25,
+                    "description": "Product category in your shop"
                   },
                   "product_description": {
                     "type": "string",
-                    "description": "Product description in your shop",
-                    "maxLength": 500
+                    "maxLength": 500,
+                    "description": "Product description in your shop"
                   },
                   "product_name": {
                     "type": "string",
-                    "description": "Product name in your shop",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "description": "Product name in your shop"
                   },
                   "product_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "Product page address",
-                    "maxLength": 2000
+                    "maxLength": 2000,
+                    "description": "Product page address"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "order_id"
+                ]
               }
             }
           }

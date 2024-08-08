@@ -19,28 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "card",
-                  "card_cvv",
-                  "card_exp_month",
-                  "card_exp_year",
-                  "currency",
-                  "description",
-                  "ip",
-                  "order_id",
-                  "phone"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -123,8 +108,8 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
@@ -138,12 +123,12 @@
                     ]
                   },
                   "language": {
-                    "default": "uk",
                     "type": "string",
                     "enum": [
                       "uk",
                       "en"
                     ],
+                    "default": "uk",
                     "description": "Customer's language"
                   },
                   "prepare": {
@@ -169,15 +154,11 @@
                   "server_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)",
-                    "maxLength": 510
+                    "maxLength": 510,
+                    "description": "URL API in your store for notifications of payment status change (`server` -> `server`). [Learn more](https://www.liqpay.ua/en/doc/api/callback)"
                   },
                   "regular_payment": {
                     "type": "object",
-                    "description": "Regular payment parameters",
-                    "required": [
-                      "subscribe_date_start"
-                    ],
                     "properties": {
                       "subscribe": {
                         "type": "string",
@@ -210,11 +191,14 @@
                           "month"
                         ]
                       }
-                    }
+                    },
+                    "required": [
+                      "subscribe_date_start"
+                    ],
+                    "description": "Regular payment parameters"
                   },
                   "sender": {
                     "type": "object",
-                    "description": "Sender parameters",
                     "properties": {
                       "sender_address": {
                         "type": "string",
@@ -240,12 +224,13 @@
                         "type": "string",
                         "description": "Sender's zip code"
                       }
-                    }
+                    },
+                    "description": "Sender parameters"
                   },
                   "customer": {
                     "type": "string",
-                    "description": "Unique customer ID in your shop",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "description": "Unique customer ID in your shop"
                   },
                   "dae": {
                     "type": "string",
@@ -260,26 +245,41 @@
                   },
                   "product_category": {
                     "type": "string",
-                    "description": "Product category in your shop",
-                    "maxLength": 25
+                    "maxLength": 25,
+                    "description": "Product category in your shop"
                   },
                   "product_description": {
                     "type": "string",
-                    "description": "Product description in your shop",
-                    "maxLength": 500
+                    "maxLength": 500,
+                    "description": "Product description in your shop"
                   },
                   "product_name": {
                     "type": "string",
-                    "description": "Product name in your shop",
-                    "maxLength": 100
+                    "maxLength": 100,
+                    "description": "Product name in your shop"
                   },
                   "product_url": {
                     "type": "string",
                     "format": "uri",
-                    "description": "Product page address",
-                    "maxLength": 2000
+                    "maxLength": 2000,
+                    "description": "Product page address"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "card",
+                  "card_cvv",
+                  "card_exp_month",
+                  "card_exp_year",
+                  "currency",
+                  "description",
+                  "ip",
+                  "order_id",
+                  "phone"
+                ]
               }
             }
           }
@@ -558,11 +558,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3
@@ -585,19 +585,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "order_id"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -618,13 +612,19 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "order_id"
+                ]
               }
             }
           }
@@ -896,11 +896,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3
@@ -923,22 +923,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "amount",
-                  "currency",
-                  "description",
-                  "order_id"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -987,13 +978,22 @@
                   },
                   "order_id": {
                     "type": "string",
-                    "description": "Unique purchase ID in your shop",
                     "maxLength": 255,
+                    "description": "Unique purchase ID in your shop",
                     "examples": [
                       "order_id_1"
                     ]
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "amount",
+                  "currency",
+                  "description",
+                  "order_id"
+                ]
               }
             }
           }
@@ -1266,11 +1266,11 @@
                       ]
                     },
                     "version": {
-                      "default": 3,
                       "type": "integer",
                       "enum": [
                         3
                       ],
+                      "default": 3,
                       "description": "Version API",
                       "examples": [
                         3

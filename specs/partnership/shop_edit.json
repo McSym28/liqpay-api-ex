@@ -19,24 +19,13 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "required": [
-                  "version",
-                  "public_key",
-                  "action",
-                  "description",
-                  "email",
-                  "merchant_public_key",
-                  "name",
-                  "phone",
-                  "site"
-                ],
                 "properties": {
                   "version": {
-                    "default": 3,
                     "type": "integer",
                     "enum": [
                       3
                     ],
+                    "default": 3,
                     "description": "Version API",
                     "examples": [
                       3
@@ -100,8 +89,8 @@
                   },
                   "iban": {
                     "type": "string",
-                    "description": "IBAN to receive payments in this store",
-                    "maxLength": 34
+                    "maxLength": 34,
+                    "description": "IBAN to receive payments in this store"
                   },
                   "company": {
                     "type": "string",
@@ -139,7 +128,18 @@
                     "type": "string",
                     "description": "Shop public phone number"
                   }
-                }
+                },
+                "required": [
+                  "version",
+                  "public_key",
+                  "action",
+                  "description",
+                  "email",
+                  "merchant_public_key",
+                  "name",
+                  "phone",
+                  "site"
+                ]
               }
             }
           }
