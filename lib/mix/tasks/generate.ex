@@ -3661,7 +3661,7 @@ defmodule Mix.Tasks.Generate do
           schema(property, description: description_new),
           fn {key, _}, property -> patch_property_enum(property, key, path) end
         )
-        |> parse_property_enum_specific(path)
+        |> parse_property_enum(path)
 
       [] ->
         ~r/^((?:\s*`[^`]+?`,?)+)$/
@@ -3670,7 +3670,7 @@ defmodule Mix.Tasks.Generate do
           property
           |> parse_property_enum_list(path)
           |> schema(description: nil)
-          |> parse_property_enum_specific(path)
+          |> parse_property_enum(path)
         else
           ~r/^\s*`([^`]+)`\s*-\s*(.+)$/m
           |> Regex.scan(description)
@@ -3688,7 +3688,7 @@ defmodule Mix.Tasks.Generate do
                 |> schema(description: description_new)
                 |> patch_property_enum(key, path)
               end)
-              |> parse_property_enum_specific(path)
+              |> parse_property_enum(path)
           end
         end
     end
