@@ -19,14 +19,7 @@ config :oapi_generator,
 
 config :open_api_client_ex,
   "$base": [
-    client_pipeline: OpenAPIClient.BasicHTTPoisonPipeline,
-    httpoison: OpenAPIClient.HTTPoisonMock,
-    decoders: [
-      {"application/json", {Jason, :decode, []}}
-    ],
-    encoders: [
-      {"application/json", {Jason, :encode, []}}
-    ]
+    example_generator: Liqpay.Generator.ExampleGenerator
   ],
   default: [
     base_url: "https://www.liqpay.ua",
