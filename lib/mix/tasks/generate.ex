@@ -7,6 +7,8 @@ defmodule Mix.Tasks.Generate do
   @liqpay_base_url "https://www.liqpay.ua"
   @api_url "#{@liqpay_base_url}/en/doc/api"
 
+  @opeanapi_spec_filename "specs/openapi.json"
+
   @internet_acquiring_regular_payment_fields ~w(subscribe subscribe_date_start subscribe_periodicity)
   @partnership_card_fields ~w(card card_cvv card_exp_month card_exp_year)
 
@@ -99,7 +101,124 @@ defmodule Mix.Tasks.Generate do
 
     {:ok, session} = Wallaby.start_session()
 
-    process_url(@api_url, parse_settings(session: session))
+    {:ok, children} = process_url(@api_url, parse_settings(session: session))
+    openapi_paths = gather_openapi_paths(children, [], [])
+
+    OrderedObject.new(
+      openapi: "3.1.0",
+      info: OrderedObject.new(version: "3", title: "External API"),
+      servers: [OrderedObject.new(url: "https://liqpay.ua")],
+      paths:
+        openapi_paths
+        |> Enum.reverse()
+        |> OrderedObject.new()
+    )
+    |> Jason.encode!(pretty: true)
+    |> then(&File.write!(@opeanapi_spec_filename, &1))
+  end
+
+  defp gather_openapi_paths([], _path, openapi_paths), do: openapi_paths
+
+  defp gather_openapi_paths(children, path, openapi_paths) when is_list(children) do
+    Enum.reduce(
+      children,
+      openapi_paths,
+      &gather_openapi_paths(&1, path, &2)
+    )
+  end
+
+  defp gather_openapi_paths(section(children: children) = section, path, openapi_paths) do
+    gather_openapi_paths(children, [section | path], openapi_paths)
+  end
+
+  defp gather_openapi_paths(
+         endpoint(
+           id: id,
+           request: request_schema,
+           response: response_schema,
+           method: method,
+           parameters: parameters,
+           url: url,
+           title: title
+         ),
+         path,
+         openapi_paths
+       ) do
+    {path_ids, path_titles} =
+      path
+      |> Enum.map(fn section(id: id, title: title) -> {id, title} end)
+      |> Enum.unzip()
+
+    summary =
+      [title | path_titles]
+      |> Enum.reverse()
+      |> Enum.join(". ")
+
+    operation_id =
+      [id | path_ids]
+      |> Enum.reverse()
+      |> Enum.join("/")
+
+    url_new =
+      if url do
+        url
+      else
+        query_path =
+          [id | path_ids]
+          |> Enum.reverse()
+          |> Enum.join(".")
+
+        %URI{path: "/api/request", query: URI.encode_query(%{path: query_path})}
+        |> URI.to_string()
+      end
+
+    new_openapi_path =
+      {url_new,
+       OrderedObject.new([
+         {method,
+          OrderedObject.new(
+            List.flatten([
+              [summary: summary, operationId: operation_id],
+              if parameters == [] do
+                []
+              else
+                [parameters: parameters]
+              end,
+              if request_schema do
+                [
+                  requestBody:
+                    OrderedObject.new(
+                      content:
+                        OrderedObject.new([
+                          {"application/json", OrderedObject.new(schema: request_schema)}
+                        ])
+                    )
+                ]
+              else
+                []
+              end,
+              if response_schema do
+                [
+                  responses:
+                    OrderedObject.new([
+                      {"200",
+                       OrderedObject.new(
+                         description: "200",
+                         content:
+                           OrderedObject.new([
+                             {"application/json", OrderedObject.new(schema: response_schema)}
+                           ])
+                       )}
+                    ])
+                ]
+              else
+                []
+              end
+            ])
+          )}
+       ])}
+
+    [new_openapi_path | openapi_paths]
   end
 
   defp process_url(url, parse_settings(session: session, path: path) = parse_settings) do
@@ -210,6 +329,7 @@ defmodule Mix.Tasks.Generate do
         url_new
         |> process_url(parse_settings(parse_settings, path: [item | path]))
         |> case do
+          {:ok, [endpoint(id: ^id) = endpoint]} -> endpoint
           {:ok, children} -> section(item, children: children)
           :error -> item
         end
@@ -220,138 +340,12 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
-  defp parse_doc_page(parse_settings(document: document, path: path) = parse_settings) do
+  defp parse_doc_page(parse_settings(document: document) = parse_settings) do
     document
     |> Floki.find("div.base-TabsList-root")
     |> case do
       [tab] -> parse_tab(tab, parse_settings)
       [] -> process_doc(parse_settings)
-    end
-    |> case do
-      :error ->
-        :error
-
-      {:ok, endpoints} = result ->
-        case path do
-          [section(type: :menu) | _] ->
-            {path_ids, path_titles} =
-              path
-              |> Enum.map(fn section(id: id, title: title) -> {id, title} end)
-              |> Enum.unzip()
-
-            json_file =
-              path_ids
-              |> List.update_at(0, &"#{&1}.json")
-              |> Enum.reverse()
-              |> then(&["specs" | &1])
-              |> Path.join()
-
-            json_file
-            |> Path.dirname()
-            |> File.mkdir_p!()
-
-            {endpoint_ids, endpoint_titles} =
-              if Enum.count(endpoints) == 1 do
-                {tl(path_ids), tl(path_titles)}
-              else
-                {path_ids, path_titles}
-              end
-
-            OrderedObject.new(
-              openapi: "3.1.0",
-              info: OrderedObject.new(version: "3", title: "External API"),
-              servers: [OrderedObject.new(url: "https://liqpay.ua")],
-              paths:
-                endpoints
-                |> Enum.map(fn endpoint(
-                                 id: id,
-                                 request: request_schema,
-                                 response: response_schema,
-                                 method: method,
-                                 parameters: parameters,
-                                 url: url,
-                                 title: title
-                               ) ->
-                  summary =
-                    [title | endpoint_titles]
-                    |> Enum.reverse()
-                    |> Enum.join(". ")
-
-                  operation_id =
-                    [id | endpoint_ids]
-                    |> Enum.reverse()
-                    |> Enum.join("/")
-
-                  path =
-                    [id | endpoint_ids]
-                    |> Enum.reverse()
-                    |> Enum.join(".")
-
-                  url_new =
-                    if url do
-                      url
-                    else
-                      %URI{path: "/api/request", query: URI.encode_query(%{path: path})}
-                      |> URI.to_string()
-                    end
-
-                  {url_new,
-                   OrderedObject.new([
-                     {method,
-                      OrderedObject.new(
-                        List.flatten([
-                          [summary: summary, operationId: operation_id],
-                          if parameters == [] do
-                            []
-                          else
-                            [parameters: parameters]
-                          end,
-                          if request_schema do
-                            [
-                              requestBody:
-                                OrderedObject.new(
-                                  content:
-                                    OrderedObject.new([
-                                      {"application/json",
-                                       OrderedObject.new(schema: request_schema)}
-                                    ])
-                                )
-                            ]
-                          else
-                            []
-                          end,
-                          if response_schema do
-                            [
-                              responses:
-                                OrderedObject.new([
-                                  {"200",
-                                   OrderedObject.new(
-                                     description: "200",
-                                     content:
-                                       OrderedObject.new([
-                                         {"application/json",
-                                          OrderedObject.new(schema: response_schema)}
-                                       ])
-                                   )}
-                                ])
-                            ]
-                          else
-                            []
-                          end
-                        ])
-                      )}
-                   ])}
-                end)
-                |> OrderedObject.new()
-            )
-            |> Jason.encode!(pretty: true)
-            |> then(&File.write!(json_file, &1))
-
-          _ ->
-            :ok
-        end
-
-        result
     end
   end
 
