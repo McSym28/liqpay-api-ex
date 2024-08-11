@@ -504,7 +504,11 @@
                     },
                     "result": {
                       "type": "string",
-                      "description": "The result of a request `ok` or `error`",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
+                      "description": "The result of a request",
                       "example": "ok",
                       "examples": [
                         "ok"

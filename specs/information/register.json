@@ -1098,6 +1098,10 @@
                     },
                     "result": {
                       "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
                       "description": "The result of the request",
                       "example": "ok",
                       "examples": [

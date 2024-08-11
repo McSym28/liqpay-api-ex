@@ -4027,6 +4027,50 @@ defmodule Mix.Tasks.Generate do
     parse_property_enum_specific(property, ["version" | rest_path])
   end
 
+  defp parse_property_enum_specific(
+         schema(description: description, enum: nil) = property,
+         [
+           "result",
+           {:schema, :response} | _
+         ] =
+           path
+       ) do
+    ~r/(?:\.\s+)?(?:The\s+r|R)esult\s+of\s+(?:(?:a|the)\s+)request(\s+\n?[^\.\n\(]+)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[_full_match, values_match]] ->
+        description_new = String.replace(description, values_match, "")
+
+        values_match_new = String.replace(values_match, ~r/\s+or/, ",")
+
+        property
+        |> schema(description: values_match_new)
+        |> parse_property_enum_list(path)
+        |> schema(description: description_new)
+
+      [] ->
+        Enum.reduce(["ok", "error"], property, &patch_property_enum(&2, &1, path))
+    end
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         property,
+         [
+           "result",
+           [],
+           "data"
+           | [
+               {:schema, :response},
+               endpoint(id: "info_user"),
+               section(id: "partnership")
+             ] = rest_path
+         ] =
+           _path
+       ) do
+    parse_property_enum_specific(property, ["result" | rest_path])
+  end
+
   defp parse_property_enum_specific(property, _path), do: property
 
   defp patch_property_enum(property, enum, _path) do

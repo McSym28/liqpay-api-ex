@@ -849,6 +849,10 @@
                     },
                     "result": {
                       "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
                       "description": "Result of the request"
                     },
                     "status": {
@@ -927,6 +931,10 @@
                   "properties": {
                     "result": {
                       "type": "string",
+                      "enum": [
+                        "ok",
+                        "error"
+                      ],
                       "description": "Result of the request"
                     },
                     "status": {
