@@ -2558,6 +2558,82 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :request},
+           endpoint(id: "units"),
+           section(id: "invoice"),
+           section(id: "internet_acquiring")
+         ] =
+           path
+       ) do
+    was_empty =
+      case schema do
+        schema(properties: properties) -> properties && Enum.empty?(properties)
+      end
+
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    if was_empty do
+      properties_new =
+        properties
+        |> Enum.flat_map_reduce(nil, fn
+          {"action", schema}, nil ->
+            {[{"action", schema}], schema}
+
+          {"action", schema(enum: enum, examples: examples, description: description)},
+          schema(description: action_description) = action_schema ->
+            path_action = ["action" | path]
+
+            description_new =
+              [action_description, description]
+              |> Enum.reject(&is_nil/1)
+              |> Enum.join("\n")
+
+            action_schema_new =
+              action_schema
+              |> then(
+                &Enum.reduce(enum || [], &1, fn enum_value, schema ->
+                  patch_property_enum(schema, enum_value, path_action)
+                end)
+              )
+              |> then(
+                &Enum.reduce(examples || [], &1, fn example_value, schema ->
+                  patch_schema_examples(schema, example_value, path_action)
+                end)
+              )
+              |> schema(default: nil, description: description_new)
+
+            {[], action_schema_new}
+
+          other, action_schema ->
+            {[other], action_schema}
+        end)
+        |> case do
+          {properties, nil} ->
+            properties
+
+          {properties, action_schema} ->
+            List.keystore(properties, "action", 0, {"action", action_schema})
+        end
+        |> OrderedObject.new()
+
+      required_new = Enum.uniq(required)
+      {properties_new, required_new}
+    else
+      {properties, required}
+    end
+  end
+
   defp parse_block_properties(schema, block_data, block_parse_settings, path),
     do: do_parse_block_properties(schema, block_data, block_parse_settings, path)
 
@@ -3981,9 +4057,36 @@ defmodule Mix.Tasks.Generate do
         |> schema(description: description_new)
 
       [] ->
-        property
+        patch_property_enum(property, "2.0", path)
     end
     |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         schema(description: description, enum: nil) = property,
+         [
+           "action",
+           {:schema, :request},
+           endpoint(id: "units"),
+           section(id: "invoice"),
+           section(id: "internet_acquiring")
+         ] = path
+       ) do
+    ~r/^(`[^`]+?`)(?:\s*\:)?\s*(.*)$/
+    |> Regex.scan(description, capture: :all_but_first)
+    |> case do
+      [[enum, remaining_text]] ->
+        description_new = "#{enum}: #{remaining_text}"
+
+        property
+        |> schema(description: enum)
+        |> parse_property_enum_list(path)
+        |> schema(description: description_new)
+        |> parse_property_enum_specific([path])
+
+      [] ->
+        property
+    end
   end
 
   defp parse_property_enum_specific(
@@ -3995,6 +4098,7 @@ defmodule Mix.Tasks.Generate do
       |> schema(description: "`#{description}`")
       |> parse_property_enum_list(path)
       |> schema(description: nil)
+      |> parse_property_enum_specific([path])
     else
       property
     end
@@ -4046,9 +4150,9 @@ defmodule Mix.Tasks.Generate do
            path
        ) do
     ~r/(?:\.\s+)?(?:The\s+r|R)esult\s+of\s+(?:(?:a|the)\s+)request(\s+\n?[^\.\n\(]+)/ui
-    |> Regex.scan(description)
+    |> Regex.scan(description, capture: :all_but_first)
     |> case do
-      [[_full_match, values_match]] ->
+      [[values_match]] ->
         description_new = String.replace(description, values_match, "")
 
         values_match_new = String.replace(values_match, ~r/\s+or/, ",")

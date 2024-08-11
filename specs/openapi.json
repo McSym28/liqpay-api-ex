@@ -6977,11 +6977,11 @@
                   },
                   "action": {
                     "type": "string",
-                    "description": "`invoice_units_get_list` if `language` is NOT specified, returns the list in the form - `id`, `full_name_en`, `short_name_en`, `full_name_uk`, `short_name_uk` if `language` is specified, returns only for the specified locale if `language` is specified and `hide_name_lang` = true, it returns in the form - `id`, `full_name`, `short_name`"
-                  },
-                  "action": {
-                    "type": "string",
-                    "description": "`invoice_units_get_list_by_lang` returns a list of units in the form (`id`, `full_name`, `short_name`)"
+                    "enum": [
+                      "invoice_units_get_list",
+                      "invoice_units_get_list_by_lang"
+                    ],
+                    "description": "`invoice_units_get_list`: if `language` is NOT specified, returns the list in the form - `id`, `full_name_en`, `short_name_en`, `full_name_uk`, `short_name_uk` if `language` is specified, returns only for the specified locale if `language` is specified and `hide_name_lang` = true, it returns in the form - `id`, `full_name`, `short_name`\n`invoice_units_get_list_by_lang`: returns a list of units in the form (`id`, `full_name`, `short_name`)"
                   },
                   "hide_name_lang": {
                     "type": "boolean",
@@ -6999,7 +6999,6 @@
                 },
                 "required": [
                   "version",
-                  "action",
                   "action"
                 ]
               }
