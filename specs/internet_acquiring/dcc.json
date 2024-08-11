@@ -482,7 +482,11 @@
                     },
                     "status": {
                       "type": "string",
-                      "description": "Possible meaning: `activated` - the store is activated with refund, `wait_accept` - the store is activated without refund",
+                      "enum": [
+                        "activated",
+                        "wait_accept"
+                      ],
+                      "description": "Possible values:\n* `activated` - the store is activated with refund\n* `wait_accept` - the store is activated without refund",
                       "example": "success",
                       "examples": [
                         "success"

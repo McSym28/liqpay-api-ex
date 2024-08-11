@@ -3727,7 +3727,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum(schema(description: description, enum: nil) = property, path) do
-    ~r/(\.\s+)?(?:Possible|Valid)\s+values?\s*:?\n?([^\.\n]+)(?=\.|$)/i
+    ~r/(\.\s+)?(?:Possible|Valid)\s+(?:meaning|value)s?\s*:?\n?([^\.\n]+)(?=\.|$)/i
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, values_match]] ->
