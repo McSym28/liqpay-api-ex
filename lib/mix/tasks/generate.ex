@@ -3727,12 +3727,12 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum(schema(description: description, enum: nil) = property, path) do
-    ~r/(\.\s+)?(?:Possible|Valid)\s+(?:meaning|value)s?\s*:?\n?([^\.\n]+)(?=\.|$)/i
+    ~r/(\.\s+)?(?:Possible|Valid)\s+(?:meaning|value)s?\s*:?\n?((?:\([^\)]+\)|[^\.\n])+)(?=\.|$)/i
     |> Regex.scan(description)
     |> case do
       [[full_match, prefix, values_match]] ->
         {enum_options, has_descriptions} =
-          ~r/\s*`([^`]+?)`(?:\s+[\-\–]\s+([^\.\n`]+))?(?:[\n,\.]|$)/u
+          ~r/\s*`([^`]+?)`(?:\s+[\-\–]\s+((?:\([^\)]+\)|[^\.\n`])+))?(?:[\n,\.]|$)/u
           |> Regex.scan(values_match, capture: :all_but_first)
           |> Enum.map_reduce(false, fn
             [key], has_descriptions -> {{key, nil}, has_descriptions}
@@ -3772,21 +3772,32 @@ defmodule Mix.Tasks.Generate do
           |> schema(description: nil)
           |> parse_property_enum(path)
         else
-          ~r/^\s*`([^`]+)`\s*-\s*(.+)$/m
+          ~r/(^|:)\s*`([^`]+)`\s*-\s*(.+)$/m
           |> Regex.scan(description)
           |> case do
             [] ->
               parse_property_enum_specific(property, path)
 
             matches ->
-              Enum.reduce(matches, property, fn [full_match, key, key_description],
+              Enum.reduce(matches, property, fn [full_match, prefix, key, key_description],
                                                 schema(description: description) = property_new ->
+                prefix_new =
+                  if(prefix == "" or String.contains?(prefix, "\n"),
+                    do: prefix,
+                    else: "#{prefix}\n"
+                  )
+
                 description_new =
-                  String.replace(description, full_match, "* `#{key}` - #{key_description}")
+                  String.replace(
+                    description,
+                    full_match,
+                    "#{prefix_new}* `#{key}` - #{key_description}"
+                  )
 
                 property_new
+                |> schema(description: "`#{key}`")
+                |> parse_property_enum_list(path)
                 |> schema(description: description_new)
-                |> patch_property_enum(key, path)
               end)
               |> parse_property_enum(path)
           end

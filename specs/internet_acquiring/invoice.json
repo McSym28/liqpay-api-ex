@@ -211,9 +211,10 @@
                     "enum": [
                       "pay",
                       "hold",
-                      "subscribe"
+                      "subscribe",
+                      "paydonate"
                     ],
-                    "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `subscribe` - regular [payment](https://www.liqpay.ua/en/doc/api/internet_acquiring/subscription), `paydonate` - donation"
+                    "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `subscribe` - regular [payment](https://www.liqpay.ua/en/doc/api/internet_acquiring/subscription)\n* `paydonate` - donation"
                   },
                   "expired_date": {
                     "type": "string",

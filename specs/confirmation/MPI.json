@@ -303,12 +303,13 @@
                     "mpi_status": {
                       "type": "string",
                       "enum": [
+                        "Y",
+                        "A",
                         "C",
                         "N",
-                        "U",
-                        "Y"
+                        "U"
                       ],
-                      "description": "Values for 3DS version 2.0:`Y, A` - additional client verification is not required,\n* `C` - additional client verification is required, \n* `N` - failed to verify the client. Payment performance is not recommended. The client can be checked with 3DS 1.0, \n* `U` - failed to verify the card for participation, client redirection is not required to pass 3-D Secure.\nValues for 3DS version 1.0:`N` - card does not participate, client redirection for 3D-Secure is not required,\n* `U` - failed to verify the card for participation, client redirection for 3D-Secure is not required, \n* `Y` - card supports the 3D-Secure service and there will be page of issuing bank in `mpi_req_url` parameter where `mpi_req_pareq` and `mpi_req_md` parameters should be transferred by `POST` method int he next form:\nwhere `TermUrl` - page address to which issuer will return the answer with PaRes and MD parameters. To make a payment with already passed 3DS you need to transfer `mpi_pares` and `mpi_md`, parameters with PaRes and MD values which were received from issuer bank ACS while payment is created",
+                      "description": "Values for 3DS version 2.0:\n* `Y, A` - additional client verification is not required,\n* `C` - additional client verification is required, \n* `N` - failed to verify the client. Payment performance is not recommended. The client can be checked with 3DS 1.0, \n* `U` - failed to verify the card for participation, client redirection is not required to pass 3-D Secure.\nValues for 3DS version 1.0:\n* `N` - card does not participate, client redirection for 3D-Secure is not required,\n* `U` - failed to verify the card for participation, client redirection for 3D-Secure is not required, \n* `Y` - card supports the 3D-Secure service and there will be page of issuing bank in `mpi_req_url` parameter where `mpi_req_pareq` and `mpi_req_md` parameters should be transferred by `POST` method int he next form:\nwhere `TermUrl` - page address to which issuer will return the answer with PaRes and MD parameters. To make a payment with already passed 3DS you need to transfer `mpi_pares` and `mpi_md`, parameters with PaRes and MD values which were received from issuer bank ACS while payment is created",
                       "example": "Y",
                       "examples": [
                         "Y",
