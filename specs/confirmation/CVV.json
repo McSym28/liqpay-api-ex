@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=confirmation%2FCVV": {
+    "/api/request?path=confirmation.CVV": {
       "post": {
         "summary": "Verification. CVV confirmation",
         "operationId": "confirmation/CVV",

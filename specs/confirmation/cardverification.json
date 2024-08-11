@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=confirmation%2Fcardverification": {
+    "/api/request?path=confirmation.cardverification": {
       "post": {
         "summary": "Verification. Cardverification",
         "operationId": "confirmation/cardverification",

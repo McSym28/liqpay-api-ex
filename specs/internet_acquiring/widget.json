@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Fwidget": {
+    "/api/request?path=internet_acquiring.widget": {
       "post": {
         "summary": "Internet acquiring. Payment widget",
         "operationId": "internet_acquiring/widget",

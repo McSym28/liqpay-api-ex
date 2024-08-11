@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=partnership%2Fshop_edit": {
+    "/api/request?path=partnership.shop_edit": {
       "post": {
         "summary": "Partner's. Company editing",
         "operationId": "partnership/shop_edit",

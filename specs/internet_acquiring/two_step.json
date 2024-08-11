@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Ftwo_step%2Fblock": {
+    "/api/request?path=internet_acquiring.two_step.block": {
       "post": {
         "summary": "Internet acquiring. Two-step payment. Funds blocking",
         "operationId": "internet_acquiring/two_step/block",
@@ -705,7 +705,7 @@
         }
       }
     },
-    "/api/request?path=internet_acquiring%2Ftwo_step%2Fcomplete": {
+    "/api/request?path=internet_acquiring.two_step.complete": {
       "post": {
         "summary": "Internet acquiring. Two-step payment. Completion of payment",
         "operationId": "internet_acquiring/two_step/complete",

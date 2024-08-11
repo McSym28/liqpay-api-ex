@@ -282,11 +282,16 @@ defmodule Mix.Tasks.Generate do
                     |> Enum.reverse()
                     |> Enum.join("/")
 
+                  path =
+                    [id | endpoint_ids]
+                    |> Enum.reverse()
+                    |> Enum.join(".")
+
                   url_new =
                     if url do
                       url
                     else
-                      %URI{path: "/api/request", query: URI.encode_query(%{path: operation_id})}
+                      %URI{path: "/api/request", query: URI.encode_query(%{path: path})}
                       |> URI.to_string()
                     end
 

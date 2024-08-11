@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Fprivat_pay": {
+    "/api/request?path=internet_acquiring.privat_pay": {
       "post": {
         "summary": "Internet acquiring. PrivatPay button",
         "operationId": "internet_acquiring/privat_pay",

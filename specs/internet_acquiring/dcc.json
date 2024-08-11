@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Fdcc": {
+    "/api/request?path=internet_acquiring.dcc": {
       "post": {
         "summary": "Internet acquiring. DCC",
         "operationId": "internet_acquiring/dcc",

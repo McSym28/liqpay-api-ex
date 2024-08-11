@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=information%2Fadding_data": {
+    "/api/request?path=information.adding_data": {
       "post": {
         "summary": "Informational. Adding data",
         "operationId": "information/adding_data",

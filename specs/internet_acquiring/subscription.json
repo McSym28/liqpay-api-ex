@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Fsubscription%2Fcreate": {
+    "/api/request?path=internet_acquiring.subscription.create": {
       "post": {
         "summary": "Internet acquiring. Subscription. Create subscribtion",
         "operationId": "internet_acquiring/subscription/create",
@@ -628,7 +628,7 @@
         }
       }
     },
-    "/api/request?path=internet_acquiring%2Fsubscription%2Funsubscribe": {
+    "/api/request?path=internet_acquiring.subscription.unsubscribe": {
       "post": {
         "summary": "Internet acquiring. Subscription. Unsubscribe",
         "operationId": "internet_acquiring/subscription/unsubscribe",
@@ -1003,7 +1003,7 @@
         }
       }
     },
-    "/api/request?path=internet_acquiring%2Fsubscription%2Fedit": {
+    "/api/request?path=internet_acquiring.subscription.edit": {
       "post": {
         "summary": "Internet acquiring. Subscription. Edit subscribtion",
         "operationId": "internet_acquiring/subscription/edit",

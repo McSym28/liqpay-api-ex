@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Frefund": {
+    "/api/request?path=internet_acquiring.refund": {
       "post": {
         "summary": "Internet acquiring. Refund",
         "operationId": "internet_acquiring/refund",

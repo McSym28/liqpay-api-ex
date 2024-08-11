@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=confirmation%2FOTP": {
+    "/api/request?path=confirmation.OTP": {
       "post": {
         "summary": "Verification. OTP confirmation",
         "operationId": "confirmation/OTP",

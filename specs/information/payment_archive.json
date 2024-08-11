@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=information%2Fpayment_archive": {
+    "/api/request?path=information.payment_archive": {
       "post": {
         "summary": "Informational. Payments archive",
         "operationId": "information/payment_archive",

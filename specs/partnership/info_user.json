@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=partnership%2Finfo_user": {
+    "/api/request?path=partnership.info_user": {
       "post": {
         "summary": "Partner's. Information about partner",
         "operationId": "partnership/info_user",

@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=internet_acquiring%2Fcheckout": {
+    "/api/request?path=internet_acquiring.checkout": {
       "post": {
         "summary": "Internet acquiring. Checkout",
         "operationId": "internet_acquiring/checkout",

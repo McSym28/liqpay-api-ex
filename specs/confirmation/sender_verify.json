@@ -10,7 +10,7 @@
     }
   ],
   "paths": {
-    "/api/request?path=confirmation%2Fsender_verify": {
+    "/api/request?path=confirmation.sender_verify": {
       "post": {
         "summary": "Verification. Sender's verification",
         "operationId": "confirmation/sender_verify",
