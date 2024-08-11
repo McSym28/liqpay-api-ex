@@ -7939,18 +7939,6 @@
                         0.0
                       ]
                     },
-                    "status": {
-                      "type": "string",
-                      "enum": [
-                        "activated",
-                        "wait_accept"
-                      ],
-                      "description": "Possible values:\n* `activated` - the store is activated with refund\n* `wait_accept` - the store is activated without refund",
-                      "example": "success",
-                      "examples": [
-                        "success"
-                      ]
-                    },
                     "rrn_credit": {
                       "type": "string",
                       "description": "Unique transaction ID in authorization and settlement system of issuer bank `Retrieval Reference number`",
@@ -8053,7 +8041,11 @@
                         "wait_accept",
                         "wait_secure"
                       ],
-                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `3ds_verify` - 3DS verification is required.\n To finish the payment you will require a [3ds_verify](https://www.liqpay.ua/en/doc/api/confirmation/3ds)\n* `cvv_verify` - Sender's card CVV is required. To finish the payment you will require a [cvv_verify](https://www.liqpay.ua/en/doc/api/confirmation/CVV)\n`otp_verify` OTP confirmation is required. OTP is sent to a customer phone number.\n To finish the payment you will require a [otp_verify](https://www.liqpay.ua/en/doc/api/confirmation/OTP)\n* `receiver_verify` - Receiver additional data is required. To finish the payment you will require a [receiver_verify](https://www.liqpay.ua/en/doc/api/confirmation/receiver_verify)\n* `sender_verify` - Sender's additional data is required.\n To finish the payment you will require a [sender_verify](https://www.liqpay.ua/en/doc/api/confirmation/sender_verify)\nOther payment statuses\n* `wait_accept` - Money are withdrawn from client but the store is still not verified. If the store is not activated for 60 days, payment will be automatically cancelled\n* `wait_secure` - Payment is verified"
+                      "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `3ds_verify` - 3DS verification is required.\n To finish the payment you will require a [3ds_verify](https://www.liqpay.ua/en/doc/api/confirmation/3ds)\n* `cvv_verify` - Sender's card CVV is required. To finish the payment you will require a [cvv_verify](https://www.liqpay.ua/en/doc/api/confirmation/CVV)\n`otp_verify` OTP confirmation is required. OTP is sent to a customer phone number.\n To finish the payment you will require a [otp_verify](https://www.liqpay.ua/en/doc/api/confirmation/OTP)\n* `receiver_verify` - Receiver additional data is required. To finish the payment you will require a [receiver_verify](https://www.liqpay.ua/en/doc/api/confirmation/receiver_verify)\n* `sender_verify` - Sender's additional data is required.\n To finish the payment you will require a [sender_verify](https://www.liqpay.ua/en/doc/api/confirmation/sender_verify)\nOther payment statuses\n* `wait_accept` - Money are withdrawn from client but the store is still not verified. If the store is not activated for 60 days, payment will be automatically cancelled\n* `wait_secure` - Payment is verified",
+                      "example": "success",
+                      "examples": [
+                        "success"
+                      ]
                     },
                     "transaction_id": {
                       "type": "number",

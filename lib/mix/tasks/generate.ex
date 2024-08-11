@@ -2634,6 +2634,53 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
+         [
+           {:schema, :response},
+           endpoint(id: "dcc"),
+           section(id: "internet_acquiring")
+         ] =
+           path
+       ) do
+    was_empty =
+      case schema do
+        schema(properties: properties) -> properties && Enum.empty?(properties)
+      end
+
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    if was_empty do
+      properties_new =
+        properties
+        |> Enum.flat_map(fn
+          {"status", schema(enum: enum) = schema} ->
+            if Enum.uniq(enum) == ["activated", "wait_accept"] do
+              []
+            else
+              [{"status", schema}]
+            end
+
+          other ->
+            [other]
+        end)
+        |> OrderedObject.new()
+
+      required_new = Enum.uniq(required)
+      {properties_new, required_new}
+    else
+      {properties, required}
+    end
+  end
+
   defp parse_block_properties(schema, block_data, block_parse_settings, path),
     do: do_parse_block_properties(schema, block_data, block_parse_settings, path)
 
