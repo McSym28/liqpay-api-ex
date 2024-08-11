@@ -127,7 +127,9 @@
                     },
                     "action": {
                       "type": "string",
-                      "description": "cardverification",
+                      "enum": [
+                        "cardverification"
+                      ],
                       "example": "cardverification",
                       "examples": [
                         "cardverification"

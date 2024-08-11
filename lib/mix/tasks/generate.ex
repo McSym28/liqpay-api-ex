@@ -3876,6 +3876,20 @@ defmodule Mix.Tasks.Generate do
     |> parse_property_enum_specific(path)
   end
 
+  defp parse_property_enum_specific(
+         schema(description: description, enum: nil) = property,
+         ["action", {:schema, _schema_type} | _] = path
+       ) do
+    if Regex.match?(~r/^\w+$/, description) do
+      property
+      |> schema(description: "`#{description}`")
+      |> parse_property_enum_list(path)
+      |> schema(description: nil)
+    else
+      property
+    end
+  end
+
   defp parse_property_enum_specific(property, _path), do: property
 
   defp patch_property_enum(schema(type: :boolean) = property, _enum, _path), do: property

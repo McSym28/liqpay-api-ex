@@ -775,7 +775,9 @@
                 "properties": {
                   "action": {
                     "type": "string",
-                    "description": "agent_info_mcc_codes"
+                    "enum": [
+                      "agent_info_mcc_codes"
+                    ]
                   },
                   "version": {
                     "type": "integer",
@@ -869,7 +871,9 @@
                 "properties": {
                   "action": {
                     "type": "string",
-                    "description": "agent_info_mcc_docs"
+                    "enum": [
+                      "agent_info_mcc_docs"
+                    ]
                   },
                   "version": {
                     "type": "integer",
