@@ -89,12 +89,8 @@
                         "type": "object",
                         "properties": {
                           "blocked": {
-                            "type": "string",
-                            "description": "Company block status",
-                            "example": false,
-                            "examples": [
-                              false
-                            ]
+                            "type": "boolean",
+                            "description": "Company block status"
                           },
                           "create_date": {
                             "type": "integer",

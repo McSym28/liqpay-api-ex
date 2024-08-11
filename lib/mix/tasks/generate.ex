@@ -3068,6 +3068,110 @@ defmodule Mix.Tasks.Generate do
     |> initialize_property_processing(path)
   end
 
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "wait_reserve_status",
+           {:schema, :request},
+           endpoint(id: "callback")
+         ] = path
+       ) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "moment_part",
+           {:schema, :response},
+           endpoint(id: "adding_data"),
+           section(id: "information")
+         ] = path
+       ) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           property_name,
+           {:schema, :response},
+           endpoint(id: "status_payment"),
+           section(id: "information")
+         ] = path
+       )
+       when property_name in ~w(moment_part wait_reserve_status) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           property_name,
+           {:schema, :request},
+           endpoint(id: "shop_edit"),
+           section(id: "partnership")
+         ] = path
+       )
+       when property_name in ~w(can_reports can_checkout_edit) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           property_name,
+           {:schema, :request},
+           endpoint(id: endpoint_id),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
+       )
+       when endpoint_id in ~w(create register) and
+              property_name in ~w(can_reports can_checkout_edit) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "blocked",
+           {:schema, :response},
+           endpoint(id: "info_merchant"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "blocked",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "info_user"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    property
+    |> schema(type: :boolean)
+    |> initialize_property_processing(path)
+  end
+
   defp initialize_property_processing(property, _path), do: property
 
   defp search_code_blocks(
@@ -3171,10 +3275,6 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_separate_example(schema, [{_, _, _} = node], path) do
     parse_property_separate_example(schema, Floki.find(node, "code.language-json"), path)
-  end
-
-  defp patch_schema_examples(_example, schema(type: :boolean) = schema, _path) do
-    schema
   end
 
   defp patch_schema_examples(
@@ -3929,8 +4029,6 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_enum_specific(property, _path), do: property
 
-  defp patch_property_enum(schema(type: :boolean) = property, _enum, _path), do: property
-
   defp patch_property_enum(property, enum, _path) do
     enum_new = parse_schema_value(enum, property)
 
@@ -4609,23 +4707,43 @@ end
 
 defimpl Jason.Encoder, for: Tuple do
   require Mix.Tasks.Generate
+  alias Mix.Tasks.Generate
 
-  def encode(Mix.Tasks.Generate.schema() = schema, opts) do
+  def encode(Generate.schema(type: type) = schema, opts) do
+    is_boolean_type = type == :boolean
+
     schema
-    |> Mix.Tasks.Generate.schema()
+    |> Generate.schema()
     |> Enum.flat_map(fn
-      {_key, nil} -> []
-      {:examples, []} -> []
-      {:examples, [example | _] = examples} -> [{:example, example}, {:examples, examples}]
-      {key, value} -> [{key, value}]
+      {_key, nil} ->
+        []
+
+      {:enum, []} ->
+        []
+
+      {:enum, [value_1, value_2]}
+      when is_boolean_type and is_boolean(value_1) and is_boolean(value_2) ->
+        []
+
+      {:examples, []} ->
+        []
+
+      {:examples, _} when is_boolean_type ->
+        []
+
+      {:examples, [example | _] = examples} ->
+        [{:example, example}, {:examples, examples}]
+
+      {key, value} ->
+        [{key, value}]
     end)
     |> Jason.OrderedObject.new()
     |> Jason.Encoder.encode(opts)
   end
 
-  def encode(Mix.Tasks.Generate.parameter() = parameter, opts) do
+  def encode(Generate.parameter() = parameter, opts) do
     parameter
-    |> Mix.Tasks.Generate.parameter()
+    |> Generate.parameter()
     |> Enum.filter(fn
       {_key, nil} -> false
       {:required, false} -> false

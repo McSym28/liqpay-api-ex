@@ -290,12 +290,8 @@
                       ]
                     },
                     "moment_part": {
-                      "type": "string",
-                      "description": "Payment indication in parts",
-                      "example": true,
-                      "examples": [
-                        true
-                      ]
+                      "type": "boolean",
+                      "description": "Payment indication in parts"
                     },
                     "mpi_eci": {
                       "type": "integer",

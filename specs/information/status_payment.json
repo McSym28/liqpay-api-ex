@@ -281,12 +281,8 @@
                       ]
                     },
                     "moment_part": {
-                      "type": "string",
-                      "description": "Payment indication in parts",
-                      "example": true,
-                      "examples": [
-                        true
-                      ]
+                      "type": "boolean",
+                      "description": "Payment indication in parts"
                     },
                     "mpi_eci": {
                       "type": "integer",
@@ -463,11 +459,11 @@
                       ]
                     },
                     "wait_reserve_status": {
-                      "type": "string",
+                      "type": "boolean",
                       "enum": [
-                        "true"
+                        true
                       ],
-                      "default": "true",
+                      "default": true,
                       "description": "An additional payment status that indicates that the current payment is reserved for processing a return at your store. Possible values:\n* `true` - the payment is reserved for refund"
                     },
                     "transaction_id": {

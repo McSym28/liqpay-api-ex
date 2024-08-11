@@ -122,11 +122,11 @@
                     "description": "Currency of agent static fee"
                   },
                   "can_reports": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Allows the owner of the main company to view the payment history of the created company, pass the value `true`"
                   },
                   "can_checkout_edit": {
-                    "type": "string",
+                    "type": "boolean",
                     "description": "Allows the owner of the main company to edit the payment page settings of the company created, pass the value `true`"
                   },
                   "logo": {
