@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "reports_compensation"
                     ],
+                    "example": "reports_compensation",
                     "examples": [
                       "reports_compensation"
                     ]
@@ -47,6 +49,7 @@
                   "compensation_id": {
                     "type": "string",
                     "description": "compensation_id of enrollment",
+                    "example": "200000007",
                     "examples": [
                       "200000007"
                     ]
@@ -60,6 +63,7 @@
                     ],
                     "default": "json",
                     "description": "Report format",
+                    "example": "json",
                     "examples": [
                       "json"
                     ]
@@ -95,6 +99,7 @@
                         "success"
                       ],
                       "description": "The result of a request",
+                      "example": "ok",
                       "examples": [
                         "ok",
                         "success"
@@ -119,6 +124,7 @@
                                   "regular"
                                 ],
                                 "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                                "example": "pay",
                                 "examples": [
                                   "pay"
                                 ]
@@ -126,6 +132,7 @@
                               "authcode_debit": {
                                 "type": "string",
                                 "description": "Authorization code for transaction of debit",
+                                "example": "784593",
                                 "examples": [
                                   "784593"
                                 ]
@@ -148,6 +155,7 @@
                                   "api"
                                 ],
                                 "description": "Payment channel, ",
+                                "example": "checkout",
                                 "examples": [
                                   "checkout"
                                 ]
@@ -156,6 +164,7 @@
                                 "type": "string",
                                 "format": "date-time-liqpay",
                                 "description": "Date of payment creation",
+                                "example": "2017-01-31 07:51:37",
                                 "examples": [
                                   "2017-01-31 07:51:37"
                                 ]
@@ -168,6 +177,7 @@
                               "description": {
                                 "type": "string",
                                 "description": "Payment description",
+                                "example": "My product",
                                 "examples": [
                                   "My product"
                                 ]
@@ -176,6 +186,7 @@
                                 "type": "string",
                                 "format": "date-time-liqpay",
                                 "description": "Date of payment edition/end",
+                                "example": "2017-01-31 07:51:54",
                                 "examples": [
                                   "2017-01-31 07:51:54"
                                 ]
@@ -183,6 +194,7 @@
                               "id": {
                                 "type": "number",
                                 "description": "Payment id in LiqPay system",
+                                "example": 107866,
                                 "examples": [
                                   107866
                                 ]
@@ -190,6 +202,7 @@
                               "ip": {
                                 "type": "string",
                                 "description": "Sender's IP address",
+                                "example": "8.8.8.8",
                                 "examples": [
                                   "8.8.8.8"
                                 ]
@@ -197,6 +210,7 @@
                               "liqpay_order_id": {
                                 "type": "string",
                                 "description": "Payment order_id in LiqPay system",
+                                "example": "J4L8IRG81485849105029639",
                                 "examples": [
                                   "J4L8IRG81485849105029639"
                                 ]
@@ -204,6 +218,7 @@
                               "order_id": {
                                 "type": "string",
                                 "description": "Order_id payment",
+                                "example": "98R1U1OV1485849059893399",
                                 "examples": [
                                   "98R1U1OV1485849059893399"
                                 ]
@@ -220,6 +235,7 @@
                                   "qr"
                                 ],
                                 "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                                "example": "liqpay",
                                 "examples": [
                                   "liqpay"
                                 ]
@@ -227,6 +243,7 @@
                               "sender_card": {
                                 "type": "string",
                                 "description": "Sender's card",
+                                "example": "5168 **** **** **16",
                                 "examples": [
                                   "5168 **** **** **16"
                                 ]
@@ -234,6 +251,7 @@
                               "sender_card_bank": {
                                 "type": "string",
                                 "description": "Sender's card bank",
+                                "example": "pb",
                                 "examples": [
                                   "pb"
                                 ]
@@ -241,6 +259,7 @@
                               "sender_card_country": {
                                 "type": "string",
                                 "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                                "example": 804,
                                 "examples": [
                                   804
                                 ]
@@ -248,6 +267,7 @@
                               "sender_card_product_type": {
                                 "type": "string",
                                 "description": "Type of card product",
+                                "example": "KDV",
                                 "examples": [
                                   "KDV"
                                 ]
@@ -255,6 +275,7 @@
                               "sender_card_type": {
                                 "type": "string",
                                 "description": "Sender's card type MC/Visa",
+                                "example": "mc",
                                 "examples": [
                                   "mc"
                                 ]
@@ -266,6 +287,7 @@
                               "sender_first_name": {
                                 "type": "string",
                                 "description": "The name of the sender",
+                                "example": "test",
                                 "examples": [
                                   "test"
                                 ]
@@ -273,6 +295,7 @@
                               "sender_last_name": {
                                 "type": "string",
                                 "description": "Sender's last name",
+                                "example": "test",
                                 "examples": [
                                   "test"
                                 ]
@@ -280,6 +303,7 @@
                               "sender_phone": {
                                 "type": "string",
                                 "description": "Sender's phone number",
+                                "example": "380950000001",
                                 "examples": [
                                   "380950000001"
                                 ]
@@ -287,6 +311,7 @@
                               "trans_amount": {
                                 "type": "number",
                                 "description": "The amount of the transaction",
+                                "example": 1.0,
                                 "examples": [
                                   1.0
                                 ]
@@ -294,6 +319,7 @@
                               "trans_bonus": {
                                 "type": "number",
                                 "description": "The amount of the bonus for the transaction",
+                                "example": 0.0,
                                 "examples": [
                                   0.0
                                 ]
@@ -301,6 +327,7 @@
                               "trans_currency": {
                                 "type": "string",
                                 "description": "Transaction currency",
+                                "example": "UAH",
                                 "examples": [
                                   "UAH"
                                 ]
@@ -308,6 +335,7 @@
                               "trans_fee_credit": {
                                 "type": "number",
                                 "description": "The amount of the loan transaction commission",
+                                "example": 0.03,
                                 "examples": [
                                   0.03
                                 ]
@@ -315,6 +343,7 @@
                               "trans_fee_debit": {
                                 "type": "number",
                                 "description": "The amount of the debit transaction commission",
+                                "example": 0.0,
                                 "examples": [
                                   0.0
                                 ]
@@ -322,6 +351,7 @@
                               "trans_total": {
                                 "type": "number",
                                 "description": "The amount of reimbursement of the company",
+                                "example": 0.97,
                                 "examples": [
                                   0.97
                                 ]
@@ -335,6 +365,7 @@
                                   "refund"
                                 ],
                                 "description": "Transaction type",
+                                "example": "purchase",
                                 "examples": [
                                   "purchase"
                                 ]
@@ -347,6 +378,7 @@
                               "compensation_id": {
                                 "type": "string",
                                 "description": "compensation_id of enrollment",
+                                "example": 91330,
                                 "examples": [
                                   91330
                                 ]
@@ -354,6 +386,7 @@
                               "create_date": {
                                 "type": "string",
                                 "format": "date-time-liqpay",
+                                "example": "2016-11-15 00:02:14",
                                 "examples": [
                                   "2016-11-15 00:02:14"
                                 ]
@@ -388,6 +421,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -401,6 +435,7 @@
                     "enum": [
                       "register"
                     ],
+                    "example": "register",
                     "examples": [
                       "register"
                     ]
@@ -408,6 +443,7 @@
                   "format": {
                     "type": "string",
                     "description": "Possible report format `json`, `csv`, `xml`",
+                    "example": "json",
                     "examples": [
                       "json"
                     ]
@@ -416,6 +452,7 @@
                     "type": "string",
                     "format": "date",
                     "description": "Date for which the registry will be uploaded",
+                    "example": "2017-01-31",
                     "examples": [
                       "2017-01-31"
                     ]
@@ -448,6 +485,7 @@
                         "success"
                       ],
                       "description": "The result of a request",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -469,6 +507,7 @@
                               "regular"
                             ],
                             "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                            "example": "pay",
                             "examples": [
                               "pay"
                             ]
@@ -476,6 +515,7 @@
                           "authcode_debit": {
                             "type": "string",
                             "description": "Authorization code for transaction of debit",
+                            "example": "784593",
                             "examples": [
                               "784593"
                             ]
@@ -498,6 +538,7 @@
                               "api"
                             ],
                             "description": "Payment channel, ",
+                            "example": "checkout",
                             "examples": [
                               "checkout"
                             ]
@@ -506,6 +547,7 @@
                             "type": "string",
                             "format": "date-time-liqpay",
                             "description": "Date of payment creation",
+                            "example": "2017-01-31 07:51:37",
                             "examples": [
                               "2017-01-31 07:51:37"
                             ]
@@ -518,6 +560,7 @@
                           "description": {
                             "type": "string",
                             "description": "Payment description",
+                            "example": "My product",
                             "examples": [
                               "My product"
                             ]
@@ -526,6 +569,7 @@
                             "type": "string",
                             "format": "date-time-liqpay",
                             "description": "Date of payment edition/end",
+                            "example": "2017-01-31 07:51:54",
                             "examples": [
                               "2017-01-31 07:51:54"
                             ]
@@ -533,6 +577,7 @@
                           "id": {
                             "type": "number",
                             "description": "Payment id in LiqPay system",
+                            "example": 107866,
                             "examples": [
                               107866
                             ]
@@ -540,6 +585,7 @@
                           "ip": {
                             "type": "string",
                             "description": "Sender's IP address",
+                            "example": "8.8.8.8",
                             "examples": [
                               "8.8.8.8"
                             ]
@@ -547,6 +593,7 @@
                           "liqpay_order_id": {
                             "type": "string",
                             "description": "Payment order_id in LiqPay system",
+                            "example": "J4L8IRG81485849105029639",
                             "examples": [
                               "J4L8IRG81485849105029639"
                             ]
@@ -554,6 +601,7 @@
                           "order_id": {
                             "type": "string",
                             "description": "Order_id payment",
+                            "example": "98R1U1OV1485849059893399",
                             "examples": [
                               "98R1U1OV1485849059893399"
                             ]
@@ -570,6 +618,7 @@
                               "qr"
                             ],
                             "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `masterpass` - with masterpass account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                            "example": "liqpay",
                             "examples": [
                               "liqpay"
                             ]
@@ -577,6 +626,7 @@
                           "sender_card": {
                             "type": "string",
                             "description": "Sender's card",
+                            "example": "5168 **** **** **16",
                             "examples": [
                               "5168 **** **** **16"
                             ]
@@ -584,6 +634,7 @@
                           "sender_card_bank": {
                             "type": "string",
                             "description": "Sender's card bank",
+                            "example": "pb",
                             "examples": [
                               "pb"
                             ]
@@ -591,6 +642,7 @@
                           "sender_card_country": {
                             "type": "string",
                             "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                            "example": 804,
                             "examples": [
                               804
                             ]
@@ -598,6 +650,7 @@
                           "sender_card_product_type": {
                             "type": "string",
                             "description": "Type of card product",
+                            "example": "KDV",
                             "examples": [
                               "KDV"
                             ]
@@ -605,6 +658,7 @@
                           "sender_card_type": {
                             "type": "string",
                             "description": "Sender's card type MC/Visa",
+                            "example": "mc",
                             "examples": [
                               "mc"
                             ]
@@ -616,6 +670,7 @@
                           "sender_first_name": {
                             "type": "string",
                             "description": "The name of the sender",
+                            "example": "test",
                             "examples": [
                               "test"
                             ]
@@ -623,6 +678,7 @@
                           "sender_last_name": {
                             "type": "string",
                             "description": "Sender's last name",
+                            "example": "test",
                             "examples": [
                               "test"
                             ]
@@ -630,6 +686,7 @@
                           "sender_phone": {
                             "type": "string",
                             "description": "Sender's phone number",
+                            "example": "380950000001",
                             "examples": [
                               "380950000001"
                             ]
@@ -637,6 +694,7 @@
                           "trans_amount": {
                             "type": "number",
                             "description": "The amount of the transaction",
+                            "example": 1.0,
                             "examples": [
                               1.0
                             ]
@@ -644,6 +702,7 @@
                           "trans_bonus": {
                             "type": "number",
                             "description": "The amount of the bonus for the transaction",
+                            "example": 0.0,
                             "examples": [
                               0.0
                             ]
@@ -651,6 +710,7 @@
                           "trans_currency": {
                             "type": "string",
                             "description": "Transaction currency",
+                            "example": "UAH",
                             "examples": [
                               "UAH"
                             ]
@@ -658,6 +718,7 @@
                           "trans_fee_credit": {
                             "type": "number",
                             "description": "The amount of the loan transaction commission",
+                            "example": 0.03,
                             "examples": [
                               0.03
                             ]
@@ -665,6 +726,7 @@
                           "trans_fee_debit": {
                             "type": "number",
                             "description": "The amount of the debit transaction commission",
+                            "example": 0.0,
                             "examples": [
                               0.0
                             ]
@@ -672,6 +734,7 @@
                           "trans_total": {
                             "type": "number",
                             "description": "The amount of reimbursement of the company",
+                            "example": 0.97,
                             "examples": [
                               0.97
                             ]
@@ -685,6 +748,7 @@
                               "refund"
                             ],
                             "description": "Transaction type",
+                            "example": "purchase",
                             "examples": [
                               "purchase"
                             ]
@@ -717,6 +781,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -724,6 +789,7 @@
                   "public_key": {
                     "type": "string",
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "example": "i123456789",
                     "examples": [
                       "i123456789"
                     ]
@@ -733,6 +799,7 @@
                     "enum": [
                       "reports_compensation_file"
                     ],
+                    "example": "reports_compensation_file",
                     "examples": [
                       "reports_compensation_file"
                     ]
@@ -746,6 +813,7 @@
                     "enum": [
                       "csv"
                     ],
+                    "example": "csv",
                     "examples": [
                       "csv"
                     ]
@@ -754,6 +822,7 @@
                     "type": "string",
                     "format": "date",
                     "description": "If the `compensation_id` parameter is unknown, the payment date for which you want to receive the registry is being passed",
+                    "example": "2021-11-23",
                     "examples": [
                       "2021-11-23"
                     ]
@@ -779,6 +848,7 @@
                     "register_token": {
                       "type": "string",
                       "description": "Parameter received on the previous request",
+                      "example": "compensation_i123456789_2021.11.23.csv",
                       "examples": [
                         "compensation_i123456789_2021.11.23.csv"
                       ]
@@ -786,6 +856,7 @@
                     "result": {
                       "type": "string",
                       "description": "The result of the request",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -793,6 +864,7 @@
                     "status": {
                       "type": "string",
                       "description": "Request processing status",
+                      "example": "processing",
                       "examples": [
                         "processing"
                       ]
@@ -827,6 +899,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -834,6 +907,7 @@
                   "public_key": {
                     "type": "string",
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "example": "i123456789",
                     "examples": [
                       "i123456789"
                     ]
@@ -843,6 +917,7 @@
                     "enum": [
                       "reports_compensation_file_status"
                     ],
+                    "example": "reports_compensation_file_status",
                     "examples": [
                       "reports_compensation_file_status"
                     ]
@@ -850,6 +925,7 @@
                   "register_token": {
                     "type": "string",
                     "description": "Parameter received on the previous request",
+                    "example": "compensation_i123456789_2021.11.23.csv",
                     "examples": [
                       "compensation_i123456789_2021.11.23.csv"
                     ]
@@ -877,6 +953,7 @@
                       "type": "string",
                       "format": "uri",
                       "description": "File URL",
+                      "example": "https://liqpay-merchant-reports-eu-west-1-production-1.s3-eu-west-1.amazonaws.com/reports/compensation_i63896222463_2021.11.23.csv?AWSAccessKeyId=ASIA4G3XTFOZJ5WF5PWB&Signature=P8RLb6u6%2BRKJkLRk6HjhQlZQ2T4%3D&Expires=1639738263&x-amz-security-token=IQoJb3JpZ2luX2VjELn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCWV1LXdlc3QtMSJIMEYCIQC%2BOZ8y2wDz%2B2a9C8952BazFTCpQpT9OX5cUNF1CcBwzQIhAIPuroQCLJMT9g3PbN%2B4Dk8KXg%2BJb2eZIbYIFYm7A4qdKvADCKL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAhoMODM5MzgwMDUyOTE0IgyXUwg7va32HEQ8W5MqxAOghwqrPEpTnH6dLG9toIM8HGhlggL5bFAVI0%2FEE7N1jZRrlyL3455spFAZcAYcROwLnJXzW%2FndQR0QGKKasO6pMW%2B9u8n%2BRUrN6p5kHV4lU9%2BjVb5x2RsMaSjm9Klio8KnB8o5H7CnsTpGEjeAc3ZmeKS10nSSUh4%2FheANMdQVXMCOoba4oqPOxWAIS1dY7tLNrVEgaqhzXhsbK8j0FwwJESYa%2Fq6cN%2FxcnSVq60wUQhRlqaxQr%2FijbXKnprz9Bs0jgvTYF65yPiIKXQ%2B4bYyxR8geOb5c%2BlfFVMFC%2FRyMT1q7r6K7yVuNXxSN3Y%2BeNOR%2FbvDCL9%2Fu3TqNCBHVR3HWPY9P%2BdnF0wjvDS4sDvDEx7V%2Fx%2F%2B52e4flwqgPhAbJrjDqR0dWVuJgwpPfJFjpMVqQ80QPcEEABYY6YycQgNjoSKqdHjLyghykagoV8DAMiNpJciyCb8DMMAv7Cn5%2FCteeYoZevftP%2FIzyZMR9AErQdCTaAL6Db4PAu%2BInbca1sNkWW1HB0DrdonovpFffSXYBHgZMAmij2pD8RmYHvVu9PoPyBR2fRUbZdtoXdaI0Sp7lFlF1hJ1bkgMvjQRPMU0XURvjzCXkvGNBjqkAbiCqn%2F%2BCI%2B9sPSVdCvg7W3oOVsGViKrQmI2SA%2F%2FrJH%2B243LI9iJ7fM4nv5iDTqkpSuy4lYRpX737ZszaJR%2BtRZ1C%2BmGu%2FQjRl0P9mlpCq5qTheOOM9CDvqxu64MiPpgHab4PCATr3i4u8wrTkHhclID4Qx9SU6TyxH0d2OsyngMxjKe3K9wWqkUtQh8FYDKAiPyp3eY99ZGd322XLDdG35CNFCf",
                       "examples": [
                         "https://liqpay-merchant-reports-eu-west-1-production-1.s3-eu-west-1.amazonaws.com/reports/compensation_i63896222463_2021.11.23.csv?AWSAccessKeyId=ASIA4G3XTFOZJ5WF5PWB&Signature=P8RLb6u6%2BRKJkLRk6HjhQlZQ2T4%3D&Expires=1639738263&x-amz-security-token=IQoJb3JpZ2luX2VjELn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCWV1LXdlc3QtMSJIMEYCIQC%2BOZ8y2wDz%2B2a9C8952BazFTCpQpT9OX5cUNF1CcBwzQIhAIPuroQCLJMT9g3PbN%2B4Dk8KXg%2BJb2eZIbYIFYm7A4qdKvADCKL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAhoMODM5MzgwMDUyOTE0IgyXUwg7va32HEQ8W5MqxAOghwqrPEpTnH6dLG9toIM8HGhlggL5bFAVI0%2FEE7N1jZRrlyL3455spFAZcAYcROwLnJXzW%2FndQR0QGKKasO6pMW%2B9u8n%2BRUrN6p5kHV4lU9%2BjVb5x2RsMaSjm9Klio8KnB8o5H7CnsTpGEjeAc3ZmeKS10nSSUh4%2FheANMdQVXMCOoba4oqPOxWAIS1dY7tLNrVEgaqhzXhsbK8j0FwwJESYa%2Fq6cN%2FxcnSVq60wUQhRlqaxQr%2FijbXKnprz9Bs0jgvTYF65yPiIKXQ%2B4bYyxR8geOb5c%2BlfFVMFC%2FRyMT1q7r6K7yVuNXxSN3Y%2BeNOR%2FbvDCL9%2Fu3TqNCBHVR3HWPY9P%2BdnF0wjvDS4sDvDEx7V%2Fx%2F%2B52e4flwqgPhAbJrjDqR0dWVuJgwpPfJFjpMVqQ80QPcEEABYY6YycQgNjoSKqdHjLyghykagoV8DAMiNpJciyCb8DMMAv7Cn5%2FCteeYoZevftP%2FIzyZMR9AErQdCTaAL6Db4PAu%2BInbca1sNkWW1HB0DrdonovpFffSXYBHgZMAmij2pD8RmYHvVu9PoPyBR2fRUbZdtoXdaI0Sp7lFlF1hJ1bkgMvjQRPMU0XURvjzCXkvGNBjqkAbiCqn%2F%2BCI%2B9sPSVdCvg7W3oOVsGViKrQmI2SA%2F%2FrJH%2B243LI9iJ7fM4nv5iDTqkpSuy4lYRpX737ZszaJR%2BtRZ1C%2BmGu%2FQjRl0P9mlpCq5qTheOOM9CDvqxu64MiPpgHab4PCATr3i4u8wrTkHhclID4Qx9SU6TyxH0d2OsyngMxjKe3K9wWqkUtQh8FYDKAiPyp3eY99ZGd322XLDdG35CNFCf"
                       ]
@@ -888,6 +965,7 @@
                         "error"
                       ],
                       "description": "The result of a request",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -900,6 +978,7 @@
                         "success"
                       ],
                       "description": "The status of a request. Possible values:\n* `processing` - on processing, the file is being formed\n* `error` - an error occurred during download, we recommend checking the request data and repeat (in case of repeated error, contact LiqPay support)\n* `success` - successful request",
+                      "example": "success",
                       "examples": [
                         "success"
                       ]
@@ -929,6 +1008,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -936,6 +1016,7 @@
                   "public_key": {
                     "type": "string",
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "example": "i123456789",
                     "examples": [
                       "i123456789"
                     ]
@@ -945,6 +1026,7 @@
                     "enum": [
                       "reports_compensation_file"
                     ],
+                    "example": "reports_compensation_file",
                     "examples": [
                       "reports_compensation_file"
                     ]
@@ -956,6 +1038,7 @@
                     ],
                     "default": "csv",
                     "description": "Report format",
+                    "example": "csv",
                     "examples": [
                       "csv"
                     ]
@@ -964,6 +1047,7 @@
                     "type": "string",
                     "format": "date",
                     "description": "Date for which the registry will be uploaded",
+                    "example": "2021-11-23",
                     "examples": [
                       "2021-11-23"
                     ]
@@ -975,6 +1059,7 @@
                       "p2pcredit"
                     ],
                     "description": "Type of operation. Possible values:\n* `p2p` - for operations of type p2pdebit\n* `p2pcredit` - for operations of type p2pcredit (default \"acquiring\")",
+                    "example": "p2p",
                     "examples": [
                       "p2p"
                     ]
@@ -1000,6 +1085,7 @@
                     "register_token": {
                       "type": "string",
                       "description": "Parameter received on the previous request",
+                      "example": "register_i11301247803_105267.csv",
                       "examples": [
                         "register_i11301247803_105267.csv"
                       ]
@@ -1007,6 +1093,7 @@
                     "result": {
                       "type": "string",
                       "description": "The result of the request",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -1014,6 +1101,7 @@
                     "status": {
                       "type": "string",
                       "description": "Request processing status",
+                      "example": "processing",
                       "examples": [
                         "processing"
                       ]
@@ -1048,6 +1136,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -1055,6 +1144,7 @@
                   "public_key": {
                     "type": "string",
                     "description": "Public key - the store identifier. You can get the key in the [store settings](https://www.liqpay.ua/en/adminbusiness)",
+                    "example": "i123456789",
                     "examples": [
                       "i123456789"
                     ]
@@ -1064,6 +1154,7 @@
                     "enum": [
                       "reports_compensation_file_status"
                     ],
+                    "example": "reports_compensation_file_status",
                     "examples": [
                       "reports_compensation_file_status"
                     ]
@@ -1071,6 +1162,7 @@
                   "register_token": {
                     "type": "string",
                     "description": "Parameter received on the previous request",
+                    "example": "compensation_i123456789_2021.11.23.csv",
                     "examples": [
                       "compensation_i123456789_2021.11.23.csv"
                     ]
@@ -1098,6 +1190,7 @@
                       "type": "string",
                       "format": "uri",
                       "description": "File URL",
+                      "example": "https://liqpay-merchant-reports-eu-west-1-production-1.s3-eu-west-1.amazonaws.com/reports/compensation_i63896222463_2021.11.23.csv?AWSAccessKeyId=ASIA4G3XTFOZJ5WF5PWB&Signature=P8RLb6u6%2BRKJkLRk6HjhQlZQ2T4%3D&Expires=1639738263&x-amz-security-token=IQoJb3JpZ2luX2VjELn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCWV1LXdlc3QtMSJIMEYCIQC%2BOZ8y2wDz%2B2a9C8952BazFTCpQpT9OX5cUNF1CcBwzQIhAIPuroQCLJMT9g3PbN%2B4Dk8KXg%2BJb2eZIbYIFYm7A4qdKvADCKL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAhoMODM5MzgwMDUyOTE0IgyXUwg7va32HEQ8W5MqxAOghwqrPEpTnH6dLG9toIM8HGhlggL5bFAVI0%2FEE7N1jZRrlyL3455spFAZcAYcROwLnJXzW%2FndQR0QGKKasO6pMW%2B9u8n%2BRUrN6p5kHV4lU9%2BjVb5x2RsMaSjm9Klio8KnB8o5H7CnsTpGEjeAc3ZmeKS10nSSUh4%2FheANMdQVXMCOoba4oqPOxWAIS1dY7tLNrVEgaqhzXhsbK8j0FwwJESYa%2Fq6cN%2FxcnSVq60wUQhRlqaxQr%2FijbXKnprz9Bs0jgvTYF65yPiIKXQ%2B4bYyxR8geOb5c%2BlfFVMFC%2FRyMT1q7r6K7yVuNXxSN3Y%2BeNOR%2FbvDCL9%2Fu3TqNCBHVR3HWPY9P%2BdnF0wjvDS4sDvDEx7V%2Fx%2F%2B52e4flwqgPhAbJrjDqR0dWVuJgwpPfJFjpMVqQ80QPcEEABYY6YycQgNjoSKqdHjLyghykagoV8DAMiNpJciyCb8DMMAv7Cn5%2FCteeYoZevftP%2FIzyZMR9AErQdCTaAL6Db4PAu%2BInbca1sNkWW1HB0DrdonovpFffSXYBHgZMAmij2pD8RmYHvVu9PoPyBR2fRUbZdtoXdaI0Sp7lFlF1hJ1bkgMvjQRPMU0XURvjzCXkvGNBjqkAbiCqn%2F%2BCI%2B9sPSVdCvg7W3oOVsGViKrQmI2SA%2F%2FrJH%2B243LI9iJ7fM4nv5iDTqkpSuy4lYRpX737ZszaJR%2BtRZ1C%2BmGu%2FQjRl0P9mlpCq5qTheOOM9CDvqxu64MiPpgHab4PCATr3i4u8wrTkHhclID4Qx9SU6TyxH0d2OsyngMxjKe3K9wWqkUtQh8FYDKAiPyp3eY99ZGd322XLDdG35CNFCf",
                       "examples": [
                         "https://liqpay-merchant-reports-eu-west-1-production-1.s3-eu-west-1.amazonaws.com/reports/compensation_i63896222463_2021.11.23.csv?AWSAccessKeyId=ASIA4G3XTFOZJ5WF5PWB&Signature=P8RLb6u6%2BRKJkLRk6HjhQlZQ2T4%3D&Expires=1639738263&x-amz-security-token=IQoJb3JpZ2luX2VjELn%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCWV1LXdlc3QtMSJIMEYCIQC%2BOZ8y2wDz%2B2a9C8952BazFTCpQpT9OX5cUNF1CcBwzQIhAIPuroQCLJMT9g3PbN%2B4Dk8KXg%2BJb2eZIbYIFYm7A4qdKvADCKL%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQAhoMODM5MzgwMDUyOTE0IgyXUwg7va32HEQ8W5MqxAOghwqrPEpTnH6dLG9toIM8HGhlggL5bFAVI0%2FEE7N1jZRrlyL3455spFAZcAYcROwLnJXzW%2FndQR0QGKKasO6pMW%2B9u8n%2BRUrN6p5kHV4lU9%2BjVb5x2RsMaSjm9Klio8KnB8o5H7CnsTpGEjeAc3ZmeKS10nSSUh4%2FheANMdQVXMCOoba4oqPOxWAIS1dY7tLNrVEgaqhzXhsbK8j0FwwJESYa%2Fq6cN%2FxcnSVq60wUQhRlqaxQr%2FijbXKnprz9Bs0jgvTYF65yPiIKXQ%2B4bYyxR8geOb5c%2BlfFVMFC%2FRyMT1q7r6K7yVuNXxSN3Y%2BeNOR%2FbvDCL9%2Fu3TqNCBHVR3HWPY9P%2BdnF0wjvDS4sDvDEx7V%2Fx%2F%2B52e4flwqgPhAbJrjDqR0dWVuJgwpPfJFjpMVqQ80QPcEEABYY6YycQgNjoSKqdHjLyghykagoV8DAMiNpJciyCb8DMMAv7Cn5%2FCteeYoZevftP%2FIzyZMR9AErQdCTaAL6Db4PAu%2BInbca1sNkWW1HB0DrdonovpFffSXYBHgZMAmij2pD8RmYHvVu9PoPyBR2fRUbZdtoXdaI0Sp7lFlF1hJ1bkgMvjQRPMU0XURvjzCXkvGNBjqkAbiCqn%2F%2BCI%2B9sPSVdCvg7W3oOVsGViKrQmI2SA%2F%2FrJH%2B243LI9iJ7fM4nv5iDTqkpSuy4lYRpX737ZszaJR%2BtRZ1C%2BmGu%2FQjRl0P9mlpCq5qTheOOM9CDvqxu64MiPpgHab4PCATr3i4u8wrTkHhclID4Qx9SU6TyxH0d2OsyngMxjKe3K9wWqkUtQh8FYDKAiPyp3eY99ZGd322XLDdG35CNFCf"
                       ]
@@ -1109,6 +1202,7 @@
                         "error"
                       ],
                       "description": "The result of a request",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -1121,6 +1215,7 @@
                         "success"
                       ],
                       "description": "The status of a request. Possible values:\n* `processing` - on processing, the file is being formed\n* `error` - an error occurred during download, we recommend checking the request data and repeat (in case of repeated error, contact LiqPay support)\n* `success` - successful request",
+                      "example": "success",
                       "examples": [
                         "success"
                       ]

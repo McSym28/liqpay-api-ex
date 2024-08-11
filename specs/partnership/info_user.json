@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "agent_info_user"
                     ],
+                    "example": "agent_info_user",
                     "examples": [
                       "agent_info_user"
                     ]
@@ -47,6 +49,7 @@
                   "phone": {
                     "type": "string",
                     "description": "Shop phone number",
+                    "example": "+380950000001",
                     "examples": [
                       "+380950000001",
                       "380950000001"
@@ -74,6 +77,7 @@
                     "result": {
                       "type": "string",
                       "description": "The result of a request `ok` or `error`",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -86,6 +90,7 @@
                           "blocked": {
                             "type": "string",
                             "description": "Company block status",
+                            "example": false,
                             "examples": [
                               false
                             ]
@@ -94,6 +99,7 @@
                             "type": "integer",
                             "format": "timestamp-ms",
                             "description": "Date of company creation",
+                            "example": 1491294687862,
                             "examples": [
                               1491294687862
                             ]
@@ -101,6 +107,7 @@
                           "description": {
                             "type": "string",
                             "description": "Company description",
+                            "example": "site description",
                             "examples": [
                               "site description"
                             ]
@@ -108,6 +115,7 @@
                           "email": {
                             "type": "string",
                             "description": "The company's email",
+                            "example": "test@gmail.com",
                             "examples": [
                               "test@gmail.com"
                             ]
@@ -119,6 +127,7 @@
                           "name": {
                             "type": "string",
                             "description": "Company name",
+                            "example": "Shop",
                             "examples": [
                               "Shop"
                             ]
@@ -126,6 +135,7 @@
                           "public_key": {
                             "type": "string",
                             "description": "Shop public key",
+                            "example": "i000000000",
                             "examples": [
                               "i000000000"
                             ]
@@ -133,6 +143,7 @@
                           "role": {
                             "type": "string",
                             "description": "The role of the user in the store who requested information",
+                            "example": "undefined",
                             "examples": [
                               "undefined"
                             ]
@@ -141,6 +152,7 @@
                             "type": "integer",
                             "format": "timestamp-ms",
                             "description": "Date of information update on the company",
+                            "example": 1491294687862,
                             "examples": [
                               1491294687862
                             ]
@@ -148,6 +160,7 @@
                           "url": {
                             "type": "string",
                             "description": "URL of company",
+                            "example": "http://test.com",
                             "examples": [
                               "http://test.com"
                             ]

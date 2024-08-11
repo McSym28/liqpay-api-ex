@@ -49,24 +49,28 @@
                     "date": {
                       "type": "string",
                       "format": "date-liqpay",
+                      "example": "01.12.2014",
                       "examples": [
                         "01.12.2014"
                       ]
                     },
                     "bank": {
                       "type": "string",
+                      "example": "PB",
                       "examples": [
                         "PB"
                       ]
                     },
                     "baseCurrency": {
                       "type": "integer",
+                      "example": 980,
                       "examples": [
                         980
                       ]
                     },
                     "baseCurrencyLit": {
                       "type": "string",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -79,6 +83,7 @@
                           "baseCurrency": {
                             "type": "string",
                             "description": "Basic currency (UAH)",
+                            "example": "UAH",
                             "examples": [
                               "UAH"
                             ]
@@ -86,6 +91,7 @@
                           "currency": {
                             "type": "string",
                             "description": "Deal currency (USD, EUR, CHF, GBP, PLZ, SEK, XAU, CAD)",
+                            "example": "CHF",
                             "examples": [
                               "CHF",
                               "EUR",
@@ -101,6 +107,7 @@
                           "saleRateNB": {
                             "type": "number",
                             "description": "The sale rate of NBU",
+                            "example": 15.638975,
                             "examples": [
                               15.638975,
                               18.79492,
@@ -116,6 +123,7 @@
                           "purchaseRateNB": {
                             "type": "number",
                             "description": "The purchase rate of NBU",
+                            "example": 15.638975,
                             "examples": [
                               15.638975,
                               18.79492,
@@ -131,6 +139,7 @@
                           "saleRate": {
                             "type": "number",
                             "description": "The sale rate of PrivatBank",
+                            "example": 17.0,
                             "examples": [
                               17.0,
                               20.0,
@@ -143,6 +152,7 @@
                           "purchaseRate": {
                             "type": "number",
                             "description": "Buying rate of PrivatBank",
+                            "example": 15.5,
                             "examples": [
                               15.5,
                               19.2,

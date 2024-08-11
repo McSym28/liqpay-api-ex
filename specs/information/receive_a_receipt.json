@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "ticket"
                     ],
+                    "example": "ticket",
                     "examples": [
                       "ticket"
                     ]
@@ -47,6 +49,7 @@
                   "email": {
                     "type": "string",
                     "description": "Email for reciept sending",
+                    "example": "email@gmail.com",
                     "examples": [
                       "email@gmail.com"
                     ]
@@ -54,6 +57,7 @@
                   "order_id": {
                     "type": "string",
                     "description": "order_id of successful payment",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -94,6 +98,7 @@
                     "result": {
                       "type": "string",
                       "description": "The result of a request `ok` or `error`",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]

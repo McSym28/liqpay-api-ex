@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "payqr"
                     ],
+                    "example": "payqr",
                     "examples": [
                       "payqr"
                     ]
@@ -47,6 +49,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34,
@@ -61,6 +64,7 @@
                       "UAH"
                     ],
                     "description": "Payment currency",
+                    "example": "USD",
                     "examples": [
                       "USD"
                     ]
@@ -68,6 +72,7 @@
                   "description": {
                     "type": "string",
                     "description": "Payment description",
+                    "example": "description text",
                     "examples": [
                       "description text"
                     ]
@@ -80,6 +85,7 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Unique purchase ID in your shop",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -123,6 +129,7 @@
                         "public_key": {
                           "type": "string",
                           "description": "Public key - the store identifier",
+                          "example": "i000000001",
                           "examples": [
                             "i000000001",
                             "i000000002"
@@ -131,6 +138,7 @@
                         "amount": {
                           "type": "number",
                           "description": "Payment amount",
+                          "example": 1,
                           "examples": [
                             1,
                             2
@@ -144,6 +152,7 @@
                           ],
                           "default": "sender",
                           "description": "Commission payer",
+                          "example": "sender",
                           "examples": [
                             "sender",
                             "receiver"
@@ -154,6 +163,7 @@
                           "format": "uri",
                           "maxLength": 510,
                           "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
+                          "example": "https://server1/callback",
                           "examples": [
                             "https://server1/callback",
                             "https://server2/callback"
@@ -182,6 +192,7 @@
                   "info": {
                     "type": "string",
                     "description": "Information to add details to payment",
+                    "example": "External information for payments",
                     "examples": [
                       "External information for payments"
                     ]
@@ -233,6 +244,7 @@
                     "acq_id": {
                       "type": "number",
                       "description": "Acquirer ID",
+                      "example": 414963,
                       "examples": [
                         414963
                       ]
@@ -249,6 +261,7 @@
                         "regular"
                       ],
                       "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "example": "payqr",
                       "examples": [
                         "payqr"
                       ]
@@ -256,6 +269,7 @@
                     "agent_commission": {
                       "type": "number",
                       "description": "Agent comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -263,6 +277,7 @@
                     "amount": {
                       "type": "number",
                       "description": "Payment amount",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -270,6 +285,7 @@
                     "amount_bonus": {
                       "type": "number",
                       "description": "Payer bonus amount in payment currency debit",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -277,6 +293,7 @@
                     "amount_credit": {
                       "type": "number",
                       "description": "Payment amount for credit in currency of `currency_credit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -284,6 +301,7 @@
                     "amount_debit": {
                       "type": "number",
                       "description": "Payment amount for debit in currency of `currency_debit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -291,6 +309,7 @@
                     "commission_credit": {
                       "type": "number",
                       "description": "Commission from the receiver in `currency_credit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -298,6 +317,7 @@
                     "commission_debit": {
                       "type": "number",
                       "description": "Commission from the sender in `currency_debit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -305,6 +325,7 @@
                     "currency": {
                       "type": "string",
                       "description": "Payment currency",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -312,6 +333,7 @@
                     "currency_credit": {
                       "type": "string",
                       "description": "Transaction currency of credit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -319,6 +341,7 @@
                     "currency_debit": {
                       "type": "string",
                       "description": "Transaction currency of debit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -326,6 +349,7 @@
                     "description": {
                       "type": "string",
                       "description": "Payment description",
+                      "example": "description",
                       "examples": [
                         "description"
                       ]
@@ -346,6 +370,7 @@
                     "liqpay_order_id": {
                       "type": "string",
                       "description": "Payment order_id in LiqPay system",
+                      "example": "NYMK3AE61501685438251925",
                       "examples": [
                         "NYMK3AE61501685438251925"
                       ]
@@ -358,6 +383,7 @@
                         7
                       ],
                       "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure",
+                      "example": 7,
                       "examples": [
                         7
                       ]
@@ -365,6 +391,7 @@
                     "order_id": {
                       "type": "string",
                       "description": "Order_id payment",
+                      "example": "98R1U1OV1485849059893399",
                       "examples": [
                         "98R1U1OV1485849059893399"
                       ]
@@ -372,6 +399,7 @@
                     "payment_id": {
                       "type": "number",
                       "description": "Payment id in LiqPay system",
+                      "example": 165164,
                       "examples": [
                         165164
                       ]
@@ -379,6 +407,7 @@
                     "public_key": {
                       "type": "string",
                       "description": "Shop public key",
+                      "example": "i000000000",
                       "examples": [
                         "i000000000"
                       ]
@@ -386,6 +415,7 @@
                     "qr_code": {
                       "type": "string",
                       "description": "QR-code for customer to make a payment",
+                      "example": "lp_qr:pay:nC4O1DG2nUsMI44Zh80utdjYvw",
                       "examples": [
                         "lp_qr:pay:nC4O1DG2nUsMI44Zh80utdjYvw"
                       ]
@@ -393,6 +423,7 @@
                     "receiver_commission": {
                       "type": "number",
                       "description": "Receiver comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -400,6 +431,7 @@
                     "sender_bonus": {
                       "type": "number",
                       "description": "Sender's bonus in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -407,6 +439,7 @@
                     "sender_commission": {
                       "type": "number",
                       "description": "Commission from the sender in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -420,6 +453,7 @@
                         "wait_qr"
                       ],
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `wait_qr` - Waiting for customer to scan QR-code",
+                      "example": "wait_qr",
                       "examples": [
                         "wait_qr"
                       ]
@@ -427,6 +461,7 @@
                     "transaction_id": {
                       "type": "number",
                       "description": "Id transactions in the LiqPay system",
+                      "example": 165164,
                       "examples": [
                         165164
                       ]
@@ -434,6 +469,7 @@
                     "type": {
                       "type": "string",
                       "description": "Payment type",
+                      "example": "buy",
                       "examples": [
                         "buy"
                       ]
@@ -445,6 +481,7 @@
                       ],
                       "default": 3,
                       "description": "Version API",
+                      "example": 3,
                       "examples": [
                         3
                       ]

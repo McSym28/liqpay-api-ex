@@ -41,6 +41,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34
@@ -57,6 +58,7 @@
                   "card_exp_month": {
                     "type": "string",
                     "description": "Expiry month of the payer's card",
+                    "example": "08",
                     "examples": [
                       "08"
                     ]
@@ -64,6 +66,7 @@
                   "card_exp_year": {
                     "type": "string",
                     "description": "Expiry year of the payer's card",
+                    "example": "19",
                     "examples": [
                       "19"
                     ]
@@ -71,6 +74,7 @@
                   "card_token": {
                     "type": "string",
                     "description": "Sender's [card token](https://www.liqpay.ua/en/methods/token_pay). You don't need to transmit card data, when using a token",
+                    "example": "B5BВB0D00B88B00ED00A00D0D",
                     "examples": [
                       "B5BВB0D00B88B00ED00A00D0D"
                     ]
@@ -96,6 +100,7 @@
                   "phone": {
                     "type": "string",
                     "description": "Payer's phone number. The OTP-password will be sent to this telephone number to confirm your payment, and the linked payer's LiqPay cabinet. The telephone number should be indicated in the international format (Ukraine `+380`)",
+                    "example": "+380950000001",
                     "examples": [
                       "+380950000001",
                       "380950000001"

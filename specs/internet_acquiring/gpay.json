@@ -42,6 +42,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34
@@ -68,6 +69,7 @@
                   "phone": {
                     "type": "string",
                     "description": "Payer's phone number. The OTP-password will be sent to this telephone number to confirm your payment, and the linked payer's LiqPay cabinet. The telephone number should be indicated in the international format (Ukraine `+380`)",
+                    "example": "+380950000001",
                     "examples": [
                       "+380950000001",
                       "380950000001"
@@ -111,6 +113,7 @@
                   "card_exp_month": {
                     "type": "string",
                     "description": "Expiry month of the payer's token",
+                    "example": "08",
                     "examples": [
                       "08"
                     ]
@@ -118,6 +121,7 @@
                   "card_exp_year": {
                     "type": "string",
                     "description": "Expiry year of the payer's token",
+                    "example": "19",
                     "examples": [
                       "19"
                     ]
@@ -160,6 +164,7 @@
                         "public_key": {
                           "type": "string",
                           "description": "Public key - the store identifier",
+                          "example": "i000000001",
                           "examples": [
                             "i000000001",
                             "i000000002"
@@ -168,6 +173,7 @@
                         "amount": {
                           "type": "number",
                           "description": "Payment amount",
+                          "example": 1,
                           "examples": [
                             1,
                             2
@@ -181,6 +187,7 @@
                           ],
                           "default": "sender",
                           "description": "Commission payer",
+                          "example": "sender",
                           "examples": [
                             "sender",
                             "receiver"
@@ -191,6 +198,7 @@
                           "format": "uri",
                           "maxLength": 510,
                           "description": "URL API in your store for notifications of payment status change (`server` -> `server`)",
+                          "example": "https://server1/callback",
                           "examples": [
                             "https://server1/callback",
                             "https://server2/callback"
@@ -214,6 +222,7 @@
                   "info": {
                     "type": "string",
                     "description": "Information to add details to payment",
+                    "example": "External information for payments",
                     "examples": [
                       "External information for payments"
                     ]
@@ -297,6 +306,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34

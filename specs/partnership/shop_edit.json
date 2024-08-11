@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "agent_shop_edit"
                     ],
+                    "example": "agent_shop_edit",
                     "examples": [
                       "agent_shop_edit"
                     ]
@@ -47,6 +49,7 @@
                   "description": {
                     "type": "string",
                     "description": "Store description",
+                    "example": "site description",
                     "examples": [
                       "site description"
                     ]
@@ -54,6 +57,7 @@
                   "email": {
                     "type": "string",
                     "description": "Store email",
+                    "example": "email@gmail.com",
                     "examples": [
                       "email@gmail.com"
                     ]
@@ -61,6 +65,7 @@
                   "merchant_public_key": {
                     "type": "string",
                     "description": "Public_key of agent shop",
+                    "example": "i3111000000",
                     "examples": [
                       "i3111000000"
                     ]
@@ -68,6 +73,7 @@
                   "name": {
                     "type": "string",
                     "description": "Store name (uk, en)",
+                    "example": "Site name",
                     "examples": [
                       "Site name"
                     ]
@@ -75,6 +81,7 @@
                   "phone": {
                     "type": "string",
                     "description": "Shop phone number",
+                    "example": "+380950000001",
                     "examples": [
                       "+380950000001",
                       "380950000001"
@@ -83,6 +90,7 @@
                   "site": {
                     "type": "string",
                     "description": "Store URL",
+                    "example": "agent1.site.com",
                     "examples": [
                       "agent1.site.com"
                     ]
@@ -155,6 +163,7 @@
                     "private_key": {
                       "type": "string",
                       "description": "Company private_key",
+                      "example": "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6",
                       "examples": [
                         "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6"
                       ]
@@ -162,6 +171,7 @@
                     "public_key": {
                       "type": "string",
                       "description": "Company public_key",
+                      "example": "i000000000",
                       "examples": [
                         "i000000000"
                       ]
@@ -172,6 +182,7 @@
                         "success"
                       ],
                       "description": "Available values:\n* `success` - Successful editing",
+                      "example": "success",
                       "examples": [
                         "success"
                       ]

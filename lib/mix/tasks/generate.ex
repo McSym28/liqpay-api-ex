@@ -4587,10 +4587,11 @@ defimpl Jason.Encoder, for: Tuple do
   def encode(Mix.Tasks.Generate.schema() = schema, opts) do
     schema
     |> Mix.Tasks.Generate.schema()
-    |> Enum.filter(fn
-      {_key, nil} -> false
-      {:examples, []} -> false
-      _ -> true
+    |> Enum.flat_map(fn
+      {_key, nil} -> []
+      {:examples, []} -> []
+      {:examples, [example | _] = examples} -> [{:example, example}, {:examples, examples}]
+      {key, value} -> [{key, value}]
     end)
     |> Jason.OrderedObject.new()
     |> Jason.Encoder.encode(opts)

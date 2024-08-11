@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "refund"
                     ],
+                    "example": "refund",
                     "examples": [
                       "refund"
                     ]
@@ -47,6 +49,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34
@@ -56,6 +59,7 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Unique purchase ID in your shop",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -89,6 +93,7 @@
                         "paydonate"
                       ],
                       "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `subscribe` - regular payment\n* `paydonate` - donation",
+                      "example": "refund",
                       "examples": [
                         "refund"
                       ]
@@ -96,6 +101,7 @@
                     "payment_id": {
                       "type": "number",
                       "description": "Payment id in LiqPay system",
+                      "example": 165173,
                       "examples": [
                         165173
                       ]
@@ -109,6 +115,7 @@
                         "success"
                       ],
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `success` - Successful payment",
+                      "example": "reversed",
                       "examples": [
                         "reversed"
                       ]

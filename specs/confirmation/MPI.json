@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "mpi"
                     ],
+                    "example": "mpi",
                     "examples": [
                       "mpi"
                     ]
@@ -47,6 +49,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34,
@@ -56,6 +59,7 @@
                   "card": {
                     "type": "string",
                     "description": "Card number of the payer",
+                    "example": "4731195301524634",
                     "examples": [
                       "4731195301524634"
                     ]
@@ -63,6 +67,7 @@
                   "card_cvv": {
                     "type": "string",
                     "description": "CVV/CVV2",
+                    "example": "111",
                     "examples": [
                       "111"
                     ]
@@ -70,6 +75,7 @@
                   "card_exp_month": {
                     "type": "string",
                     "description": "Expiry month of the payer's card",
+                    "example": "08",
                     "examples": [
                       "08",
                       "03"
@@ -78,6 +84,7 @@
                   "card_exp_year": {
                     "type": "string",
                     "description": "Expiry year of the payer's card",
+                    "example": "19",
                     "examples": [
                       "19",
                       "22"
@@ -91,6 +98,7 @@
                       "UAH"
                     ],
                     "description": "Payment currency",
+                    "example": "USD",
                     "examples": [
                       "USD"
                     ]
@@ -98,6 +106,7 @@
                   "description": {
                     "type": "string",
                     "description": "Payment description",
+                    "example": "description text",
                     "examples": [
                       "description text"
                     ]
@@ -114,6 +123,7 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Unique purchase ID in your shop",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -161,6 +171,7 @@
                         "type": "string",
                         "maxLength": 8,
                         "description": "Payer's browser language.\nValue that represents the language of the browser, in the format defined by the IETF BCP47 standard. Returned by the option navigator.language of the user's browser",
+                        "example": "en-US",
                         "examples": [
                           "en-US"
                         ]
@@ -203,6 +214,7 @@
                       "browserTZ": {
                         "type": "string",
                         "description": "Time zone offset between Greenwich and the payer's local time, in minutes",
+                        "example": "300",
                         "examples": [
                           "300",
                           "–300"
@@ -230,6 +242,7 @@
                   "phone": {
                     "type": "string",
                     "description": "Payer's phone number",
+                    "example": "380950000001",
                     "examples": [
                       "380950000001"
                     ]
@@ -265,6 +278,7 @@
                     "mpi_req_md": {
                       "type": "string",
                       "description": "Parameter required for sender authentification on ACS page",
+                      "example": "MGUyZDYxMjYDfhKOC00MDI2LWFhMWUOpDFJjNzIyMmDffShZjli",
                       "examples": [
                         "MGUyZDYxMjYDfhKOC00MDI2LWFhMWUOpDFJjNzIyMmDffShZjli"
                       ]
@@ -272,6 +286,7 @@
                     "mpi_req_pareq": {
                       "type": "string",
                       "description": "Parameter required for sender authentification on ACS page",
+                      "example": "eJxVUe1OwjAUfRWyB1jbMWAjlybIjJI4J1454B/TlKuUsA+6zTCf3lvYRPvrnJN72tNz4XlrEZMn\n1I1FCSlWlfrgdnMvNX8fTyKAx7xwJOwmj/iQcIX2soUuRQ+9wNgPSWj1VV1xKUPlwt10Uowng8\nBNZRyNAuEyl4d2IRjfgI2FmGXGUovQ/jATtB0EWT17aVEQ+B9QQ7ld5fbui6rKWOoi4zcGv29OZSq\n9Rt10VhWGorn5oFdsq0ahyq6/2g2Mr15ad+S9ret0l34/LDhPk2Vw93o9A+YmYKNqlAEXEx4J\nMRBiOpMQ4p90kFlLpjkPhf00T0r0xPxOS/1Kgki3mupVxxOlbPQM8lkWNEGZfzGwS9zFrStW\n19RVvxNX7UlwbkPtiLGL0ETFgzsK6rbFur4T+7fsHPamnMg==",
                       "examples": [
                         "eJxVUe1OwjAUfRWyB1jbMWAjlybIjJI4J1454B/TlKuUsA+6zTCf3lvYRPvrnJN72tNz4XlrEZMn\n1I1FCSlWlfrgdnMvNX8fTyKAx7xwJOwmj/iQcIX2soUuRQ+9wNgPSWj1VV1xKUPlwt10Uowng8\nBNZRyNAuEyl4d2IRjfgI2FmGXGUovQ/jATtB0EWT17aVEQ+B9QQ7ld5fbui6rKWOoi4zcGv29OZSq\n9Rt10VhWGorn5oFdsq0ahyq6/2g2Mr15ad+S9ret0l34/LDhPk2Vw93o9A+YmYKNqlAEXEx4J\nMRBiOpMQ4p90kFlLpjkPhf00T0r0xPxOS/1Kgki3mupVxxOlbPQM8lkWNEGZfzGwS9zFrStW\n19RVvxNX7UlwbkPtiLGL0ETFgzsK6rbFur4T+7fsHPamnMg=="
                       ]
@@ -279,6 +294,7 @@
                     "mpi_req_url": {
                       "type": "string",
                       "description": "Issuer bank page url (ACS page) to which customer should be redirected to confirm payment with 3D-Secure",
+                      "example": "https://acs.bankname.com/mpi",
                       "examples": [
                         "https://acs.bankname.com/mpi"
                       ]
@@ -292,6 +308,7 @@
                         "Y"
                       ],
                       "description": "Values for 3DS version 2.0:`Y, A` - additional client verification is not required,\n* `C` - additional client verification is required, \n* `N` - failed to verify the client. Payment performance is not recommended. The client can be checked with 3DS 1.0, \n* `U` - failed to verify the card for participation, client redirection is not required to pass 3-D Secure.\nValues for 3DS version 1.0:`N` - card does not participate, client redirection for 3D-Secure is not required,\n* `U` - failed to verify the card for participation, client redirection for 3D-Secure is not required, \n* `Y` - card supports the 3D-Secure service and there will be page of issuing bank in `mpi_req_url` parameter where `mpi_req_pareq` and `mpi_req_md` parameters should be transferred by `POST` method int he next form:\nwhere `TermUrl` - page address to which issuer will return the answer with PaRes and MD parameters. To make a payment with already passed 3DS you need to transfer `mpi_pares` and `mpi_md`, parameters with PaRes and MD values which were received from issuer bank ACS while payment is created",
+                      "example": "Y",
                       "examples": [
                         "Y",
                         "C",
@@ -304,6 +321,7 @@
                         "2.0"
                       ],
                       "description": "Returned when the card supports 3DS version 2.0",
+                      "example": "2.0",
                       "examples": [
                         "2.0"
                       ]
@@ -311,6 +329,7 @@
                     "mpi_form": {
                       "type": "string",
                       "description": "Returned when the card supports 3DS version 2.0. The form to which the client should be sent for authentication. The encrypted verification result will be returned by the issuer to notificationURL in the parameter: `cres`. To make a payment with passed 3DS, when creating a payment, you need to pass parameter - `cres` with the cres value that was received from the issuing bank",
+                      "example": "< form action = 'https://acs4.privatbank.ua/acs/creq' method = 'post' > < input type = 'hidden' name = 'creq' value = 'eyJhY3NUcmFuc0lEIjoiNDJlYmRkOWMtNzU0Zi00YzMwLTg5NDMtNDJhODQzMDY4ZTMwIiwibWVzc2FnZVR5cGUiOiJDUmVxIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiZTc1YmEyOGItNjE0YS00NDE5LWFjMzQtNzkxZDlmMjkwZjE3IiwiY2hhbGxlbmdlV2luZG93U2l6ZSI6IjAyIn0=' / > < /form>",
                       "examples": [
                         "< form action = 'https://acs4.privatbank.ua/acs/creq' method = 'post' > < input type = 'hidden' name = 'creq' value = 'eyJhY3NUcmFuc0lEIjoiNDJlYmRkOWMtNzU0Zi00YzMwLTg5NDMtNDJhODQzMDY4ZTMwIiwibWVzc2FnZVR5cGUiOiJDUmVxIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiZTc1YmEyOGItNjE0YS00NDE5LWFjMzQtNzkxZDlmMjkwZjE3IiwiY2hhbGxlbmdlV2luZG93U2l6ZSI6IjAyIn0=' / > < /form>"
                       ]
@@ -318,6 +337,7 @@
                     "mpi_cres": {
                       "type": "string",
                       "description": "Parameter required for the sender's authentication. Returned when receiving status `Y` or `N`",
+                      "example": "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0",
                       "examples": [
                         "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
                       ]
@@ -329,6 +349,7 @@
                         "success"
                       ],
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `failure` - Failed payment\n* `success` - Successful payment",
+                      "example": "success",
                       "examples": [
                         "success"
                       ]
@@ -340,6 +361,7 @@
                         "error"
                       ],
                       "description": "The result of a request",
+                      "example": "ok",
                       "examples": [
                         "ok"
                       ]
@@ -348,6 +370,7 @@
                       "type": "string",
                       "nullable": true,
                       "description": "CRes",
+                      "example": "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0",
                       "examples": [
                         "eyJhY3NUcmFuc0lEIjoiYTc1ZGYxZGYtZmRhZi00YzcyLTlkOTItYTM1NDUzMzEzODU1IiwibWVzc2FnZVR5cGUiOiJDUmVzIiwibWVzc2FnZVZlcnNpb24iOiIyLjEuMCIsInRocmVlRFNTZXJ2ZXJUcmFuc0lEIjoiYTQyNzQwNmUtZDlmOS00MmI2LTk5MDItOGQ2OTZjMGVkNjJjIiwidHJhbnNTdGF0dXMiOiJBIn0"
                       ]

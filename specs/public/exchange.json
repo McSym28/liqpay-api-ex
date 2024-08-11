@@ -66,6 +66,7 @@
                       "ccy": {
                         "type": "string",
                         "description": "Currency code ([reference currency codes](https://en.wikipedia.org/wiki/ISO_4217))",
+                        "example": "EUR",
                         "examples": [
                           "EUR",
                           "USD"
@@ -74,6 +75,7 @@
                       "base_ccy": {
                         "type": "string",
                         "description": "National currency code",
+                        "example": "UAH",
                         "examples": [
                           "UAH"
                         ]
@@ -81,6 +83,7 @@
                       "buy": {
                         "type": "string",
                         "description": "Buying rate",
+                        "example": "19.20000",
                         "examples": [
                           "19.20000",
                           "15.50000"
@@ -89,6 +92,7 @@
                       "sale": {
                         "type": "string",
                         "description": "Sales rate",
+                        "example": "20.00000",
                         "examples": [
                           "20.00000",
                           "15.85000"

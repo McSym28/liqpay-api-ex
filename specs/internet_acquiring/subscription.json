@@ -27,6 +27,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -40,6 +41,7 @@
                     "enum": [
                       "subscribe"
                     ],
+                    "example": "subscribe",
                     "examples": [
                       "subscribe"
                     ]
@@ -47,6 +49,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34,
@@ -56,6 +59,7 @@
                   "card": {
                     "type": "string",
                     "description": "Card number of the payer",
+                    "example": "4731195301524634",
                     "examples": [
                       "4731195301524634"
                     ]
@@ -63,6 +67,7 @@
                   "card_cvv": {
                     "type": "string",
                     "description": "CVV/CVV2",
+                    "example": "111",
                     "examples": [
                       "111"
                     ]
@@ -70,6 +75,7 @@
                   "card_exp_month": {
                     "type": "string",
                     "description": "Expiry month of the payer's card",
+                    "example": "08",
                     "examples": [
                       "08",
                       "03"
@@ -78,6 +84,7 @@
                   "card_exp_year": {
                     "type": "string",
                     "description": "Expiry year of the payer's card",
+                    "example": "19",
                     "examples": [
                       "19",
                       "22"
@@ -91,6 +98,7 @@
                       "UAH"
                     ],
                     "description": "Payment currency",
+                    "example": "USD",
                     "examples": [
                       "USD"
                     ]
@@ -98,6 +106,7 @@
                   "description": {
                     "type": "string",
                     "description": "Payment description",
+                    "example": "description text",
                     "examples": [
                       "description text"
                     ]
@@ -110,6 +119,7 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Unique purchase ID in your shop",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -117,6 +127,7 @@
                   "phone": {
                     "type": "string",
                     "description": "Payer's phone number. The OTP-password will be sent to this telephone number to confirm your payment, and the linked payer's LiqPay cabinet. The telephone number should be indicated in the international format (Ukraine `+380`)",
+                    "example": "+380950000001",
                     "examples": [
                       "+380950000001",
                       "380950000001"
@@ -166,6 +177,7 @@
                           "1"
                         ],
                         "description": "Regular payment",
+                        "example": "1",
                         "examples": [
                           "1"
                         ]
@@ -174,6 +186,7 @@
                         "type": "string",
                         "format": "date-time-liqpay",
                         "description": "Date of the first payment. Time must be specified in the following format `2015-03-31 00:00:00` by `UTC`. If past date is indicated - subscription will be activated with the date and time of request",
+                        "example": "2015-03-31 00:00:00",
                         "examples": [
                           "2015-03-31 00:00:00"
                         ]
@@ -187,6 +200,7 @@
                           "year"
                         ],
                         "description": "Period of payments. Possible values:\n* `day` - daily\n* `week` - weekly\n* `month` - once in a month\n* `year` - once in a year",
+                        "example": "month",
                         "examples": [
                           "month"
                         ]
@@ -239,6 +253,7 @@
                   "info": {
                     "type": "string",
                     "description": "Information to add details to payment",
+                    "example": "External information for payments",
                     "examples": [
                       "External information for payments"
                     ]
@@ -295,6 +310,7 @@
                     "acq_id": {
                       "type": "number",
                       "description": "Acquirer ID",
+                      "example": 414963,
                       "examples": [
                         414963
                       ]
@@ -311,6 +327,7 @@
                         "regular"
                       ],
                       "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "example": "subscribe",
                       "examples": [
                         "subscribe"
                       ]
@@ -318,6 +335,7 @@
                     "agent_commission": {
                       "type": "number",
                       "description": "Agent comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -325,6 +343,7 @@
                     "amount": {
                       "type": "number",
                       "description": "Payment amount",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -332,6 +351,7 @@
                     "amount_bonus": {
                       "type": "number",
                       "description": "Payer bonus amount in payment currency debit",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -339,6 +359,7 @@
                     "amount_credit": {
                       "type": "number",
                       "description": "Payment amount for credit in currency of `currency_credit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -346,6 +367,7 @@
                     "amount_debit": {
                       "type": "number",
                       "description": "Payment amount for debit in currency of `currency_debit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -353,6 +375,7 @@
                     "card_token": {
                       "type": "string",
                       "description": "Sender's card token",
+                      "example": "2DFBFE846B734166230DE81E971E948D6F260",
                       "examples": [
                         "2DFBFE846B734166230DE81E971E948D6F260"
                       ]
@@ -360,6 +383,7 @@
                     "commission_credit": {
                       "type": "number",
                       "description": "Commission from the receiver in `currency_credit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -367,6 +391,7 @@
                     "commission_debit": {
                       "type": "number",
                       "description": "Commission from the sender in `currency_debit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -375,6 +400,7 @@
                       "type": "integer",
                       "format": "timestamp-ms",
                       "description": "Date of payment creation",
+                      "example": 1501680854599,
                       "examples": [
                         1501680854599
                       ]
@@ -382,6 +408,7 @@
                     "currency": {
                       "type": "string",
                       "description": "Payment currency",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -389,6 +416,7 @@
                     "currency_credit": {
                       "type": "string",
                       "description": "Transaction currency of credit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -396,6 +424,7 @@
                     "currency_debit": {
                       "type": "string",
                       "description": "Transaction currency of debit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -403,6 +432,7 @@
                     "description": {
                       "type": "string",
                       "description": "Payment description",
+                      "example": "description text",
                       "examples": [
                         "description text"
                       ]
@@ -411,6 +441,7 @@
                       "type": "integer",
                       "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
+                      "example": 1501680854599,
                       "examples": [
                         1501680854599
                       ]
@@ -422,6 +453,7 @@
                     "liqpay_order_id": {
                       "type": "string",
                       "description": "Payment order_id in LiqPay system",
+                      "example": "NYMK3AE61501685438251925",
                       "examples": [
                         "NYMK3AE61501685438251925"
                       ]
@@ -434,6 +466,7 @@
                         7
                       ],
                       "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure",
+                      "example": 7,
                       "examples": [
                         7
                       ]
@@ -441,6 +474,7 @@
                     "order_id": {
                       "type": "string",
                       "description": "Order_id payment",
+                      "example": "98R1U1OV1485849059893399",
                       "examples": [
                         "98R1U1OV1485849059893399"
                       ]
@@ -448,6 +482,7 @@
                     "payment_id": {
                       "type": "number",
                       "description": "Payment id in LiqPay system",
+                      "example": 165156,
                       "examples": [
                         165156
                       ]
@@ -463,6 +498,7 @@
                         "qr"
                       ],
                       "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                      "example": "token",
                       "examples": [
                         "token"
                       ]
@@ -470,6 +506,7 @@
                     "public_key": {
                       "type": "string",
                       "description": "Shop public key",
+                      "example": "i000000000",
                       "examples": [
                         "i000000000"
                       ]
@@ -477,6 +514,7 @@
                     "receiver_commission": {
                       "type": "number",
                       "description": "Receiver comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -484,6 +522,7 @@
                     "sender_bonus": {
                       "type": "number",
                       "description": "Sender's bonus in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -491,6 +530,7 @@
                     "sender_card_bank": {
                       "type": "string",
                       "description": "Sender's card bank",
+                      "example": "pb",
                       "examples": [
                         "pb"
                       ]
@@ -498,6 +538,7 @@
                     "sender_card_country": {
                       "type": "string",
                       "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                      "example": 804,
                       "examples": [
                         804
                       ]
@@ -505,6 +546,7 @@
                     "sender_card_mask2": {
                       "type": "string",
                       "description": "Sender's card",
+                      "example": "414961*99",
                       "examples": [
                         "414961*99"
                       ]
@@ -512,6 +554,7 @@
                     "sender_card_type": {
                       "type": "string",
                       "description": "Sender's card type MC/Visa",
+                      "example": "visa",
                       "examples": [
                         "visa"
                       ]
@@ -519,6 +562,7 @@
                     "sender_commission": {
                       "type": "number",
                       "description": "Commission from the sender in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -526,6 +570,7 @@
                     "sender_phone": {
                       "type": "string",
                       "description": "Sender's phone number",
+                      "example": "380950000001",
                       "examples": [
                         "380950000001"
                       ]
@@ -546,6 +591,7 @@
                         "wait_secure"
                       ],
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `subscribed` - Subscribed successfully framed\n* `success` - Successful payment\nStatuses that required payment confirmation\n* `3ds_verify` - 3DS verification is required.\n To finish the payment you will require a [3ds_verify](https://www.liqpay.ua/en/doc/api/confirmation/3ds)\n* `cvv_verify` - Sender's card CVV is required. To finish the payment you will require a [cvv_verify](https://www.liqpay.ua/en/doc/api/confirmation/CVV)\n`otp_verify` OTP confirmation is required. OTP is sent to a customer phone number.\n To finish the payment you will require a [otp_verify](https://www.liqpay.ua/en/doc/api/confirmation/OTP)\n* `receiver_verify` - Receiver additional data is required. To finish the payment you will require a [receiver_verify](https://www.liqpay.ua/en/doc/api/confirmation/receiver_verify)\n* `sender_verify` - Sender's additional data is required.\n To finish the payment you will require a [sender_verify](https://www.liqpay.ua/en/doc/api/confirmation/sender_verify)\nOther payment statuses\n* `wait_accept` - Money are withdrawn from client but the store is still not verified. If the store is not activated for 60 days, payment will be automatically cancelled\n* `wait_secure` - Payment is verified",
+                      "example": "subscribed",
                       "examples": [
                         "subscribed"
                       ]
@@ -553,6 +599,7 @@
                     "transaction_id": {
                       "type": "number",
                       "description": "Id transactions in the LiqPay system",
+                      "example": 165156,
                       "examples": [
                         165156
                       ]
@@ -564,6 +611,7 @@
                       ],
                       "default": 3,
                       "description": "Version API",
+                      "example": 3,
                       "examples": [
                         3
                       ]
@@ -593,6 +641,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -606,6 +655,7 @@
                     "enum": [
                       "unsubscribe"
                     ],
+                    "example": "unsubscribe",
                     "examples": [
                       "unsubscribe"
                     ]
@@ -614,6 +664,7 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Unique purchase ID in your shop",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -640,6 +691,7 @@
                     "acq_id": {
                       "type": "number",
                       "description": "Acquirer ID",
+                      "example": 414963,
                       "examples": [
                         414963
                       ]
@@ -656,6 +708,7 @@
                         "regular"
                       ],
                       "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "example": "subscribe",
                       "examples": [
                         "subscribe"
                       ]
@@ -663,6 +716,7 @@
                     "agent_commission": {
                       "type": "number",
                       "description": "Agent comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -670,6 +724,7 @@
                     "amount": {
                       "type": "number",
                       "description": "Payment amount",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -677,6 +732,7 @@
                     "amount_bonus": {
                       "type": "number",
                       "description": "Payer bonus amount in payment currency debit",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -684,6 +740,7 @@
                     "amount_credit": {
                       "type": "number",
                       "description": "Payment amount for credit in currency of `currency_credit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -691,6 +748,7 @@
                     "amount_debit": {
                       "type": "number",
                       "description": "Payment amount for debit in currency of `currency_debit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -698,6 +756,7 @@
                     "card_token": {
                       "type": "string",
                       "description": "Sender's card token",
+                      "example": "2DFBFE626B730006230DE81E971E6588D6F260",
                       "examples": [
                         "2DFBFE626B730006230DE81E971E6588D6F260"
                       ]
@@ -705,6 +764,7 @@
                     "commission_credit": {
                       "type": "number",
                       "description": "Commission from the receiver in `currency_credit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -712,6 +772,7 @@
                     "commission_debit": {
                       "type": "number",
                       "description": "Commission from the sender in `currency_debit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -720,6 +781,7 @@
                       "type": "integer",
                       "format": "timestamp-ms",
                       "description": "Date of payment creation",
+                      "example": 1501680852705,
                       "examples": [
                         1501680852705
                       ]
@@ -727,6 +789,7 @@
                     "currency": {
                       "type": "string",
                       "description": "Payment currency",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -734,6 +797,7 @@
                     "currency_credit": {
                       "type": "string",
                       "description": "Transaction currency of credit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -741,6 +805,7 @@
                     "currency_debit": {
                       "type": "string",
                       "description": "Transaction currency of debit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -748,6 +813,7 @@
                     "description": {
                       "type": "string",
                       "description": "Payment description",
+                      "example": "description text",
                       "examples": [
                         "description text"
                       ]
@@ -756,6 +822,7 @@
                       "type": "integer",
                       "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
+                      "example": 1501681041689,
                       "examples": [
                         1501681041689
                       ]
@@ -767,6 +834,7 @@
                     "liqpay_order_id": {
                       "type": "string",
                       "description": "Payment order_id in LiqPay system",
+                      "example": "NYMK3AE61501685448251925",
                       "examples": [
                         "NYMK3AE61501685448251925"
                       ]
@@ -779,6 +847,7 @@
                         7
                       ],
                       "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure",
+                      "example": 7,
                       "examples": [
                         7
                       ]
@@ -786,6 +855,7 @@
                     "order_id": {
                       "type": "string",
                       "description": "Order_id payment",
+                      "example": "98R1U1OV1400849059893399",
                       "examples": [
                         "98R1U1OV1400849059893399"
                       ]
@@ -793,6 +863,7 @@
                     "payment_id": {
                       "type": "number",
                       "description": "Payment id in LiqPay system",
+                      "example": 165156,
                       "examples": [
                         165156
                       ]
@@ -808,6 +879,7 @@
                         "qr"
                       ],
                       "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                      "example": "token",
                       "examples": [
                         "token"
                       ]
@@ -815,6 +887,7 @@
                     "public_key": {
                       "type": "string",
                       "description": "Shop public key",
+                      "example": "i000000000",
                       "examples": [
                         "i000000000"
                       ]
@@ -822,6 +895,7 @@
                     "receiver_commission": {
                       "type": "number",
                       "description": "Receiver comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -829,6 +903,7 @@
                     "sender_bonus": {
                       "type": "number",
                       "description": "Sender's bonus in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -836,6 +911,7 @@
                     "sender_card_bank": {
                       "type": "string",
                       "description": "Sender's card bank",
+                      "example": "pb",
                       "examples": [
                         "pb"
                       ]
@@ -843,6 +919,7 @@
                     "sender_card_country": {
                       "type": "string",
                       "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                      "example": 804,
                       "examples": [
                         804
                       ]
@@ -850,6 +927,7 @@
                     "sender_card_mask2": {
                       "type": "string",
                       "description": "Sender's card",
+                      "example": "414961*99",
                       "examples": [
                         "414961*99"
                       ]
@@ -857,6 +935,7 @@
                     "sender_card_type": {
                       "type": "string",
                       "description": "Sender's card type MC/Visa",
+                      "example": "visa",
                       "examples": [
                         "visa"
                       ]
@@ -864,6 +943,7 @@
                     "sender_commission": {
                       "type": "number",
                       "description": "Commission from the sender in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -871,6 +951,7 @@
                     "sender_phone": {
                       "type": "string",
                       "description": "Sender's phone number",
+                      "example": "380950000001",
                       "examples": [
                         "380950000001"
                       ]
@@ -884,6 +965,7 @@
                         "unsubscribed"
                       ],
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `success` - Successful payment\n* `unsubscribed` - Subscribed successfully deactivated",
+                      "example": "unsubscribed",
                       "examples": [
                         "unsubscribed"
                       ]
@@ -891,6 +973,7 @@
                     "transaction_id": {
                       "type": "number",
                       "description": "Id transactions in the LiqPay system",
+                      "example": 165156,
                       "examples": [
                         165156
                       ]
@@ -902,6 +985,7 @@
                       ],
                       "default": 3,
                       "description": "Version API",
+                      "example": 3,
                       "examples": [
                         3
                       ]
@@ -931,6 +1015,7 @@
                     ],
                     "default": 3,
                     "description": "Version API",
+                    "example": 3,
                     "examples": [
                       3
                     ]
@@ -944,6 +1029,7 @@
                     "enum": [
                       "subscribe_update"
                     ],
+                    "example": "subscribe_update",
                     "examples": [
                       "subscribe_update"
                     ]
@@ -951,6 +1037,7 @@
                   "amount": {
                     "type": "number",
                     "description": "Payment amount",
+                    "example": 5.0,
                     "examples": [
                       5.0,
                       7.34,
@@ -965,6 +1052,7 @@
                       "UAH"
                     ],
                     "description": "Payment currency",
+                    "example": "USD",
                     "examples": [
                       "USD"
                     ]
@@ -972,6 +1060,7 @@
                   "description": {
                     "type": "string",
                     "description": "Payment description",
+                    "example": "description text",
                     "examples": [
                       "description text"
                     ]
@@ -980,6 +1069,7 @@
                     "type": "string",
                     "maxLength": 255,
                     "description": "Unique purchase ID in your shop",
+                    "example": "order_id_1",
                     "examples": [
                       "order_id_1"
                     ]
@@ -1009,6 +1099,7 @@
                     "acq_id": {
                       "type": "number",
                       "description": "Acquirer ID",
+                      "example": 414963,
                       "examples": [
                         414963
                       ]
@@ -1025,6 +1116,7 @@
                         "regular"
                       ],
                       "description": "Transaction type. Possible values:\n* `pay` - payment\n* `hold` - amount of hold on sender's account\n* `paysplit` - splitting payments\n* `subscribe` - creation of a regular payment\n* `paydonate` - donation\n* `auth` - card preauth\n* `regular` - regular payment",
+                      "example": "subscribe",
                       "examples": [
                         "subscribe"
                       ]
@@ -1032,6 +1124,7 @@
                     "agent_commission": {
                       "type": "number",
                       "description": "Agent comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1039,6 +1132,7 @@
                     "amount": {
                       "type": "number",
                       "description": "Payment amount",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -1046,6 +1140,7 @@
                     "amount_bonus": {
                       "type": "number",
                       "description": "Payer bonus amount in payment currency debit",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1053,6 +1148,7 @@
                     "amount_credit": {
                       "type": "number",
                       "description": "Payment amount for credit in currency of `currency_credit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -1060,6 +1156,7 @@
                     "amount_debit": {
                       "type": "number",
                       "description": "Payment amount for debit in currency of `currency_debit`",
+                      "example": 0.02,
                       "examples": [
                         0.02
                       ]
@@ -1067,6 +1164,7 @@
                     "card_token": {
                       "type": "string",
                       "description": "Sender's card token",
+                      "example": "2DFBFE846B734166230DE81E971E948D6F260",
                       "examples": [
                         "2DFBFE846B734166230DE81E971E948D6F260"
                       ]
@@ -1074,6 +1172,7 @@
                     "commission_credit": {
                       "type": "number",
                       "description": "Commission from the receiver in `currency_credit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1081,6 +1180,7 @@
                     "commission_debit": {
                       "type": "number",
                       "description": "Commission from the sender in `currency_debit`",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1089,6 +1189,7 @@
                       "type": "integer",
                       "format": "timestamp-ms",
                       "description": "Date of payment creation",
+                      "example": 1501680854599,
                       "examples": [
                         1501680854599
                       ]
@@ -1096,6 +1197,7 @@
                     "currency": {
                       "type": "string",
                       "description": "Payment currency",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -1103,6 +1205,7 @@
                     "currency_credit": {
                       "type": "string",
                       "description": "Transaction currency of credit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -1110,6 +1213,7 @@
                     "currency_debit": {
                       "type": "string",
                       "description": "Transaction currency of debit",
+                      "example": "UAH",
                       "examples": [
                         "UAH"
                       ]
@@ -1117,6 +1221,7 @@
                     "description": {
                       "type": "string",
                       "description": "Payment description",
+                      "example": "description text",
                       "examples": [
                         "description text"
                       ]
@@ -1125,6 +1230,7 @@
                       "type": "integer",
                       "format": "timestamp-ms",
                       "description": "Date of payment edition/end",
+                      "example": 1501680854599,
                       "examples": [
                         1501680854599
                       ]
@@ -1136,6 +1242,7 @@
                     "liqpay_order_id": {
                       "type": "string",
                       "description": "Payment order_id in LiqPay system",
+                      "example": "NYMK3AE61501685438251925",
                       "examples": [
                         "NYMK3AE61501685438251925"
                       ]
@@ -1148,6 +1255,7 @@
                         7
                       ],
                       "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure",
+                      "example": 7,
                       "examples": [
                         7
                       ]
@@ -1155,6 +1263,7 @@
                     "order_id": {
                       "type": "string",
                       "description": "Order_id payment",
+                      "example": "98R1U1OV1485849059893399",
                       "examples": [
                         "98R1U1OV1485849059893399"
                       ]
@@ -1162,6 +1271,7 @@
                     "payment_id": {
                       "type": "number",
                       "description": "Payment id in LiqPay system",
+                      "example": 165156,
                       "examples": [
                         165156
                       ]
@@ -1177,6 +1287,7 @@
                         "qr"
                       ],
                       "description": "Methods of payment. Possible values:\n* `card` - card payment\n* `privat24` - with privat24 account\n* `moment_part` - installments\n* `cash` - cash\n* `invoice` - to email\n* `qr` - qr code scanning",
+                      "example": "token",
                       "examples": [
                         "token"
                       ]
@@ -1184,6 +1295,7 @@
                     "public_key": {
                       "type": "string",
                       "description": "Shop public key",
+                      "example": "i000000000",
                       "examples": [
                         "i000000000"
                       ]
@@ -1191,6 +1303,7 @@
                     "receiver_commission": {
                       "type": "number",
                       "description": "Receiver comission in payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1198,6 +1311,7 @@
                     "sender_bonus": {
                       "type": "number",
                       "description": "Sender's bonus in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1205,6 +1319,7 @@
                     "sender_card_bank": {
                       "type": "string",
                       "description": "Sender's card bank",
+                      "example": "pb",
                       "examples": [
                         "pb"
                       ]
@@ -1212,6 +1327,7 @@
                     "sender_card_country": {
                       "type": "string",
                       "description": "Sender's card country. Digital [ISO 3166-1 code](https://en.wikipedia.org/wiki/ISO_3166-1)",
+                      "example": 804,
                       "examples": [
                         804
                       ]
@@ -1219,6 +1335,7 @@
                     "sender_card_mask2": {
                       "type": "string",
                       "description": "Sender's card",
+                      "example": "414961*99",
                       "examples": [
                         "414961*99"
                       ]
@@ -1226,6 +1343,7 @@
                     "sender_card_type": {
                       "type": "string",
                       "description": "Sender's card type MC/Visa",
+                      "example": "visa",
                       "examples": [
                         "visa"
                       ]
@@ -1233,6 +1351,7 @@
                     "sender_commission": {
                       "type": "number",
                       "description": "Commission from the sender in the payment currency",
+                      "example": 0.0,
                       "examples": [
                         0.0
                       ]
@@ -1240,6 +1359,7 @@
                     "sender_phone": {
                       "type": "string",
                       "description": "Sender's phone number",
+                      "example": "380950000001",
                       "examples": [
                         "380950000001"
                       ]
@@ -1254,6 +1374,7 @@
                         "success"
                       ],
                       "description": "Payment status.\nAvailable values:\nFinal payment statuses\n* `error` - Failed payment. Data is incorrect\n* `failure` - Failed payment\n* `reversed` - Payment refunded\n* `subscribed` - Subscribed successfully framed\n* `success` - Successful payment",
+                      "example": "subscribed",
                       "examples": [
                         "subscribed"
                       ]
@@ -1261,6 +1382,7 @@
                     "transaction_id": {
                       "type": "number",
                       "description": "Id transactions in the LiqPay system",
+                      "example": 165156,
                       "examples": [
                         165156
                       ]
@@ -1272,6 +1394,7 @@
                       ],
                       "default": 3,
                       "description": "Version API",
+                      "example": 3,
                       "examples": [
                         3
                       ]
