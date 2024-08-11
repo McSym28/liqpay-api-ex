@@ -36,7 +36,8 @@
                     "type": "string",
                     "enum": [
                       "pay"
-                    ]
+                    ],
+                    "default": "pay"
                   },
                   "amount": {
                     "type": "number",
@@ -121,6 +122,7 @@
                     "enum": [
                       "1"
                     ],
+                    "default": "1",
                     "description": "This parameter allows to generate payer `card_token` which you receive in callback request to `server_url`. `card_token` allows to make recurring payments without payer card requisites using API [paytoken](https://www.liqpay.ua/en/doc/api/internet_acquiring/token). To receive `card_token` please send in request value `1`"
                   },
                   "result_url": {
@@ -141,6 +143,7 @@
                     "enum": [
                       "1"
                     ],
+                    "default": "1",
                     "description": "Enables the testing environment for developers. Payer card will not be charged. To enable testing environment you will need to transmit value `1`. All test payments will have the status `sandbox` - successful test payment"
                   },
                   "is_dcc_debit": {
@@ -153,6 +156,7 @@
                     "enum": [
                       "tariffs"
                     ],
+                    "default": "tariffs",
                     "description": "* `tariffs` - get DCC rate and alternative currency"
                   },
                   "sender": {

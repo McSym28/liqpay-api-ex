@@ -41,6 +41,7 @@
                     "enum": [
                       "mpi"
                     ],
+                    "default": "mpi",
                     "example": "mpi",
                     "examples": [
                       "mpi"
@@ -320,6 +321,7 @@
                       "enum": [
                         "2.0"
                       ],
+                      "default": "2.0",
                       "description": "Returned when the card supports 3DS version 2.0",
                       "example": "2.0",
                       "examples": [

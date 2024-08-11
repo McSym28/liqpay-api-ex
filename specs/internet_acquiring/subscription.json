@@ -41,6 +41,7 @@
                     "enum": [
                       "subscribe"
                     ],
+                    "default": "subscribe",
                     "example": "subscribe",
                     "examples": [
                       "subscribe"
@@ -148,6 +149,7 @@
                     "enum": [
                       "1"
                     ],
+                    "default": "1",
                     "description": "The preliminary preparation of the payment. This mode allows you to determine whether all data is complete, whether 3DS is required to check the card, whether the limit is exceeded. The funds are not debited from the payer's card. To activate the mode, you need to transfer the value of `1`"
                   },
                   "recurringbytoken": {
@@ -156,6 +158,7 @@
                     "enum": [
                       "1"
                     ],
+                    "default": "1",
                     "description": "This parameter allows to generate payer `card_token` which you receive in callback request to `server_url`. `card_token` allows to make recurring payments without payer card requisites using API [paytoken](https://www.liqpay.ua/en/doc/api/internet_acquiring/token). To receive `card_token` please send in request value `1`"
                   },
                   "recurring": {
@@ -176,6 +179,7 @@
                         "enum": [
                           "1"
                         ],
+                        "default": "1",
                         "description": "Regular payment",
                         "example": "1",
                         "examples": [
@@ -655,6 +659,7 @@
                     "enum": [
                       "unsubscribe"
                     ],
+                    "default": "unsubscribe",
                     "example": "unsubscribe",
                     "examples": [
                       "unsubscribe"
@@ -1029,6 +1034,7 @@
                     "enum": [
                       "subscribe_update"
                     ],
+                    "default": "subscribe_update",
                     "example": "subscribe_update",
                     "examples": [
                       "subscribe_update"

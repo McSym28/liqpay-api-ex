@@ -79,7 +79,8 @@
                     "type": "string",
                     "enum": [
                       "gpay_tavv"
-                    ]
+                    ],
+                    "default": "gpay_tavv"
                   },
                   "tavv": {
                     "type": "string",
@@ -295,13 +296,15 @@
                     "type": "string",
                     "enum": [
                       "pay"
-                    ]
+                    ],
+                    "default": "pay"
                   },
                   "paytype": {
                     "type": "string",
                     "enum": [
                       "gpay"
-                    ]
+                    ],
+                    "default": "gpay"
                   },
                   "amount": {
                     "type": "number",

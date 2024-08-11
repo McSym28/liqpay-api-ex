@@ -41,6 +41,7 @@
                     "enum": [
                       "reports"
                     ],
+                    "default": "reports",
                     "example": "reports",
                     "examples": [
                       "reports"

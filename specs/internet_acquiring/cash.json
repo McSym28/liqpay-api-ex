@@ -41,6 +41,7 @@
                     "enum": [
                       "paycash"
                     ],
+                    "default": "paycash",
                     "example": "paycash",
                     "examples": [
                       "paycash"
@@ -119,6 +120,7 @@
                     "enum": [
                       "1"
                     ],
+                    "default": "1",
                     "description": "The preliminary preparation of the payment. This mode allows you to determine whether all data is complete, whether 3DS is required to check the card, whether the limit is exceeded. The funds are not debited from the payer's card. To activate the mode, you need to transfer the value of `1`"
                   },
                   "server_url": {

@@ -41,6 +41,7 @@
                     "enum": [
                       "agent_shop_edit"
                     ],
+                    "default": "agent_shop_edit",
                     "example": "agent_shop_edit",
                     "examples": [
                       "agent_shop_edit"
@@ -181,6 +182,7 @@
                       "enum": [
                         "success"
                       ],
+                      "default": "success",
                       "description": "Available values:\n* `success` - Successful editing",
                       "example": "success",
                       "examples": [

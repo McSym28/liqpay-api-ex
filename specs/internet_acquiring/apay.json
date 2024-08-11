@@ -79,7 +79,8 @@
                     "type": "string",
                     "enum": [
                       "apay_tavv"
-                    ]
+                    ],
+                    "default": "apay_tavv"
                   },
                   "tavv": {
                     "type": "string",
@@ -342,7 +343,8 @@
                     "type": "string",
                     "enum": [
                       "apay"
-                    ]
+                    ],
+                    "default": "apay"
                   },
                   "language": {
                     "type": "string",

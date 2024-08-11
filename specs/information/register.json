@@ -41,6 +41,7 @@
                     "enum": [
                       "reports_compensation"
                     ],
+                    "default": "reports_compensation",
                     "example": "reports_compensation",
                     "examples": [
                       "reports_compensation"
@@ -435,6 +436,7 @@
                     "enum": [
                       "register"
                     ],
+                    "default": "register",
                     "example": "register",
                     "examples": [
                       "register"
@@ -799,6 +801,7 @@
                     "enum": [
                       "reports_compensation_file"
                     ],
+                    "default": "reports_compensation_file",
                     "example": "reports_compensation_file",
                     "examples": [
                       "reports_compensation_file"
@@ -813,6 +816,7 @@
                     "enum": [
                       "csv"
                     ],
+                    "default": "csv",
                     "example": "csv",
                     "examples": [
                       "csv"
@@ -917,6 +921,7 @@
                     "enum": [
                       "reports_compensation_file_status"
                     ],
+                    "default": "reports_compensation_file_status",
                     "example": "reports_compensation_file_status",
                     "examples": [
                       "reports_compensation_file_status"
@@ -1026,6 +1031,7 @@
                     "enum": [
                       "reports_compensation_file"
                     ],
+                    "default": "reports_compensation_file",
                     "example": "reports_compensation_file",
                     "examples": [
                       "reports_compensation_file"
@@ -1154,6 +1160,7 @@
                     "enum": [
                       "reports_compensation_file_status"
                     ],
+                    "default": "reports_compensation_file_status",
                     "example": "reports_compensation_file_status",
                     "examples": [
                       "reports_compensation_file_status"

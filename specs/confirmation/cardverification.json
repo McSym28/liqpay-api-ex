@@ -36,7 +36,8 @@
                     "type": "string",
                     "enum": [
                       "cardverification"
-                    ]
+                    ],
+                    "default": "cardverification"
                   },
                   "card": {
                     "type": "string",
@@ -90,6 +91,7 @@
                     "enum": [
                       "Y"
                     ],
+                    "default": "Y",
                     "description": "Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
                   }
                 },
@@ -130,6 +132,7 @@
                       "enum": [
                         "cardverification"
                       ],
+                      "default": "cardverification",
                       "example": "cardverification",
                       "examples": [
                         "cardverification"
@@ -445,6 +448,7 @@
                       "enum": [
                         "Y"
                       ],
+                      "default": "Y",
                       "description": "Dynamic verification code",
                       "example": "S8SBQM",
                       "examples": [

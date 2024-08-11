@@ -41,6 +41,7 @@
                     "enum": [
                       "status"
                     ],
+                    "default": "status",
                     "example": "status",
                     "examples": [
                       "status"
@@ -466,6 +467,7 @@
                       "enum": [
                         "true"
                       ],
+                      "default": "true",
                       "description": "An additional payment status that indicates that the current payment is reserved for processing a return at your store. Possible values:\n* `true` - the payment is reserved for refund"
                     },
                     "transaction_id": {

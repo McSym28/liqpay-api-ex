@@ -203,6 +203,7 @@
                     "enum": [
                       "Y"
                     ],
+                    "default": "Y",
                     "description": "Dynamic verification code is generated and going back to `Callback`. Also generated code will be transferred to verification transactions for displaying in statement by client's card. Works for `action` = `auth`"
                   },
                   "split_rules": {
@@ -302,6 +303,7 @@
                         "enum": [
                           "1"
                         ],
+                        "default": "1",
                         "description": "Regular payment"
                       },
                       "subscribe_date_start": {
@@ -339,6 +341,7 @@
                         "enum": [
                           "1"
                         ],
+                        "default": "1",
                         "description": "Allows to generate payer `card_token` which you receive in callback request to `server_url`. `card_token` allows to make recurring payments without payer card details via API payment by token - it means 1-click. For getting `card_token` please send in request value: `1`"
                       },
                       "customer_user_id": {

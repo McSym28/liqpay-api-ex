@@ -41,6 +41,7 @@
                     "enum": [
                       "agent_info_user"
                     ],
+                    "default": "agent_info_user",
                     "example": "agent_info_user",
                     "examples": [
                       "agent_info_user"

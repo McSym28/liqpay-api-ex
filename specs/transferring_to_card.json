@@ -41,6 +41,7 @@
                     "enum": [
                       "p2pcredit"
                     ],
+                    "default": "p2pcredit",
                     "example": "p2pcredit",
                     "examples": [
                       "p2pcredit"
@@ -110,6 +111,7 @@
                     "enum": [
                       "Income is not subject to tax"
                     ],
+                    "default": "Income is not subject to tax",
                     "description": "Sign of payment of taxes from the payment"
                   },
                   "receiver_account": {

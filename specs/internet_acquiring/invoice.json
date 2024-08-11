@@ -147,6 +147,7 @@
                     "enum": [
                       "invoice_send"
                     ],
+                    "default": "invoice_send",
                     "example": "invoice_send",
                     "examples": [
                       "invoice_send"
@@ -459,6 +460,7 @@
                     "enum": [
                       "invoice_cancel"
                     ],
+                    "default": "invoice_cancel",
                     "example": "invoice_cancel",
                     "examples": [
                       "invoice_cancel"

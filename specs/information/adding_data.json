@@ -41,6 +41,7 @@
                     "enum": [
                       "data"
                     ],
+                    "default": "data",
                     "example": "data",
                     "examples": [
                       "data"

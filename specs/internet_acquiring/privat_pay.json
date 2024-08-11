@@ -36,7 +36,8 @@
                     "type": "string",
                     "enum": [
                       "payment_prepare"
-                    ]
+                    ],
+                    "default": "payment_prepare"
                   },
                   "amount": {
                     "type": "number",

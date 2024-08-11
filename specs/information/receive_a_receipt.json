@@ -41,6 +41,7 @@
                     "enum": [
                       "ticket"
                     ],
+                    "default": "ticket",
                     "example": "ticket",
                     "examples": [
                       "ticket"

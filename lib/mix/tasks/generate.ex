@@ -3890,6 +3890,43 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
+  defp parse_property_enum_specific(
+         schema(description: description, enum: nil) = property,
+         ["version", {:schema, _schema_type} | _] = path
+       ) do
+    ~r/(?:\.\s+)?(?:Current|Present)\s+value\s*[\-\–]?\s*`(\d+)`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, enum]] ->
+        description_new = String.replace(description, full_match, "")
+
+        property
+        |> schema(description: description_new)
+        |> patch_property_enum(enum, path)
+
+      [] ->
+        property
+        |> patch_property_enum(3, path)
+    end
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific(
+         property,
+         [
+           "version",
+           [],
+           "data"
+           | [
+               {:schema, _schema_type},
+               endpoint(id: "payment_archive"),
+               section(id: "information")
+             ] = rest_path
+         ] = _path
+       ) do
+    parse_property_enum_specific(property, ["version" | rest_path])
+  end
+
   defp parse_property_enum_specific(property, _path), do: property
 
   defp patch_property_enum(schema(type: :boolean) = property, _enum, _path), do: property
@@ -3901,36 +3938,6 @@ defmodule Mix.Tasks.Generate do
       schema(enum: nil) -> schema(property, enum: [enum_new])
       schema(enum: enum_old) -> schema(property, enum: Enum.uniq(enum_old ++ [enum_new]))
     end
-  end
-
-  defp parse_property_default(
-         schema(description: description, default: nil) = property,
-         ["version", {:schema, _schema_type} | _] = path
-       ) do
-    ~r/(?:\.\s+)?(?:Current|Present)\s+value\s*[\-\–]?\s*`(\d+)`(?=\.|$)/ui
-    |> Regex.scan(description)
-    |> case do
-      [[full_match, default]] ->
-        description_new = String.replace(description, full_match, "")
-
-        property
-        |> schema(description: description_new)
-        |> patch_property_default(default, path)
-        |> patch_property_enum(default, path)
-
-      [] ->
-        property
-        |> patch_property_default(3, path)
-        |> patch_property_enum(3, path)
-    end
-    |> parse_property_default(path)
-  end
-
-  defp parse_property_default(
-         property,
-         ["version", [], "data" | [{:schema, _schema_type} | _] = rest_path] = _path
-       ) do
-    parse_property_default(property, ["version" | rest_path])
   end
 
   defp parse_property_default(
@@ -4093,8 +4100,13 @@ defmodule Mix.Tasks.Generate do
 
       [] ->
         patch_property_default(property, "csv", path)
-        property
     end
+    |> parse_property_default(path)
+  end
+
+  defp parse_property_default(schema(enum: [default], default: nil) = property, path) do
+    property
+    |> patch_property_default(default, path)
     |> parse_property_default(path)
   end
 

@@ -41,6 +41,7 @@
                     "enum": [
                       "confirm"
                     ],
+                    "default": "confirm",
                     "example": "confirm",
                     "examples": [
                       "confirm"

@@ -41,6 +41,7 @@
                     "enum": [
                       "agent_shop_create"
                     ],
+                    "default": "agent_shop_create",
                     "example": "agent_shop_create",
                     "examples": [
                       "agent_shop_create"
@@ -333,6 +334,7 @@
                       "enum": [
                         "success"
                       ],
+                      "default": "success",
                       "description": "Available values:\n* `success` - Successful payment",
                       "example": "success",
                       "examples": [
@@ -378,6 +380,7 @@
                     "enum": [
                       "agent_shop_register"
                     ],
+                    "default": "agent_shop_register",
                     "example": "agent_shop_register",
                     "examples": [
                       "agent_shop_register"
@@ -777,7 +780,8 @@
                     "type": "string",
                     "enum": [
                       "agent_info_mcc_codes"
-                    ]
+                    ],
+                    "default": "agent_info_mcc_codes"
                   },
                   "version": {
                     "type": "integer",
@@ -873,7 +877,8 @@
                     "type": "string",
                     "enum": [
                       "agent_info_mcc_docs"
-                    ]
+                    ],
+                    "default": "agent_info_mcc_docs"
                   },
                   "version": {
                     "type": "integer",

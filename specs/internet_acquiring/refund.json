@@ -41,6 +41,7 @@
                     "enum": [
                       "refund"
                     ],
+                    "default": "refund",
                     "example": "refund",
                     "examples": [
                       "refund"
