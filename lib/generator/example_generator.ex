@@ -1,5 +1,5 @@
 if Mix.env() in [:dev, :test] do
-  defmodule Liqpay.Generator.ExampleGenerator do
+  defmodule LiqpayAPI.Generator.ExampleGenerator do
     alias OpenAPIClient.Generator.ExampleGenerator
 
     @behaviour ExampleGenerator

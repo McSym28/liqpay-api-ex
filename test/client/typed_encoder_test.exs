@@ -1,5 +1,5 @@
-defmodule Liqpay.Client.TypedEncoderTest do
+defmodule LiqpayAPI.Client.TypedEncoderTest do
   use ExUnit.Case, async: true
 
-  doctest Liqpay.Client.TypedEncoder
+  doctest LiqpayAPI.Client.TypedEncoder
 end

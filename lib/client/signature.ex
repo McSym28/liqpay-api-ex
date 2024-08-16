@@ -1,4 +1,4 @@
-defmodule Liqpay.Client.Signature do
+defmodule LiqpayAPI.Client.Signature do
   require Logger
 
   @spec generate_form_data(String.t(), String.t()) :: String.t()

@@ -1,5 +1,5 @@
-defmodule Liqpay.Generator.ExampleGeneratorTest do
+defmodule LiqpayAPI.Generator.ExampleGeneratorTest do
   use ExUnit.Case, async: true
 
-  doctest Liqpay.Generator.ExampleGenerator
+  doctest LiqpayAPI.Generator.ExampleGenerator
 end

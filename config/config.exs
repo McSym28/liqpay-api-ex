@@ -10,8 +10,8 @@ import Config
 config :open_api_client_ex,
   "$base": [
     client_pipeline: OpenAPIClient.BasicHTTPoisonPipeline,
-    typed_decoder: Liqpay.Client.TypedDecoder,
-    typed_encoder: Liqpay.Client.TypedEncoder,
+    typed_decoder: LiqpayAPI.Client.TypedDecoder,
+    typed_encoder: LiqpayAPI.Client.TypedEncoder,
     decoders: [
       {"application/json", {Jason, :decode, []}}
     ],

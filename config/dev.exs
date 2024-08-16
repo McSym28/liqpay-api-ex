@@ -19,7 +19,7 @@ config :oapi_generator,
 
 config :open_api_client_ex,
   "$base": [
-    example_generator: Liqpay.Generator.ExampleGenerator
+    example_generator: LiqpayAPI.Generator.ExampleGenerator
   ],
   default: [
     base_url: "https://www.liqpay.ua",
