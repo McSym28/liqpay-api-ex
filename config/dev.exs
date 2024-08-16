@@ -23,5 +23,23 @@ config :open_api_client_ex,
   ],
   default: [
     base_url: "https://www.liqpay.ua",
+    operations: [
+      {{~r/^\/api\/request(?:\?path=.*)?/, :post},
+       [
+         params: [
+           {{"private_key", :new},
+            [
+              spec: %{
+                "schema" => %{"type" => "string"},
+                "description" =>
+                  "Private key of the created company (not available to anyone except your developer)",
+                "required" => true
+              },
+              default: {Application, :get_env, [:liqpay_api_ex, :private_key]},
+              example: "a4825234f4bae72a0be04eafe9e8e2bada209255"
+            ]}
+         ]
+       ]}
+    ],
     test_location: "test"
   ]
