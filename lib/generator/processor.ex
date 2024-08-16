@@ -1,5 +1,5 @@
 if Mix.env() in [:dev] do
-  defmodule LiqpayAPI.Generator.Processor do
+  defmodule LiqPayAPI.Generator.Processor do
     use OpenAPIClient.Generator.Processor
     alias OpenAPI.Processor.Schema
 

@@ -1,4 +1,4 @@
-# LiqpayAPI
+# LiqPayAPI
 
 **TODO: Add description**
 

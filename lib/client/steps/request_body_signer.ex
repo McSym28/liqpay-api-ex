@@ -1,4 +1,4 @@
-defmodule LiqpayAPI.Client.Steps.RequestBodySigner do
+defmodule LiqPayAPI.Client.Steps.RequestBodySigner do
   @behaviour Pluggable
 
   alias OpenAPI.Renderer.Operation
@@ -26,7 +26,7 @@ defmodule LiqpayAPI.Client.Steps.RequestBodySigner do
       |> Keyword.get(:private_key)
 
     if is_binary(private_key) do
-      form_data = LiqpayAPI.Client.Signature.generate_form_data(request_body, private_key)
+      form_data = LiqPayAPI.Client.Signature.generate_form_data(request_body, private_key)
 
       %Operation{operation | request_body: form_data}
       |> Operation.put_request_header("Content-Type", "application/x-www-form-urlencoded")

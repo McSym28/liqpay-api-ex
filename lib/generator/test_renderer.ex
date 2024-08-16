@@ -1,5 +1,5 @@
 if Mix.env() in [:dev] do
-  defmodule LiqpayAPI.Generator.TestRenderer do
+  defmodule LiqPayAPI.Generator.TestRenderer do
     use OpenAPIClient.Generator.TestRenderer
     alias OpenAPI.Processor.Operation
     alias OpenAPI.Renderer.File
@@ -106,7 +106,7 @@ if Mix.env() in [:dev] do
                 quote(do: assert({:ok, signature} = Map.fetch(form_data, "signature"))),
                 quote(do: assert({:ok, data} = Map.fetch(form_data, "data"))),
                 quote(
-                  do: assert(LiqpayAPI.Client.Signature.check?(data, @private_key, signature))
+                  do: assert(LiqPayAPI.Client.Signature.check?(data, @private_key, signature))
                 ),
                 quote(do: assert({:ok, body} = Base.decode64(data))),
                 quote(

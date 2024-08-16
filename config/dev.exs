@@ -4,22 +4,22 @@ config :floki, :html_parser, Floki.HTMLParser.FastHtml
 
 config :oapi_generator,
   default: [
-    processor: LiqpayAPI.Generator.Processor,
-    renderer: LiqpayAPI.Generator.Renderer,
+    processor: LiqPayAPI.Generator.Processor,
+    renderer: LiqPayAPI.Generator.Renderer,
     naming: [
       rename: [
         {~r/^(.+\.(?:Request|Response))([^\.].+)$/, "\\1.\\2"}
       ]
     ],
     output: [
-      base_module: LiqpayAPI,
+      base_module: LiqPayAPI,
       location: "lib"
     ]
   ]
 
 config :open_api_client_ex,
   "$base": [
-    test_renderer: LiqpayAPI.Generator.TestRenderer
+    test_renderer: LiqPayAPI.Generator.TestRenderer
   ],
   default: [
     base_url: "https://www.liqpay.ua",

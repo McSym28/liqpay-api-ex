@@ -1,5 +1,5 @@
 if Mix.env() in [:dev] do
-  defmodule LiqpayAPI.Generator.Renderer do
+  defmodule LiqPayAPI.Generator.Renderer do
     use OpenAPIClient.Generator.Renderer
 
     @impl OpenAPI.Renderer

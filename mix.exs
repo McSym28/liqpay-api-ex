@@ -1,4 +1,4 @@
-defmodule LiqpayAPI.MixProject do
+defmodule LiqPayAPI.MixProject do
   use Mix.Project
 
   def project do

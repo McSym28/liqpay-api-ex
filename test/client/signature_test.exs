@@ -1,6 +1,6 @@
-defmodule LiqpayAPI.Client.SignatureTest do
+defmodule LiqPayAPI.Client.SignatureTest do
   use ExUnit.Case, async: true
-  alias LiqpayAPI.Client.Signature
+  alias LiqPayAPI.Client.Signature
 
   describe "generate_form_data/2" do
     test "generates form data from JSON string" do

@@ -1,4 +1,4 @@
-defmodule LiqpayAPI.Client.TypedDecoder do
+defmodule LiqPayAPI.Client.TypedDecoder do
   alias OpenAPIClient.Client.TypedDecoder
   alias OpenAPIClient.Client.Error
 

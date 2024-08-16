@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Generate do
   @moduledoc "Generates library's modules"
   use Mix.Task
-  alias LiqpayAPI.Client.TypedDecoder
+  alias LiqPayAPI.Client.TypedDecoder
   alias Jason.OrderedObject
 
   @liqpay_base_url "https://www.liqpay.ua"
