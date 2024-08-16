@@ -36,5 +36,5 @@ defmodule LiqpayAPI.MixProject do
     do: [{:env, :dev} | opts_for_open_api_client_ex(:prod)]
 
   defp opts_for_open_api_client_ex(_env),
-    do: [git: "../../../open-api-client-ex", ref: "cb90fef8dc0a67df623d758121259df08fb3032c"]
+    do: [git: "../../../open-api-client-ex", ref: "350b5b2bbbdf02020811bce05534ac2d4dc7d175"]
 end
