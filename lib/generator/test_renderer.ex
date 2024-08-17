@@ -1,19 +1,95 @@
 if Mix.env() in [:dev] do
   defmodule LiqPayAPI.Generator.TestRenderer do
     use OpenAPIClient.Generator.TestRenderer
-    alias OpenAPI.Processor.Operation
+    alias OpenAPI.Processor.{Operation, Schema}
     alias OpenAPI.Renderer.File
+    alias OpenAPIClient.Generator.Schema, as: GeneratorSchema
+    alias OpenAPIClient.Generator.Field, as: GeneratorField
+    alias Schema.Field
 
     @impl OpenAPIClient.Generator.TestRenderer
-    def type_example(_state, {:string, "date-time-liqpay"}, _path), do: "2024-01-02 01:23:45"
-    def type_example(_state, {:string, "date-liqpay"}, _path), do: "01.02.2024"
-    def type_example(_state, {:string, "month-year-liqpay"}, _path), do: "0124"
-    def type_example(_state, {:integer, "timestamp-ms"}, _path), do: 1_706_750_625_987
-    def type_example(_state, {:string, "boolean-integer"}, _path), do: "1"
-    def type_example(_state, {:string, "boolean-yesno"}, _path), do: "Y"
+    def example(_state, {:string, "date-time-liqpay"}, _path), do: "2024-01-02 01:23:45"
+    def example(_state, {:string, "date-liqpay"}, _path), do: "01.02.2024"
+    def example(_state, {:string, "month-year-liqpay"}, _path), do: "0124"
+    def example(_state, {:integer, "timestamp-ms"}, _path), do: 1_706_750_625_987
+    def example(_state, {:string, "boolean-integer"}, _path), do: "1"
+    def example(_state, {:string, "boolean-yesno"}, _path), do: "Y"
 
-    def type_example(state, type, path),
-      do: OpenAPIClient.Generator.TestRenderer.type_example(state, type, path)
+    def example(
+          state,
+          %GeneratorSchema{
+            schema: %Schema{module_name: LiqPayAPI.Tokens.Obtain.Request, type_name: :t},
+            fields: fields
+          } = generator_schema,
+          path
+        ) do
+      flattened_keys =
+        Enum.flat_map(fields, fn
+          %GeneratorField{field: %Field{name: key}, old_name: name}
+          when key in ~w(card_tokenization connect_control_tokenization vceh_tokenization) ->
+            [name]
+
+          _ ->
+            []
+        end)
+
+      {flattened_fields, map_rest} =
+        state
+        |> OpenAPIClient.Generator.TestRenderer.example(generator_schema, path)
+        |> Map.split(flattened_keys)
+
+      Enum.reduce(
+        flattened_fields,
+        map_rest,
+        fn {_key, value}, acc -> Map.merge(acc, value) end
+      )
+    end
+
+    def example(state, type, path),
+      do: OpenAPIClient.Generator.TestRenderer.example(state, type, path)
+
+    @impl OpenAPIClient.Generator.TestRenderer
+    def decode_example(
+          state,
+          value,
+          %GeneratorSchema{
+            schema: %Schema{module_name: LiqPayAPI.Tokens.Obtain.Request, type_name: :t},
+            fields: fields
+          } = generator_schema,
+          path
+        ) do
+      value_new =
+        Enum.reduce(fields, value, fn
+          %GeneratorField{field: %Field{name: key, type: schema_ref}, old_name: name} =
+              _generator_field,
+          acc
+          when key in ~w(card_tokenization connect_control_tokenization vceh_tokenization) ->
+            [{_, %GeneratorSchema{fields: nested_fields} = _field_schema}] =
+              :ets.lookup(:schemas, schema_ref)
+
+            nested_keys =
+              Enum.flat_map(nested_fields, fn
+                %GeneratorField{old_name: name} -> [name]
+                _ -> []
+              end)
+
+            {nested_fields, acc_rest} = Map.split(acc, nested_keys)
+            Map.put(acc_rest, name, nested_fields)
+
+          _, acc ->
+            acc
+        end)
+
+      OpenAPIClient.Generator.TestRenderer.decode_example(
+        state,
+        value_new,
+        generator_schema,
+        path
+      )
+    end
+
+    def decode_example(state, value, type, path),
+      do: OpenAPIClient.Generator.TestRenderer.decode_example(state, value, type, path)
 
     @impl OpenAPIClient.Generator.TestRenderer
     def format(

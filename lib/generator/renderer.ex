@@ -12,21 +12,17 @@ if Mix.env() in [:dev] do
     def render_type(state, type), do: OpenAPIClient.Generator.Renderer.render_type(state, type)
 
     @impl OpenAPI.Renderer
-    def write(state, %OpenAPI.Renderer.File{contents: contents, location: location} = file) do
-      if String.ends_with?(location, "_test.exs") do
-        OpenAPIClient.Generator.Renderer.write(state, file)
-      else
-        contents_new =
-          contents
-          |> IO.iodata_to_binary()
-          |> String.replace(
-            ~r/("(?:[\w\d]+:\/\/[\w\d]+(?:\.[\w\d]+))?(?:\/[\w\d]+)+)\?[^"]+(")/,
-            "\\1\\2"
-          )
+    def write(state, %OpenAPI.Renderer.File{contents: contents} = file) do
+      contents_new =
+        contents
+        |> IO.iodata_to_binary()
+        |> String.replace(
+          ~r/("(?:[\w\d]+:\/\/[\w\d]+(?:\.[\w\d]+))?(?:\/[\w\d]+)+)\?[^"]+(")/,
+          "\\1\\2"
+        )
 
-        file_new = %OpenAPI.Renderer.File{file | contents: contents_new}
-        OpenAPIClient.Generator.Renderer.write(state, file_new)
-      end
+      file_new = %OpenAPI.Renderer.File{file | contents: contents_new}
+      OpenAPIClient.Generator.Renderer.write(state, file_new)
     end
   end
 end

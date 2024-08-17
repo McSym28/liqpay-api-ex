@@ -24,7 +24,7 @@ defmodule Mix.Tasks.Generate do
   Record.defrecordp(:block,
     node: nil,
     is_request: true,
-    update_operation: :new,
+    update_operation: nil,
     update_type: :object,
     update_name: nil,
     description: nil
@@ -1345,7 +1345,9 @@ defmodule Mix.Tasks.Generate do
          true,
          [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block_data, update_operation: :patch)}
+       do:
+         {:ok,
+          block(block_data, update_operation: :new, update_name: "connect_control_tokenization")}
 
   defp process_block_title(
          "parameters for transfer to the card",
@@ -1400,7 +1402,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "sender")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "sender")}
 
   defp process_block_title(
          "sender parameters" = title,
@@ -1444,7 +1446,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "regular_payment")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "regular_payment")}
 
   defp process_block_title(
          "parameters for 1-click payment",
@@ -1453,7 +1455,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [_, section(id: "internet_acquiring")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "one_click_payment")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "one_click_payment")}
 
   defp process_block_title(
          "parameters for tokenization within the visa cards enrollment hub (vceh)",
@@ -1462,7 +1464,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "vceh_tokenization")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "vceh_tokenization")}
 
   defp process_block_title(
          "parameters for tokenization by card number",
@@ -1471,7 +1473,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [endpoint(id: "obtain"), section(id: "tokens")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "card_tokenization")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "card_tokenization")}
 
   defp process_block_title(
          "response parameters",
@@ -1492,7 +1494,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "receiver_account")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "receiver_account")}
 
   defp process_block_title(
          "parameters for aggregators",
@@ -1501,7 +1503,7 @@ defmodule Mix.Tasks.Generate do
          true,
          [_, section(id: "shop_create"), section(id: "partnership")] = _path
        ),
-       do: {:ok, block(block_data, update_name: "aggregator")}
+       do: {:ok, block(block_data, update_operation: :new, update_name: "aggregator")}
 
   defp process_block_title(
          "api invoice_units",

@@ -8887,9 +8887,18 @@
                     "type": "boolean",
                     "description": "Possible values:\n* `true` - a token will be used for payments to a card\n* `false` - a token will not be used for payments to a card"
                   },
-                  "pushAccountReceipt": {
-                    "type": "string",
-                    "description": "A string identifier that is used to tokenize a card in the Mastercard international payment system. It lasts 30 minutes"
+                  "connect_control_tokenization": {
+                    "type": "object",
+                    "properties": {
+                      "pushAccountReceipt": {
+                        "type": "string",
+                        "description": "A string identifier that is used to tokenize a card in the Mastercard international payment system. It lasts 30 minutes"
+                      }
+                    },
+                    "required": [
+                      "pushAccountReceipt"
+                    ],
+                    "description": "Parameters for tokenization within the Token connect control"
                   },
                   "vceh_tokenization": {
                     "type": "object",
@@ -8951,8 +8960,7 @@
                   "public_key",
                   "action",
                   "is_debit",
-                  "is_credit",
-                  "pushAccountReceipt"
+                  "is_credit"
                 ]
               }
             }

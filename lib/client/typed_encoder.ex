@@ -1,6 +1,7 @@
 defmodule LiqPayAPI.Client.TypedEncoder do
   alias OpenAPIClient.Client.TypedEncoder
   alias OpenAPIClient.Client.Error
+  alias OpenAPIClient.Utils
 
   @behaviour TypedEncoder
 
@@ -114,6 +115,68 @@ defmodule LiqPayAPI.Client.TypedEncoder do
      )}
   end
 
+  def encode(
+        %module{} = value,
+        {LiqPayAPI.Tokens.Obtain.Request = module, :t = type},
+        path,
+        caller_module
+      ) do
+    value
+    |> encode_schema({module, type}, path, caller_module)
+    |> case do
+      {:ok, map} ->
+        flattened_keys =
+          type
+          |> module.__fields__()
+          |> Keyword.take(~w(card_tokenization connect_control_tokenization vceh_tokenization)a)
+          |> Enum.map(fn {_name, {old_name, _type}} -> old_name end)
+
+        {flattened_fields, map_rest} = Map.split(map, flattened_keys)
+
+        map_new =
+          Enum.reduce(
+            flattened_fields,
+            map_rest,
+            fn {_key, value}, acc -> Map.merge(acc, value) end
+          )
+
+        {:ok, map_new}
+
+      error ->
+        error
+    end
+  end
+
+  def encode(
+        %module{} = value,
+        {module, type},
+        path,
+        caller_module
+      )
+      when is_atom(module) and is_atom(type) do
+    if Utils.is_module?(module) and Utils.does_implement_behaviour?(module, OpenAPIClient.Schema) do
+      encode_schema(value, {module, type}, path, caller_module)
+    else
+      TypedEncoder.encode(value, type, path, caller_module)
+    end
+  end
+
   def encode(value, type, path, caller_module),
     do: TypedEncoder.encode(value, type, path, caller_module)
+
+  defp encode_schema(
+         %module{} = value,
+         {module, _schema_type} = type,
+         path,
+         caller_module
+       ) do
+    case TypedEncoder.encode(value, type, path, caller_module) do
+      {:ok, value_encoded} ->
+        value_encoded_new = Map.reject(value_encoded, fn {_key, value} -> is_nil(value) end)
+        {:ok, value_encoded_new}
+
+      error ->
+        error
+    end
+  end
 end
