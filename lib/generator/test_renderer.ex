@@ -141,106 +141,95 @@ if Mix.env() in [:dev] do
     end
 
     @impl OpenAPIClient.Generator.TestRenderer
-    def render_operation_test(
-          state,
-          %Operation{
-            request_path: <<"/api/request", _rest::binary>>,
-            request_method: :post
-          } = operation,
-          request_schema,
-          response_schema
-        ) do
-      {:test, test_metadata, [test_name, [do: {:__block__, block_metadata, block_expressions}]]} =
-        OpenAPIClient.Generator.TestRenderer.render_operation_test(
-          state,
-          operation,
-          request_schema,
-          response_schema
-        )
-
-      block_expressions_new =
-        Enum.map(
-          block_expressions,
-          fn
-            {:expect, expect_metadata,
-             [
-               {:@, _attribute_metadata, [{:httpoison, _httpoison_metadata, _httpoison_context}]} =
-                   httpoison_attribute,
-               :request,
-               {:fn, fn_metadata,
-                [
-                  {:->, pipe_metadata,
-                   [
-                     fn_arguments,
-                     {:__block__, fn_block_metadata, fn_block_expressions}
-                   ]}
-                ]}
-             ]} ->
-              fn_block_expressions_new = [
-                quote(
-                  do:
-                    assert(
-                      {:ok, "application/x-www-form-urlencoded"} ==
-                        with {_, content_type_request} <-
-                               List.keyfind(headers, "content-type", 0),
-                             {:ok, {media_type, media_subtype, _parameters}} =
-                               OpenAPIClient.Client.Operation.parse_content_type_header(
-                                 content_type_request
-                               ) do
-                          {:ok, "#{media_type}/#{media_subtype}"}
-                        end
-                    )
-                ),
-                quote(do: form_data = URI.decode_query(body)),
-                quote(do: assert({:ok, signature} = Map.fetch(form_data, "signature"))),
-                quote(do: assert({:ok, data} = Map.fetch(form_data, "data"))),
-                quote(
-                  do: assert(LiqPayAPI.Client.Signature.check?(data, @private_key, signature))
-                ),
-                quote(do: assert({:ok, body} = Base.decode64(data))),
-                quote(
-                  do:
-                    headers =
-                      List.keystore(
-                        headers,
-                        "content-type",
-                        0,
-                        {"content-type", "application/json"}
-                      )
-                )
-                | fn_block_expressions
-              ]
-
-              {:expect, expect_metadata,
+    def render_operation_test(state, operation, request_schema, response_schema) do
+      state
+      |> OpenAPIClient.Generator.TestRenderer.render_operation_test(
+        operation,
+        request_schema,
+        response_schema
+      )
+      |> Macro.prewalk(fn
+        {:expect, expect_metadata,
+         [
+           {:@, _attribute_metadata, [{:httpoison, _httpoison_metadata, _httpoison_context}]} =
+               httpoison_attribute,
+           :request,
+           {:fn, fn_metadata,
+            [
+              {:->, pipe_metadata,
                [
-                 httpoison_attribute,
-                 :request,
-                 {:fn, fn_metadata,
-                  [
-                    {:->, pipe_metadata,
-                     [
-                       fn_arguments,
-                       {:__block__, fn_block_metadata, fn_block_expressions_new}
-                     ]}
-                  ]}
+                 [method, url | fn_arguments_rest] = _fn_arguments,
+                 {:__block__, fn_block_metadata, fn_block_expressions}
                ]}
+            ]}
+         ]} ->
+          url_new =
+            url
+            |> URI.new!()
+            |> struct!(query: nil)
+            |> URI.to_string()
 
-            expression ->
-              expression
-          end
-        )
+          fn_arguments_new = [method, url_new | fn_arguments_rest]
 
-      {:test, test_metadata,
-       [test_name, [do: {:__block__, block_metadata, block_expressions_new}]]}
+          fn_block_expressions_new =
+            case operation do
+              %Operation{request_path: <<"/api/request", _rest::binary>>, request_method: :post} ->
+                [
+                  quote(
+                    do:
+                      assert(
+                        {:ok, "application/x-www-form-urlencoded"} ==
+                          with {_, content_type_request} <-
+                                 List.keyfind(headers, "content-type", 0),
+                               {:ok, {media_type, media_subtype, _parameters}} =
+                                 OpenAPIClient.Client.Operation.parse_content_type_header(
+                                   content_type_request
+                                 ) do
+                            {:ok, "#{media_type}/#{media_subtype}"}
+                          end
+                      )
+                  ),
+                  quote(do: form_data = URI.decode_query(body)),
+                  quote(do: assert({:ok, signature} = Map.fetch(form_data, "signature"))),
+                  quote(do: assert({:ok, data} = Map.fetch(form_data, "data"))),
+                  quote(
+                    do: assert(LiqPayAPI.Client.Signature.check?(data, @private_key, signature))
+                  ),
+                  quote(do: assert({:ok, body} = Base.decode64(data))),
+                  quote(
+                    do:
+                      headers =
+                        List.keystore(
+                          headers,
+                          "content-type",
+                          0,
+                          {"content-type", "application/json"}
+                        )
+                  )
+                  | fn_block_expressions
+                ]
+
+              _ ->
+                fn_block_expressions
+            end
+
+          {:expect, expect_metadata,
+           [
+             httpoison_attribute,
+             :request,
+             {:fn, fn_metadata,
+              [
+                {:->, pipe_metadata,
+                 [
+                   fn_arguments_new,
+                   {:__block__, fn_block_metadata, fn_block_expressions_new}
+                 ]}
+              ]}
+           ]}
+
+        expression ->
+          expression
+      end)
     end
-
-    def render_operation_test(state, operation, request_schema, response_schema),
-      do:
-        OpenAPIClient.Generator.TestRenderer.render_operation_test(
-          state,
-          operation,
-          request_schema,
-          response_schema
-        )
   end
 end

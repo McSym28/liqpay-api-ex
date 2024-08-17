@@ -14,20 +14,6 @@ if Mix.env() in [:dev] do
     def render_type(state, type), do: OpenAPIClient.Generator.Renderer.render_type(state, type)
 
     @impl OpenAPI.Renderer
-    def write(state, %OpenAPI.Renderer.File{contents: contents} = file) do
-      contents_new =
-        contents
-        |> IO.iodata_to_binary()
-        |> String.replace(
-          ~r/("(?:[\w\d]+:\/\/[\w\d]+(?:\.[\w\d]+))?(?:\/[\w\d]+)+)\?[^"]+(")/,
-          "\\1\\2"
-        )
-
-      file_new = %OpenAPI.Renderer.File{file | contents: contents_new}
-      OpenAPIClient.Generator.Renderer.write(state, file_new)
-    end
-
-    @impl OpenAPI.Renderer
     def render_default_client(state, %File{module: Public} = file) do
       state
       |> OpenAPIClient.Generator.Renderer.render_default_client(file)
@@ -57,6 +43,13 @@ if Mix.env() in [:dev] do
             _ ->
               base_url_attribute
           end
+
+        {:request_url, url} ->
+          url
+          |> URI.new!()
+          |> struct!(query: nil)
+          |> URI.to_string()
+          |> then(&{:request_url, &1})
 
         expression ->
           expression
