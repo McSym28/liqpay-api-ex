@@ -105,6 +105,9 @@ if Mix.env() in [:dev] do
       do: OpenAPIClient.Generator.TestRenderer.decode_example(state, value, type, path)
 
     @impl OpenAPIClient.Generator.TestRenderer
+    def format(state, %File{module: PublicTest} = file),
+      do: OpenAPIClient.Generator.TestRenderer.format(state, file)
+
     def format(
           state,
           %File{
