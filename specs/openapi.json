@@ -16009,6 +16009,10 @@
                           },
                           "alt_docs": {
                             "type": "array",
+                            "items": {
+                              "type": "string",
+                              "format": "email"
+                            },
                             "description": "An array of document identifiers that can replace the current document"
                           },
                           "description": {

@@ -2999,6 +2999,23 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(
+         schema(type: :array, items: nil) = property,
+         [
+           "alt_docs",
+           [],
+           "expected_docs",
+           {:schema, :response},
+           endpoint(id: "documents"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    property
+    |> schema(items: schema(type: :string, format: :email))
+    |> initialize_property_processing(path)
+  end
+
+  defp initialize_property_processing(
          schema(type: :number) = property,
          [
            "register_token",
