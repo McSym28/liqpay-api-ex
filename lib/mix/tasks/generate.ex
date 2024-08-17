@@ -2178,6 +2178,25 @@ defmodule Mix.Tasks.Generate do
          schema(type: :object) = schema,
          block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
          block_parse_settings,
+         [{:schema, :request}, endpoint(id: "transferring_to_card")] = path
+       ) do
+    schema
+    |> do_parse_block_properties(block_data, block_parse_settings, path)
+    |> case do
+      {%OrderedObject{values: [{name, _field}]} = properties, required}
+      when name in ~w(receiver_card receiver_card_token) ->
+        required_new = required -- [name]
+        {properties, required_new}
+
+      {properties, required} ->
+        {properties, required}
+    end
+  end
+
+  defp parse_block_properties(
+         schema(type: :object) = schema,
+         block(update_operation: :patch, update_type: :object, update_name: nil) = block_data,
+         block_parse_settings,
          [{:schema, :response}, endpoint(id: "card_payment"), section(id: "internet_acquiring")] =
            path
        ) do

@@ -8340,9 +8340,7 @@
                   "currency",
                   "description",
                   "ip",
-                  "order_id",
-                  "receiver_card",
-                  "receiver_card_token"
+                  "order_id"
                 ]
               }
             }
