@@ -134,6 +134,34 @@ defmodule LiqPayAPI.Client.TypedDecoder do
      )}
   end
 
+  Enum.map(
+    LiqPayAPI.Client.TypedEncoder.nested_clauses(),
+    fn {module, type, nested_fields} ->
+      def decode(
+            value,
+            {unquote(module) = module, unquote(type) = type},
+            path,
+            caller_module
+          ) do
+        value_new =
+          type
+          |> module.__fields__()
+          |> Keyword.take(unquote(nested_fields))
+          |> Enum.reduce(value, fn {_name, {old_name, {nested_module, nested_type}}}, acc ->
+            nested_keys =
+              nested_type
+              |> nested_module.__fields__()
+              |> Enum.map(fn {_name, {old_name, _type}} -> old_name end)
+
+            {nested_fields, acc_rest} = Map.split(acc, nested_keys)
+            Map.put(acc_rest, old_name, nested_fields)
+          end)
+
+        TypedDecoder.decode(value_new, type, path, caller_module)
+      end
+    end
+  )
+
   def decode(value, type, path, caller_module),
     do: TypedDecoder.decode(value, type, path, caller_module)
 end

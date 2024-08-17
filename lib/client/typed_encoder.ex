@@ -3,6 +3,11 @@ defmodule LiqPayAPI.Client.TypedEncoder do
   alias OpenAPIClient.Client.Error
   alias OpenAPIClient.Utils
 
+  @nested_clauses [
+    {LiqPayAPI.Tokens.Obtain.Request, :t,
+     ~w(card_tokenization connect_control_tokenization vceh_tokenization)a}
+  ]
+
   @behaviour TypedEncoder
 
   @impl TypedEncoder
@@ -115,37 +120,43 @@ defmodule LiqPayAPI.Client.TypedEncoder do
      )}
   end
 
-  def encode(
-        %module{} = value,
-        {LiqPayAPI.Tokens.Obtain.Request = module, :t = type},
-        path,
-        caller_module
-      ) do
-    value
-    |> encode_schema({module, type}, path, caller_module)
-    |> case do
-      {:ok, map} ->
-        flattened_keys =
-          type
-          |> module.__fields__()
-          |> Keyword.take(~w(card_tokenization connect_control_tokenization vceh_tokenization)a)
-          |> Enum.map(fn {_name, {old_name, _type}} -> old_name end)
-
-        {flattened_fields, map_rest} = Map.split(map, flattened_keys)
-
-        map_new =
-          Enum.reduce(
-            flattened_fields,
-            map_rest,
-            fn {_key, value}, acc -> Map.merge(acc, value) end
+  Enum.map(
+    @nested_clauses,
+    fn {module, type, nested_fields} ->
+      def encode(
+            value,
+            {unquote(module) = module, unquote(type) = type},
+            path,
+            caller_module
           )
+          when is_map(value) do
+        value
+        |> encode_schema({module, type}, path, caller_module)
+        |> case do
+          {:ok, map} ->
+            nested_keys =
+              type
+              |> module.__fields__()
+              |> Keyword.take(unquote(nested_fields))
+              |> Enum.map(fn {_name, {old_name, _type}} -> old_name end)
 
-        {:ok, map_new}
+            {nested_fields, map_rest} = Map.split(map, nested_keys)
 
-      error ->
-        error
+            map_new =
+              Enum.reduce(
+                nested_fields,
+                map_rest,
+                fn {_key, value}, acc -> Map.merge(acc, value) end
+              )
+
+            {:ok, map_new}
+
+          error ->
+            error
+        end
+      end
     end
-  end
+  )
 
   def encode(
         %module{} = value,
@@ -179,4 +190,7 @@ defmodule LiqPayAPI.Client.TypedEncoder do
         error
     end
   end
+
+  @spec nested_clauses() :: [{module(), atom(), [atom()]}]
+  def nested_clauses, do: @nested_clauses
 end

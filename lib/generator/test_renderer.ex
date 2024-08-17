@@ -15,78 +15,91 @@ if Mix.env() in [:dev] do
     def example(_state, {:string, "boolean-integer"}, _path), do: "1"
     def example(_state, {:string, "boolean-yesno"}, _path), do: "Y"
 
-    def example(
-          state,
-          %GeneratorSchema{
-            schema: %Schema{module_name: LiqPayAPI.Tokens.Obtain.Request, type_name: :t},
-            fields: fields
-          } = generator_schema,
-          path
-        ) do
-      flattened_keys =
-        Enum.flat_map(fields, fn
-          %GeneratorField{field: %Field{name: key}, old_name: name}
-          when key in ~w(card_tokenization connect_control_tokenization vceh_tokenization) ->
-            [name]
+    Enum.map(
+      LiqPayAPI.Client.TypedEncoder.nested_clauses(),
+      fn {module, type, nested_fields} ->
+        def example(
+              state,
+              %GeneratorSchema{
+                schema: %Schema{module_name: unquote(module), type_name: unquote(type)},
+                fields: fields
+              } = generator_schema,
+              path
+            ) do
+          nested_keys =
+            Enum.flat_map(fields, fn
+              %GeneratorField{field: %Field{name: name}, old_name: old_name}
+              when name in unquote(Enum.map(nested_fields, &Atom.to_string/1)) ->
+                [old_name]
 
-          _ ->
-            []
-        end)
+              _ ->
+                []
+            end)
 
-      {flattened_fields, map_rest} =
-        state
-        |> OpenAPIClient.Generator.TestRenderer.example(generator_schema, path)
-        |> Map.split(flattened_keys)
+          {nested_fields, map_rest} =
+            state
+            |> OpenAPIClient.Generator.TestRenderer.example(generator_schema, path)
+            |> Map.split(nested_keys)
 
-      Enum.reduce(
-        flattened_fields,
-        map_rest,
-        fn {_key, value}, acc -> Map.merge(acc, value) end
-      )
-    end
+          Enum.reduce(
+            nested_fields,
+            map_rest,
+            fn {_key, value}, acc -> Map.merge(acc, value) end
+          )
+        end
+      end
+    )
 
     def example(state, type, path),
       do: OpenAPIClient.Generator.TestRenderer.example(state, type, path)
 
     @impl OpenAPIClient.Generator.TestRenderer
-    def decode_example(
-          state,
-          value,
-          %GeneratorSchema{
-            schema: %Schema{module_name: LiqPayAPI.Tokens.Obtain.Request, type_name: :t},
-            fields: fields
-          } = generator_schema,
-          path
-        ) do
-      value_new =
-        Enum.reduce(fields, value, fn
-          %GeneratorField{field: %Field{name: key, type: schema_ref}, old_name: name} =
-              _generator_field,
-          acc
-          when key in ~w(card_tokenization connect_control_tokenization vceh_tokenization) ->
-            [{_, %GeneratorSchema{fields: nested_fields} = _field_schema}] =
-              :ets.lookup(:schemas, schema_ref)
+    Enum.map(
+      LiqPayAPI.Client.TypedEncoder.nested_clauses(),
+      fn {module, type, nested_fields} ->
+        def decode_example(
+              state,
+              value,
+              %GeneratorSchema{
+                schema: %Schema{module_name: unquote(module), type_name: unquote(type)},
+                fields: fields
+              } = generator_schema,
+              path
+            ) do
+          value_new =
+            fields
+            |> Enum.filter(fn
+              %GeneratorField{field: %Field{name: name}}
+              when name in unquote(Enum.map(nested_fields, &Atom.to_string/1)) ->
+                true
 
-            nested_keys =
-              Enum.flat_map(nested_fields, fn
-                %GeneratorField{old_name: name} -> [name]
-                _ -> []
-              end)
+              _ ->
+                false
+            end)
+            |> Enum.reduce(value, fn
+              %GeneratorField{field: %Field{type: schema_ref}, old_name: old_name}, acc ->
+                [{_, %GeneratorSchema{fields: nested_fields} = _field_schema}] =
+                  :ets.lookup(:schemas, schema_ref)
 
-            {nested_fields, acc_rest} = Map.split(acc, nested_keys)
-            Map.put(acc_rest, name, nested_fields)
+                nested_keys =
+                  Enum.flat_map(nested_fields, fn
+                    %GeneratorField{old_name: old_name} -> [old_name]
+                    _ -> []
+                  end)
 
-          _, acc ->
-            acc
-        end)
+                {nested_fields, acc_rest} = Map.split(acc, nested_keys)
+                Map.put(acc_rest, old_name, nested_fields)
+            end)
 
-      OpenAPIClient.Generator.TestRenderer.decode_example(
-        state,
-        value_new,
-        generator_schema,
-        path
-      )
-    end
+          OpenAPIClient.Generator.TestRenderer.decode_example(
+            state,
+            value_new,
+            generator_schema,
+            path
+          )
+        end
+      end
+    )
 
     def decode_example(state, value, type, path),
       do: OpenAPIClient.Generator.TestRenderer.decode_example(state, value, type, path)
