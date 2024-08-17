@@ -5,7 +5,23 @@ defmodule LiqPayAPI.Client.TypedEncoder do
 
   @nested_clauses [
     {LiqPayAPI.Tokens.Obtain.Request, :t,
-     ~w(card_tokenization connect_control_tokenization vceh_tokenization)a}
+     ~w(card_tokenization connect_control_tokenization vceh_tokenization)a},
+    {LiqPayAPI.Partnership.ShopCreate.Create.Request, :t, ~w(aggregator)a},
+    {LiqPayAPI.Partnership.ShopCreate.Register.Request, :t, ~w(aggregator)a},
+    {LiqPayAPI.TransferringToCard.Request, :t, ~w(receiver_account sender)a},
+    {LiqPayAPI.InternetAcquiring.Checkout.Request, :t,
+     ~w(one_click_payment regular_payment sender)a},
+    {LiqPayAPI.InternetAcquiring.Widget.Request, :t,
+     ~w(one_click_payment regular_payment sender)a},
+    {LiqPayAPI.InternetAcquiring.CardPayment.Request, :t, ~w(regular_payment sender)a},
+    {LiqPayAPI.InternetAcquiring.Subscription.Create.Request, :t, ~w(regular_payment sender)a},
+    {LiqPayAPI.InternetAcquiring.APay.EncryptedToken.Request, :t, ~w(sender)a},
+    {LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request, :t, ~w(sender)a},
+    {LiqPayAPI.InternetAcquiring.GPay.EncryptedToken.Request, :t, ~w(sender)a},
+    {LiqPayAPI.InternetAcquiring.Token.Request, :t, ~w(sender)a},
+    {LiqPayAPI.InternetAcquiring.TwoStep.Block.Request, :t, ~w(sender)a},
+    {LiqPayAPI.InternetAcquiring.DCC.Request, :t, ~w(sender)a},
+    {LiqPayAPI.P2PDebit.Request, :t, ~w(sender)a}
   ]
 
   @behaviour TypedEncoder
