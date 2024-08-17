@@ -7611,7 +7611,6 @@
                   },
                   "prepare": {
                     "type": "string",
-                    "format": "boolean-integer",
                     "enum": [
                       "tariffs"
                     ],

@@ -3562,6 +3562,14 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_property_format(
          schema(type: :string, format: nil) = property,
+         ["prepare", {:schema, :request}, endpoint(id: "dcc"), section(id: "internet_acquiring")] =
+           _path
+       ) do
+    property
+  end
+
+  defp parse_property_format(
+         schema(type: :string, format: nil) = property,
          [boolean_property, {:schema, _schema_type} | _] = path
        )
        when boolean_property in ~w(subscribe prepare sandbox) do
