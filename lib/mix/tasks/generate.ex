@@ -155,7 +155,12 @@ defmodule Mix.Tasks.Generate do
       |> Enum.join(". ")
 
     operation_id =
-      [id | path_ids]
+      {id, path_ids}
+      |> case do
+        {"transferring_to_card", []} -> ["transfer", id]
+        {"p2pdebit", []} -> ["transfer", id]
+        _ -> [id | path_ids]
+      end
       |> Enum.reverse()
       |> Enum.join("/")
 

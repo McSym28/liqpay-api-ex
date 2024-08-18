@@ -8116,7 +8116,7 @@
     "/api/request?path=transferring_to_card": {
       "post": {
         "summary": "Transfer of funds from account to card",
-        "operationId": "transferring_to_card",
+        "operationId": "transferring_to_card/transfer",
         "requestBody": {
           "content": {
             "application/json": {
@@ -8603,7 +8603,7 @@
     "/api/request?path=p2pdebit": {
       "post": {
         "summary": "Transfer of funds from cards to account",
-        "operationId": "p2pdebit",
+        "operationId": "p2pdebit/transfer",
         "requestBody": {
           "content": {
             "application/json": {
