@@ -2702,6 +2702,33 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) = block_data,
+         block_parse_settings,
+         [name, {:schema, :request}, endpoint(), section(id: "internet_acquiring")] = path
+       ) do
+    parse_block_properties_remove_phone(schema, block_data, block_parse_settings, path)
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) = block_data,
+         block_parse_settings,
+         [name, {:schema, :request}, endpoint(), section(), section(id: "internet_acquiring")] = path
+       ) do
+    parse_block_properties_remove_phone(schema, block_data, block_parse_settings, path)
+  end
+
+  defp parse_block_properties(
+         schema,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) = block_data,
+         block_parse_settings,
+         [name, {:schema, :request}, endpoint(id: "p2pdebit")] = path
+       ) do
+    parse_block_properties_remove_phone(schema, block_data, block_parse_settings, path)
+  end
+
   defp parse_block_properties(schema, block_data, block_parse_settings, path),
     do: do_parse_block_properties(schema, block_data, block_parse_settings, path)
 
@@ -2782,6 +2809,20 @@ defmodule Mix.Tasks.Generate do
 
     properties_new = OrderedObject.new(properties)
     required_new = List.flatten(required)
+    {properties_new, required_new}
+  end
+
+  defp parse_block_properties_remove_phone(schema, block_data, block_parse_settings, path) do
+    {properties, required} =
+      do_parse_block_properties(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    {_, properties_new} = pop_in(properties, ["phone"])
+    required_new = required -- ["phone"]
     {properties_new, required_new}
   end
 

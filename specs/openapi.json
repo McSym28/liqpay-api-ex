@@ -1165,10 +1165,6 @@
                         "type": "string",
                         "description": "Sender's last name"
                       },
-                      "phone": {
-                        "type": "string",
-                        "description": "Payer's phone number"
-                      },
                       "sender_email": {
                         "type": "string",
                         "description": "E-mail address"
@@ -1199,7 +1195,6 @@
                       }
                     },
                     "required": [
-                      "phone",
                       "sender_country_code",
                       "sender_city",
                       "sender_address",
@@ -5946,10 +5941,6 @@
                         "type": "string",
                         "description": "Sender's last name"
                       },
-                      "phone": {
-                        "type": "string",
-                        "description": "Payer's phone number"
-                      },
                       "sender_email": {
                         "type": "string",
                         "description": "E-mail address"
@@ -5980,7 +5971,6 @@
                       }
                     },
                     "required": [
-                      "phone",
                       "sender_country_code",
                       "sender_city",
                       "sender_address",
@@ -8766,10 +8756,6 @@
                         "type": "string",
                         "description": "Sender's last name"
                       },
-                      "phone": {
-                        "type": "string",
-                        "description": "Payer's phone number"
-                      },
                       "sender_email": {
                         "type": "string",
                         "description": "E-mail address"
@@ -8813,7 +8799,6 @@
                       }
                     },
                     "required": [
-                      "phone",
                       "sender_country_code",
                       "sender_city",
                       "sender_address",
