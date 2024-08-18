@@ -1290,51 +1290,47 @@ defmodule Mix.Tasks.Generate do
     do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp process_block_title(
-         "other parameters" = title,
+         "other parameters",
          block_data,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
+         [endpoint(), section(), section(id: "internet_acquiring")] = _path
        ),
-       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "other parameters",
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "internet_acquiring")] = _path
+         [endpoint(), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
-         "other parameters" = title,
+         "other parameters",
          block_data,
-         block_parse_settings,
+         _block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do:
-         process_block_title(title, block_data, block_parse_settings, true, [
-           endpoint(id: "checkout"),
-           section(id: "internet_acquiring")
-         ])
-
-  defp process_block_title(
-         "parameters of splitting the payments" = title,
-         block_data,
-         block_parse_settings,
-         true,
-         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
-       ),
-       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
+       do: {:ok, block(block_data, update_operation: :patch)}
 
   defp process_block_title(
          "parameters of splitting the payments",
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "internet_acquiring")] = _path
+         [endpoint(), section(), section(id: "internet_acquiring")] = _path
+       ),
+       do: {:ok, block(block_data, update_operation: :patch)}
+
+  defp process_block_title(
+         "parameters of splitting the payments",
+         block_data,
+         _block_parse_settings,
+         true,
+         [endpoint(), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :patch)}
 
@@ -1387,64 +1383,56 @@ defmodule Mix.Tasks.Generate do
        do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
   defp process_block_title(
-         "sender parameters" = title,
+         "sender parameters",
          block_data,
-         block_parse_settings,
+         _block_parse_settings,
          true,
-         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
+         [endpoint(), section(), section(id: "internet_acquiring")] = _path
        ),
-       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
+       do: {:ok, block(block_data, update_operation: :new, update_name: "sender")}
 
   defp process_block_title(
          "sender parameters",
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "internet_acquiring")] = _path
+         [endpoint(), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :new, update_name: "sender")}
 
   defp process_block_title(
-         "sender parameters" = title,
+         "sender parameters",
          block_data,
-         block_parse_settings,
+         _block_parse_settings,
          true,
          [endpoint(id: "transferring_to_card")] = _path
        ),
-       do:
-         process_block_title(title, block_data, block_parse_settings, true, [
-           section(id: "checkout"),
-           section(id: "internet_acquiring")
-         ])
+       do: {:ok, block(block_data, update_operation: :new, update_name: "sender")}
 
   defp process_block_title(
-         "sender parameters" = title,
+         "sender parameters",
          block_data,
-         block_parse_settings,
+         _block_parse_settings,
          true,
          [endpoint(id: "p2pdebit")] = _path
        ),
-       do:
-         process_block_title(title, block_data, block_parse_settings, true, [
-           section(id: "checkout"),
-           section(id: "internet_acquiring")
-         ])
-
-  defp process_block_title(
-         "regular payment parameters" = title,
-         block_data,
-         block_parse_settings,
-         true,
-         [_ | [_, section(id: "internet_acquiring")] = rest_path] = _path
-       ),
-       do: process_block_title(title, block_data, block_parse_settings, true, rest_path)
+       do: {:ok, block(block_data, update_operation: :new, update_name: "sender")}
 
   defp process_block_title(
          "regular payment parameters",
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "internet_acquiring")] = _path
+         [endpoint(), section(), section(id: "internet_acquiring")] = _path
+       ),
+       do: {:ok, block(block_data, update_operation: :new, update_name: "regular_payment")}
+
+  defp process_block_title(
+         "regular payment parameters",
+         block_data,
+         _block_parse_settings,
+         true,
+         [endpoint(), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :new, update_name: "regular_payment")}
 
@@ -1453,7 +1441,7 @@ defmodule Mix.Tasks.Generate do
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "internet_acquiring")] = _path
+         [endpoint(), section(id: "internet_acquiring")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :new, update_name: "one_click_payment")}
 
@@ -1501,7 +1489,7 @@ defmodule Mix.Tasks.Generate do
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "shop_create"), section(id: "partnership")] = _path
+         [endpoint(), section(id: "shop_create"), section(id: "partnership")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :new, update_name: "aggregator")}
 
@@ -1549,7 +1537,7 @@ defmodule Mix.Tasks.Generate do
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "shop_create"), section(id: "partnership")] = _path
+         [endpoint(), section(id: "shop_create"), section(id: "partnership")] = _path
        ),
        do: {:ok, block(block_data, is_request: false, update_operation: :patch)}
 
@@ -1717,7 +1705,7 @@ defmodule Mix.Tasks.Generate do
          block_data,
          _block_parse_settings,
          true,
-         [_, section(id: "public")] = _path
+         [section(), section(id: "public")] = _path
        ),
        do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
@@ -2704,7 +2692,8 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_block_properties(
          schema,
-         block(update_operation: :new, update_type: :object, update_name: "sender" = name) = block_data,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) =
+           block_data,
          block_parse_settings,
          [name, {:schema, :request}, endpoint(), section(id: "internet_acquiring")] = path
        ) do
@@ -2713,16 +2702,19 @@ defmodule Mix.Tasks.Generate do
 
   defp parse_block_properties(
          schema,
-         block(update_operation: :new, update_type: :object, update_name: "sender" = name) = block_data,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) =
+           block_data,
          block_parse_settings,
-         [name, {:schema, :request}, endpoint(), section(), section(id: "internet_acquiring")] = path
+         [name, {:schema, :request}, endpoint(), section(), section(id: "internet_acquiring")] =
+           path
        ) do
     parse_block_properties_remove_phone(schema, block_data, block_parse_settings, path)
   end
 
   defp parse_block_properties(
          schema,
-         block(update_operation: :new, update_type: :object, update_name: "sender" = name) = block_data,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) =
+           block_data,
          block_parse_settings,
          [name, {:schema, :request}, endpoint(id: "p2pdebit")] = path
        ) do
@@ -3000,34 +2992,29 @@ defmodule Mix.Tasks.Generate do
          [integer_property, {:schema, _schema_type} | _] = path
        )
        when integer_property in ~w(version mpi_eci) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
          schema(type: :number) = property,
-         [integer_property, [], "data" | [{:schema, _schema_type} | _] = rest_path] = _path
+         [integer_property, [], "data", {:schema, _schema_type} | _] = path
        )
        when integer_property in ~w(version mpi_eci) do
-    initialize_property_processing(property, [integer_property | rest_path])
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
          schema(type: :number) = property,
-         ["mpi_eci", "sender" | [{:schema, _schema_type}, endpoint(id: "p2pdebit")] = rest_path] =
-           _path
+         ["mpi_eci", "sender", {:schema, _schema_type}, endpoint(id: "p2pdebit")] = path
        ) do
-    initialize_property_processing(property, ["mpi_eci" | rest_path])
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
          schema(type: :number) = property,
          ["id", [], "items", "rro_info", {:schema, :request} | _] = path
        ) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3066,9 +3053,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "information")
          ] = path
        ) do
-    property
-    |> schema(type: :string)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :string, path)
   end
 
   defp initialize_property_processing(
@@ -3081,9 +3066,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when timestamp_property in ~w(date_from date_to) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3095,9 +3078,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when timestamp_property in ~w(completion_date create_date end_date refund_date_last) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3110,9 +3091,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "internet_acquiring")
          ] = path
        ) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3161,11 +3140,11 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp initialize_property_processing(
-         property,
-         [timestamp_property, [], "data" | [{:schema, :response} | _] = rest_path] = _path
+         schema(type: :string) = property,
+         [timestamp_property, [], "data", {:schema, :response} | _] = path
        )
        when timestamp_property in ~w(create_date end_date) do
-    initialize_property_processing(property, [timestamp_property | rest_path])
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3173,9 +3152,7 @@ defmodule Mix.Tasks.Generate do
          [timestamp_property, {:schema, :response} | _] = path
        )
        when timestamp_property in ~w(create_date end_date) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3189,9 +3166,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3203,9 +3178,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(type: :integer)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :integer, path)
   end
 
   defp initialize_property_processing(
@@ -3218,9 +3191,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "public")
          ] = path
        ) do
-    property
-    |> schema(type: :number)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :number, path)
   end
 
   defp initialize_property_processing(
@@ -3235,9 +3206,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when rate_property in ~w(saleRateNB/purchaseRateNB saleRateNB purchaseRateNB saleRate purchaseRate) do
-    property
-    |> schema(type: :number)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :number, path)
   end
 
   defp initialize_property_processing(
@@ -3277,9 +3246,7 @@ defmodule Mix.Tasks.Generate do
            endpoint(id: "callback")
          ] = path
        ) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(
@@ -3291,9 +3258,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "information")
          ] = path
        ) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(
@@ -3306,9 +3271,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when property_name in ~w(moment_part wait_reserve_status) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(
@@ -3321,9 +3284,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when property_name in ~w(can_reports can_checkout_edit) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(
@@ -3338,9 +3299,7 @@ defmodule Mix.Tasks.Generate do
        )
        when endpoint_id in ~w(create register) and
               property_name in ~w(can_reports can_checkout_edit) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(
@@ -3352,9 +3311,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(
@@ -3368,12 +3325,16 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(type: :boolean)
-    |> initialize_property_processing(path)
+    initialize_property_processing_change_type(property, :boolean, path)
   end
 
   defp initialize_property_processing(property, _path), do: property
+
+  defp initialize_property_processing_change_type(property, type, path) do
+    property
+    |> schema(type: type)
+    |> initialize_property_processing(path)
+  end
 
   defp search_code_blocks(
          {"div", _, _} = div,
@@ -3640,16 +3601,14 @@ defmodule Mix.Tasks.Generate do
          schema(type: :string, format: nil) = property,
          ["recurringbytoken", {:schema, :request} | _] = path
        ) do
-    property
-    |> schema(format: @boolean_integer_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @boolean_integer_format, path)
   end
 
   defp parse_property_format(
-         property,
-         ["recurringbytoken", "one_click_payment" | [{:schema, :request} | _] = rest_path] = _path
+         schema(type: :string, format: nil) = property,
+         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
        ) do
-    parse_property_format(property, ["recurringbytoken" | rest_path])
+    parse_property_format_change_format(property, @boolean_integer_format, path)
   end
 
   defp parse_property_format(
@@ -3657,9 +3616,7 @@ defmodule Mix.Tasks.Generate do
          [url_property, {:schema, _schema_type} | _] = path
        )
        when url_property in ~w(result_url server_url product_url) do
-    property
-    |> schema(format: :uri)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, :uri, path)
   end
 
   defp parse_property_format(
@@ -3667,18 +3624,14 @@ defmodule Mix.Tasks.Generate do
          [datetime_property, {:schema, _schema_type} | _] = path
        )
        when datetime_property in ~w(expired_date) do
-    property
-    |> schema(format: @date_time_liqpay_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @date_time_liqpay_format, path)
   end
 
   defp parse_property_format(
          schema(type: :string, format: nil) = property,
          ["subscribe_date_start", "regular_payment", {:schema, :request} | _] = path
        ) do
-    property
-    |> schema(format: @date_time_liqpay_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @date_time_liqpay_format, path)
   end
 
   defp parse_property_format(
@@ -3692,9 +3645,7 @@ defmodule Mix.Tasks.Generate do
          ] =
            path
        ) do
-    property
-    |> schema(format: @date_liqpay_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @date_liqpay_format, path)
   end
 
   defp parse_property_format(
@@ -3709,27 +3660,23 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(format: :date)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, :date, path)
   end
 
   defp parse_property_format(
-         property,
+         schema(type: :string, format: nil) = property,
          [
            "birth_date",
            [],
-           _
-           | [
-               "aggregator",
-               {:schema, :request},
-               endpoint(),
-               section(id: "shop_create"),
-               section(id: "partnership")
-             ] = rest_path
-         ] = _path
+           _,
+           "aggregator",
+           {:schema, :request},
+           endpoint(),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
        ) do
-    parse_property_format(property, ["birth_date", "law_cto_info" | rest_path])
+    parse_property_format_change_format(property, :date, path)
   end
 
   defp parse_property_format(
@@ -3743,9 +3690,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when date_property in ~w(create_date update_date) do
-    property
-    |> schema(format: :date)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, :date, path)
   end
 
   defp parse_property_format(
@@ -3759,9 +3704,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when endpoint_id in ~w(compensation_per_day compensation_per_transaction compensation_report compensation_report_p2p) do
-    property
-    |> schema(format: :date)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, :date, path)
   end
 
   defp parse_property_format(
@@ -3778,9 +3721,7 @@ defmodule Mix.Tasks.Generate do
        )
        when endpoint_id in ~w(compensation_per_day compensation_per_transaction) and
               date_property in ~w(create_date end_date) do
-    property
-    |> schema(format: @date_time_liqpay_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @date_time_liqpay_format, path)
   end
 
   defp parse_property_format(
@@ -3795,17 +3736,15 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when date_property in ~w(create_date end_date) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
-         property,
-         [timestamp_property, [], "data" | [{:schema, :response} | _] = rest_path] = _path
+         schema(type: :integer, format: nil) = property,
+         [timestamp_property, [], "data", {:schema, :response} | _] = path
        )
        when timestamp_property in ~w(create_date end_date) do
-    parse_property_format(property, [timestamp_property | rest_path])
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
@@ -3813,9 +3752,7 @@ defmodule Mix.Tasks.Generate do
          [timestamp_property, {:schema, :response} | _] = path
        )
        when timestamp_property in ~w(create_date end_date) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
@@ -3828,9 +3765,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when date_property in ~w(date_from date_to) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
@@ -3842,9 +3777,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when timestamp_property in ~w(completion_date create_date end_date refund_date_last) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
@@ -3858,9 +3791,7 @@ defmodule Mix.Tasks.Generate do
          ] = path
        )
        when endpoint_id in ~w(obtain change_status) do
-    property
-    |> schema(format: @month_year_liqpay_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @month_year_liqpay_format, path)
   end
 
   defp parse_property_format(
@@ -3873,9 +3804,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "internet_acquiring")
          ] = path
        ) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
@@ -3889,9 +3818,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(
@@ -3903,12 +3830,16 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    property
-    |> schema(format: @timestamp_ms_format)
-    |> parse_property_format(path)
+    parse_property_format_change_format(property, @timestamp_ms_format, path)
   end
 
   defp parse_property_format(property, _path), do: property
+
+  defp parse_property_format_change_format(property, format, path) do
+    property
+    |> schema(format: format)
+    |> parse_property_format(path)
+  end
 
   defp parse_property_maximum_length(schema(description: description) = property, _path) do
     ~r/(?:\.\s+)?(?:The\s+m|M)ax(?:imum)?\s+length(?:\s+is)?\s+(\*\*)?(\d+)\1?\s+(?:character|symbol)s?/
@@ -4058,7 +3989,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum_specific(
-         schema(description: description, enum: nil) = property,
+         schema(enum: nil) = property,
          [
            "resp_format",
            {:schema, :request},
@@ -4067,41 +3998,21 @@ defmodule Mix.Tasks.Generate do
          ] =
            path
        ) do
-    ~r/(?:\.\s+)?Possible\s+report\s+format\s+\n?([^\.\n]+)/ui
-    |> Regex.scan(description)
-    |> case do
-      [[full_match, values_match]] ->
-        description_new =
-          description
-          |> String.replace(full_match, ". Report format")
-          |> String.replace(~r/^\s*\.\s*/, "")
-
-        property
-        |> schema(description: values_match)
-        |> parse_property_enum_list(path)
-        |> schema(description: description_new)
-
-      [] ->
-        Enum.reduce(["json", "csv", "xml"], property, &patch_property_enum(&2, &1, path))
-    end
-    |> parse_property_enum_specific(path)
+    parse_property_enum_specific_resp_format(property, path)
   end
 
   defp parse_property_enum_specific(
-         property,
+         schema(enum: nil) = property,
          [
            "resp_format",
            {:schema, :request},
            endpoint(id: "compensation_per_day"),
-           section(id: "register") | [section(id: "information")] = rest_path
+           section(id: "register"),
+           section(id: "information")
          ] =
-           _path
+           path
        ) do
-    parse_property_enum_specific(property, [
-      "resp_format",
-      {:schema, :request},
-      endpoint(id: "payment_archive") | rest_path
-    ])
+    parse_property_enum_specific_resp_format(property, path)
   end
 
   defp parse_property_enum_specific(
@@ -4159,16 +4070,14 @@ defmodule Mix.Tasks.Generate do
          schema(type: :string, enum: nil) = property,
          ["recurringbytoken", {:schema, :request} | _] = path
        ) do
-    property
-    |> patch_property_enum("1", path)
-    |> parse_property_enum_specific(path)
+    parse_property_enum_specific_recurringbytoken(property, path)
   end
 
   defp parse_property_enum_specific(
-         property,
-         ["recurringbytoken", "one_click_payment" | [{:schema, :request} | _] = rest_path] = _path
+         schema(type: :string, enum: nil) = property,
+         ["recurringbytoken", "one_click_payment", {:schema, :request} | _] = path
        ) do
-    parse_property_enum_specific(property, ["recurringbytoken" | rest_path])
+    parse_property_enum_specific_recurringbytoken(property, path)
   end
 
   defp parse_property_enum_specific(
@@ -4239,8 +4148,79 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_enum_specific(
-         schema(description: description, enum: nil) = property,
+         schema(enum: nil) = property,
          ["version", {:schema, _schema_type} | _] = path
+       ) do
+    parse_property_enum_specific_version(property, path)
+  end
+
+  defp parse_property_enum_specific(
+         schema(enum: nil) = property,
+         [
+           "version",
+           [],
+           "data",
+           {:schema, _schema_type},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       ) do
+    parse_property_enum_specific_version(property, path)
+  end
+
+  defp parse_property_enum_specific(
+         schema(enum: nil) = property,
+         ["result", {:schema, :response} | _] = path
+       ) do
+    parse_property_enum_specific_result(property, path)
+  end
+
+  defp parse_property_enum_specific(
+         schema(enum: nil) = property,
+         [
+           "result",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "info_user"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    parse_property_enum_specific_result(property, path)
+  end
+
+  defp parse_property_enum_specific(property, _path), do: property
+
+  defp parse_property_enum_specific_resp_format(schema(description: description) = property, path) do
+    ~r/(?:\.\s+)?Possible\s+report\s+format\s+\n?([^\.\n]+)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, values_match]] ->
+        description_new =
+          description
+          |> String.replace(full_match, ". Report format")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        property
+        |> schema(description: values_match)
+        |> parse_property_enum_list(path)
+        |> schema(description: description_new)
+
+      [] ->
+        Enum.reduce(["json", "csv", "xml"], property, &patch_property_enum(&2, &1, path))
+    end
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific_recurringbytoken(property, path) do
+    property
+    |> patch_property_enum("1", path)
+    |> parse_property_enum_specific(path)
+  end
+
+  defp parse_property_enum_specific_version(
+         schema(description: description) = property,
+         path
        ) do
     ~r/(?:\.\s+)?(?:Current|Present)\s+value\s*[\-\–]?\s*`(\d+)`(?=\.|$)/ui
     |> Regex.scan(description)
@@ -4259,30 +4239,7 @@ defmodule Mix.Tasks.Generate do
     |> parse_property_enum_specific(path)
   end
 
-  defp parse_property_enum_specific(
-         property,
-         [
-           "version",
-           [],
-           "data"
-           | [
-               {:schema, _schema_type},
-               endpoint(id: "payment_archive"),
-               section(id: "information")
-             ] = rest_path
-         ] = _path
-       ) do
-    parse_property_enum_specific(property, ["version" | rest_path])
-  end
-
-  defp parse_property_enum_specific(
-         schema(description: description, enum: nil) = property,
-         [
-           "result",
-           {:schema, :response} | _
-         ] =
-           path
-       ) do
+  defp parse_property_enum_specific_result(schema(description: description) = property, path) do
     ~r/(?:\.\s+)?(?:The\s+r|R)esult\s+of\s+(?:(?:a|the)\s+)request(\s+\n?[^\.\n\(]+)/ui
     |> Regex.scan(description, capture: :all_but_first)
     |> case do
@@ -4301,25 +4258,6 @@ defmodule Mix.Tasks.Generate do
     end
     |> parse_property_enum_specific(path)
   end
-
-  defp parse_property_enum_specific(
-         property,
-         [
-           "result",
-           [],
-           "data"
-           | [
-               {:schema, :response},
-               endpoint(id: "info_user"),
-               section(id: "partnership")
-             ] = rest_path
-         ] =
-           _path
-       ) do
-    parse_property_enum_specific(property, ["result" | rest_path])
-  end
-
-  defp parse_property_enum_specific(property, _path), do: property
 
   defp patch_property_enum(property, enum, _path) do
     enum_new = parse_schema_value(enum, property)
@@ -4425,7 +4363,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_default(
-         schema(description: description, default: nil) = property,
+         schema(default: nil) = property,
          [
            "resp_format",
            {:schema, :request},
@@ -4434,37 +4372,21 @@ defmodule Mix.Tasks.Generate do
          ] =
            path
        ) do
-    ~r/(?:\.\s+)?If\s+parameter\s+is\s+not\s+passed\s*,\s+will\s+be\s+passed\s+by\s+default\s+`(\w+)`(?=\.|$)/ui
-    |> Regex.scan(description)
-    |> case do
-      [[full_match, default]] ->
-        description_new = String.replace(description, full_match, "")
-
-        property
-        |> schema(description: description_new)
-        |> patch_property_default(default, path)
-
-      [] ->
-        patch_property_default(property, "json", path)
-    end
-    |> parse_property_default(path)
+    parse_property_default_resp_format(property, path)
   end
 
   defp parse_property_default(
-         property,
+         schema(default: nil) = property,
          [
            "resp_format",
            {:schema, :request},
            endpoint(id: "compensation_per_day"),
-           section(id: "register") | [section(id: "information")] = rest_path
+           section(id: "register"),
+           section(id: "information")
          ] =
-           _path
+           path
        ) do
-    parse_property_default(property, [
-      "resp_format",
-      {:schema, :request},
-      endpoint(id: "payment_archive") | rest_path
-    ])
+    parse_property_default_resp_format(property, path)
   end
 
   defp parse_property_default(
@@ -4501,6 +4423,26 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_default(property, _path), do: property
+
+  defp parse_property_default_resp_format(
+         schema(description: description) = property,
+         path
+       ) do
+    ~r/(?:\.\s+)?If\s+parameter\s+is\s+not\s+passed\s*,\s+will\s+be\s+passed\s+by\s+default\s+`(\w+)`(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, default]] ->
+        description_new = String.replace(description, full_match, "")
+
+        property
+        |> schema(description: description_new)
+        |> patch_property_default(default, path)
+
+      [] ->
+        patch_property_default(property, "json", path)
+    end
+    |> parse_property_default(path)
+  end
 
   defp patch_property_default(schema(default: nil) = property, default, _path) do
     default_new = parse_schema_value(default, property)
@@ -4562,7 +4504,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_examples_specific(
-         schema(description: description) = property,
+         property,
          [
            "citizenship",
            "law_cto_info",
@@ -4573,20 +4515,7 @@ defmodule Mix.Tasks.Generate do
            section(id: "partnership")
          ] = path
        ) do
-    ~r/(?:\.\s+)?Example:?\s*(\w+)\s*(?=\.|$)/ui
-    |> Regex.scan(description)
-    |> case do
-      [[full_match, example]] ->
-        description_new =
-          description
-          |> String.replace(full_match, "")
-          |> String.replace(~r/^\s*\.\s*/, "")
-
-        patch_schema_examples(example, schema(property, description: description_new), path)
-
-      [] ->
-        patch_schema_examples("Ukraine", property, path)
-    end
+    parse_property_examples_specific_citizenship(property, path)
   end
 
   defp parse_property_examples_specific(
@@ -4594,17 +4523,15 @@ defmodule Mix.Tasks.Generate do
          [
            "citizenship",
            [],
-           _
-           | [
-               "aggregator",
-               {:schema, :request},
-               endpoint(),
-               section(id: "shop_create"),
-               section(id: "partnership")
-             ] = rest_path
-         ] = _path
+           _,
+           "aggregator",
+           {:schema, :request},
+           endpoint(),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
        ) do
-    parse_property_examples_specific(property, ["citizenship", "law_cto_info" | rest_path])
+    parse_property_examples_specific_citizenship(property, path)
   end
 
   defp parse_property_examples_specific(
@@ -4687,6 +4614,26 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp parse_property_examples_specific(property, _path), do: property
+
+  defp parse_property_examples_specific_citizenship(
+         schema(description: description) = property,
+         path
+       ) do
+    ~r/(?:\.\s+)?Example:?\s*(\w+)\s*(?=\.|$)/ui
+    |> Regex.scan(description)
+    |> case do
+      [[full_match, example]] ->
+        description_new =
+          description
+          |> String.replace(full_match, "")
+          |> String.replace(~r/^\s*\.\s*/, "")
+
+        patch_schema_examples(example, schema(property, description: description_new), path)
+
+      [] ->
+        patch_schema_examples("Ukraine", property, path)
+    end
+  end
 
   defp process_examples_match_in_description(
          schema(description: description) = property,
