@@ -8783,30 +8783,28 @@
                       "sender_postal_code": {
                         "type": "string",
                         "description": "Sender's zip code"
-                      },
-                      "mpi_eci": {
-                        "type": "integer",
-                        "enum": [
-                          5,
-                          6,
-                          7
-                        ],
-                        "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure"
-                      },
-                      "mpi_cres": {
-                        "type": "string",
-                        "description": "The value returned to ACS by the issuer's page after cardholder authentication"
                       }
                     },
                     "required": [
                       "sender_country_code",
                       "sender_city",
                       "sender_address",
-                      "sender_postal_code",
-                      "mpi_eci",
-                      "mpi_cres"
+                      "sender_postal_code"
                     ],
                     "description": "Sender parameters"
+                  },
+                  "mpi_eci": {
+                    "type": "integer",
+                    "enum": [
+                      5,
+                      6,
+                      7
+                    ],
+                    "description": "Possible values:\n* `5` - the transaction passed with 3DS (issuer and acquirer support 3d Secure technology)\n* `6` - the issuer of the payer card does not support 3d Secure technology\n* `7` - the operation passed without 3d Secure"
+                  },
+                  "mpi_cres": {
+                    "type": "string",
+                    "description": "The value returned to ACS by the issuer's page after cardholder authentication"
                   }
                 },
                 "required": [
@@ -8823,7 +8821,9 @@
                   "description",
                   "order_id",
                   "phone",
-                  "sandbox"
+                  "sandbox",
+                  "mpi_eci",
+                  "mpi_cres"
                 ]
               }
             }

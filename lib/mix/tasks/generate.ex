@@ -2072,6 +2072,69 @@ defmodule Mix.Tasks.Generate do
     end
   end
 
+  defp parse_block_schema(
+         schema,
+         block(update_operation: :new, update_type: :object, update_name: "sender" = name) =
+           block_data,
+         block_parse_settings,
+         [
+           name,
+           {:schema, :request},
+           endpoint(id: "p2pdebit")
+         ] =
+           path
+       ) do
+    schema(properties: properties, required: required) =
+      schema_new =
+      do_parse_block_schema(
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    case get_in(properties, [name]) do
+      schema(properties: %OrderedObject{} = sender_properties, required: sender_required) =
+          sender_schema ->
+        {mpi_eci, sender_properties_new} = pop_in(sender_properties, ["mpi_eci"])
+        {mpi_cres, sender_properties_new} = pop_in(sender_properties_new, ["mpi_cres"])
+
+        {new_required_keys, sender_required_new} =
+          if sender_required do
+            Enum.split_with(sender_required, fn key -> key in ~w(mpi_eci mpi_cres) end)
+          else
+            {[], sender_required}
+          end
+
+        sender_schema_new =
+          schema(sender_schema, properties: sender_properties_new, required: sender_required_new)
+
+        new_properties =
+          [if(mpi_eci, do: {"mpi_eci", mpi_eci}), if(mpi_cres, do: {"mpi_cres", mpi_cres})]
+          |> Enum.reject(&is_nil/1)
+
+        properties_new =
+          properties
+          |> update_in(
+            [Access.key!(:values)],
+            &List.keystore(&1, name, 0, {name, sender_schema_new})
+          )
+          |> ensure_block_properties(new_properties)
+
+        required_new =
+          cond do
+            Enum.empty?(new_required_keys) -> required
+            is_nil(required) -> new_required_keys
+            :else -> required ++ new_required_keys
+          end
+
+        schema(schema_new, properties: properties_new, required: required_new)
+
+      _ ->
+        schema_new
+    end
+  end
+
   defp parse_block_schema(schema, block_data, block_parse_settings, path),
     do: do_parse_block_schema(schema, block_data, block_parse_settings, path)
 
