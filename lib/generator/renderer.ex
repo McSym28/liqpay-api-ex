@@ -1,7 +1,7 @@
 if Mix.env() in [:dev] do
   defmodule LiqPayAPI.Generator.Renderer do
     use OpenAPIClient.Generator.Renderer
-    alias OpenAPI.Processor.{Operation, Schema}
+    alias OpenAPI.Processor.Operation
     alias OpenAPI.Renderer.File
 
     @impl OpenAPI.Renderer
@@ -32,27 +32,7 @@ if Mix.env() in [:dev] do
     @impl OpenAPI.Renderer
     def render(_state, %File{module: Operations} = _file), do: nil
 
-    def render(
-          state,
-          %File{
-            module: Operations.Callback.Request = module,
-            schemas: [%Schema{module_name: module} = schema]
-          } = file
-        ) do
-      schema_new = %Schema{schema | module_name: Callback}
-      file_new = %File{file | module: Callback, schemas: [schema_new], operations: []}
-      OpenAPIClient.Generator.Renderer.render(state, file_new)
-    end
-
     def render(state, file), do: OpenAPIClient.Generator.Renderer.render(state, file)
-
-    @impl OpenAPI.Renderer
-    def location(state, %File{module: Operations.Callback.Request} = file) do
-      file_new = %File{file | module: Callback, operations: []}
-      OpenAPIClient.Generator.Renderer.location(state, file_new)
-    end
-
-    def location(state, file), do: OpenAPIClient.Generator.Renderer.location(state, file)
 
     @impl OpenAPI.Renderer
     def render_operation_function(state, operation) do
