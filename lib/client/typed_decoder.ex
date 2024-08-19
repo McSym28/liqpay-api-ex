@@ -166,9 +166,9 @@ defmodule LiqPayAPI.Client.TypedDecoder do
         value,
         {:union,
          [
-           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage, _type} =
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage, _} =
              multi_language,
-           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage, _type} =
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage, _} =
              single_language
          ]},
         path,
@@ -183,9 +183,9 @@ defmodule LiqPayAPI.Client.TypedDecoder do
         value,
         {:union,
          [
-           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage, _type} =
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage, _} =
              single_language,
-           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage, _type} =
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage, _} =
              multi_language
          ]},
         path,
@@ -203,9 +203,9 @@ defmodule LiqPayAPI.Client.TypedDecoder do
         value,
         {:union,
          [
-           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.Full, _type} = full,
-           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.OnlyCompensationId,
-            _type} = only_compensation_id
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.Full, _} = full,
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.OnlyCompensationId, _} =
+             only_compensation_id
          ]},
         path,
         caller_module
@@ -219,9 +219,9 @@ defmodule LiqPayAPI.Client.TypedDecoder do
         value,
         {:union,
          [
-           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.OnlyCompensationId,
-            _type} = only_compensation_id,
-           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.Full, _type} = full
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.OnlyCompensationId, _} =
+             only_compensation_id,
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.Full, _} = full
          ]},
         path,
         caller_module
