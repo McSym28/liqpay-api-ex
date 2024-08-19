@@ -96,7 +96,20 @@ defmodule Mix.Tasks.Generate do
   @requirements ["app.start"]
   @shortdoc "Generates library's modules"
   @impl true
-  def run(_) do
+  def run(args) do
+    args
+    |> OptionParser.parse(switches: [cleanup_htmls: :boolean])
+    |> case do
+      {[cleanup_htmls: value], [], []} -> value
+      # TODO: change to true
+      {[], [], []} -> false
+    end
+    |> if do
+      "tmp/**/*.html"
+      |> Path.wildcard()
+      |> Enum.each(&File.rm!/1)
+    end
+
     {:ok, _} = Application.ensure_all_started(:wallaby)
 
     {:ok, session} = Wallaby.start_session()
@@ -115,6 +128,27 @@ defmodule Mix.Tasks.Generate do
     )
     |> Jason.encode!(pretty: true)
     |> then(&File.write!(@opeanapi_spec_filename, &1))
+
+    "lib/**/*.ex"
+    |> Path.wildcard()
+    |> Enum.reject(fn
+      "lib/client/" <> _rest -> true
+      "lib/generator/" <> _rest -> true
+      "lib/mix/" <> _rest -> true
+      _file -> false
+    end)
+    |> Enum.each(&File.rm!/1)
+
+    "test/**/*.exs"
+    |> Path.wildcard()
+    |> Enum.reject(fn
+      "test/client/" <> _rest -> true
+      "test/test_helper.exs" -> true
+      _file -> false
+    end)
+    |> Enum.each(&File.rm!/1)
+
+    Mix.Task.run("api.gen", ["default", @opeanapi_spec_filename])
   end
 
   defp gather_openapi_paths([], _path, openapi_paths), do: openapi_paths
