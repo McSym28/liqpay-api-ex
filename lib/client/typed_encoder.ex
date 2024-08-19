@@ -188,6 +188,23 @@ defmodule LiqPayAPI.Client.TypedEncoder do
     end
   end
 
+  def encode(
+        %module{} = value,
+        {:union, types},
+        path,
+        caller_module
+      ) do
+    types
+    |> Enum.find(fn
+      {^module, _type} -> true
+      _ -> false
+    end)
+    |> case do
+      {module, type} -> caller_module.encode(value, {module, type}, path, caller_module)
+      nil -> TypedEncoder.encode(value, {:union, types}, path, caller_module)
+    end
+  end
+
   def encode(value, type, path, caller_module),
     do: TypedEncoder.encode(value, type, path, caller_module)
 

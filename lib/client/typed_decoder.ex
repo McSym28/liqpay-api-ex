@@ -162,6 +162,72 @@ defmodule LiqPayAPI.Client.TypedDecoder do
     end
   )
 
+  def decode(
+        value,
+        {:union,
+         [
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage, _type} =
+             multi_language,
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage, _type} =
+             single_language
+         ]},
+        path,
+        caller_module
+      )
+      when is_map(value) do
+    type = if Map.has_key?(value, "full_name_en"), do: multi_language, else: single_language
+    caller_module.decode(value, type, path, caller_module)
+  end
+
+  def decode(
+        value,
+        {:union,
+         [
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage, _type} =
+             single_language,
+           {LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage, _type} =
+             multi_language
+         ]},
+        path,
+        caller_module
+      ),
+      do:
+        caller_module.decode(
+          value,
+          {:union, [multi_language, single_language]},
+          path,
+          caller_module
+        )
+
+  def decode(
+        value,
+        {:union,
+         [
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.Full, _type} = full,
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.OnlyCompensationId,
+            _type} = only_compensation_id
+         ]},
+        path,
+        caller_module
+      )
+      when is_map(value) do
+    type = if Map.has_key?(value, "action"), do: full, else: only_compensation_id
+    caller_module.decode(value, type, path, caller_module)
+  end
+
+  def decode(
+        value,
+        {:union,
+         [
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.OnlyCompensationId,
+            _type} = only_compensation_id,
+           {LiqPayAPI.Information.Register.CompensationPerDay.Response.Data.Full, _type} = full
+         ]},
+        path,
+        caller_module
+      ),
+      do: caller_module.decode(value, {:union, [full, only_compensation_id]}, path, caller_module)
+
   def decode(value, type, path, caller_module),
     do: TypedDecoder.decode(value, type, path, caller_module)
 end

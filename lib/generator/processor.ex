@@ -4,34 +4,58 @@ if Mix.env() in [:dev] do
     alias OpenAPI.Processor.Schema
 
     @impl OpenAPI.Processor
-    def schema_module_and_type(state, schema) do
-      state_new =
-        case schema do
-          %Schema{context: [{:request, module, type, _}]} ->
-            process_schema(state, schema, module, type, "Request")
+    def schema_module_and_type(
+          %OpenAPI.Processor.State{schema_specs_by_ref: schema_specs_by_ref} = state,
+          %Schema{ref: schema_ref} = schema
+        ) do
+      %OpenAPI.Spec.Schema{"$oag_last_ref_path": ref_path} =
+        schema_spec = Map.fetch!(schema_specs_by_ref, schema_ref)
 
-          %Schema{context: [{:response, module, type, _, _}]} ->
-            process_schema(state, schema, module, type, "Response")
-
-          _ ->
-            state
+      suffix =
+        ref_path
+        |> Enum.take(-2)
+        |> case do
+          ["oneOf", index] -> "_one_of_#{index}"
+          _ -> ""
         end
 
-      OpenAPIClient.Generator.Processor.schema_module_and_type(state_new, schema)
+      {state_new, schema_new} =
+        case schema do
+          %Schema{context: [{:request, module, type, _}]} ->
+            state_new =
+              update_state(state, schema, schema_spec, module, type, "_request#{suffix}")
+
+            {state_new, schema}
+
+          %Schema{context: [{:response, module, type, _, _}]} ->
+            state_new =
+              update_state(state, schema, schema_spec, module, type, "_response#{suffix}")
+
+            {state_new, schema}
+
+          %Schema{context: [{:field, parent_ref, name}]} ->
+            name_new = "#{name}#{suffix}"
+            schema_new = %Schema{schema | context: [{:field, parent_ref, name_new}]}
+            {state, schema_new}
+
+          _ ->
+            {state, schema}
+        end
+
+      OpenAPIClient.Generator.Processor.schema_module_and_type(state_new, schema_new)
     end
 
-    defp process_schema(
+    defp update_state(
            %OpenAPI.Processor.State{schema_specs_by_ref: schema_specs_by_ref} = state,
-           %Schema{ref: schema_ref},
+           %Schema{ref: schema_ref} = _schema,
+           schema_spec,
            module,
            type,
-           schema_type
+           schema_suffix
          ) do
       type_new = type |> Atom.to_string() |> OpenAPI.Processor.Naming.normalize_identifier(:camel)
-      schema_spec = Map.fetch!(schema_specs_by_ref, schema_ref)
-
-      module_new =
-        Enum.join([module |> Module.split() |> Enum.join(), type_new, schema_type])
+      module_string = module |> Module.split() |> Enum.join()
+      module_new = Enum.join([module_string, type_new, schema_suffix])
 
       schema_spec_new = %OpenAPI.Spec.Schema{
         schema_spec
