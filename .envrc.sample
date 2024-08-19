@@ -1,0 +1,2 @@
+export LIQPAY_API_PRIVATE_KEY={your_private_key}
+export LIQPAY_API_PUBLIC_KEY={your_public_key}
