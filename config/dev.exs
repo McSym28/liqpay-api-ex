@@ -83,6 +83,13 @@ config :open_api_client_ex,
             ]}
          ]
        ]},
+      {{"/p24api/pubinfo", :get},
+       [
+         params: [
+           {{"coursid", :query},
+            [enum: [options: [{5, [value: :cash]}, {11, [value: :non_cash]}]]]}
+         ]
+       ]},
       {:*, [params: [{:*, [enum: [strict: true]]}]]}
     ],
     schemas: [
