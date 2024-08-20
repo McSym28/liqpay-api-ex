@@ -93,6 +93,12 @@ config :open_api_client_ex,
       {:*, [params: [{:*, [enum: [strict: true]]}]]}
     ],
     schemas: [
+      {{~r/\.Request$/, :*},
+       [
+         fields: [
+           {"public_key", [default: {Application, :get_env, [:liqpay_api_ex, :public_key]}]}
+         ]
+       ]},
       {{~r/\.Request(?:\..+)?$/, :*}, [fields: [{:*, [enum: [strict: true]]}]]}
     ],
     test_location: "test"
