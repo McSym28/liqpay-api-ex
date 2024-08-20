@@ -82,7 +82,8 @@ config :open_api_client_ex,
               example: "a4825234f4bae72a0be04eafe9e8e2bada209255"
             ]}
          ]
-       ]}
+       ]},
+      {:*, [params: [{:*, [enum: [strict: true]]}]]}
     ],
     test_location: "test"
   ]
