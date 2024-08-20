@@ -85,5 +85,8 @@ config :open_api_client_ex,
        ]},
       {:*, [params: [{:*, [enum: [strict: true]]}]]}
     ],
+    schemas: [
+      {{~r/\.Request(?:\..+)?$/, :*}, [fields: [{:*, [enum: [strict: true]]}]]}
+    ],
     test_location: "test"
   ]
