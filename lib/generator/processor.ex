@@ -79,6 +79,20 @@ if Mix.env() in [:dev] do
     end
 
     @impl OpenAPI.Processor
+    def operation_function_name(state, operation_spec) do
+      state
+      |> OpenAPIClient.Generator.Processor.operation_function_name(operation_spec)
+      |> case do
+        :ds -> :three_ds
+        :receive_a_receipt -> :receive_receipt
+        :cardverification -> :card_verification
+        :compensation_report_p2_p -> :compensation_report_p2p
+        :compensation_report_p2_p_status -> :compensation_report_p2p_status
+        other -> other
+      end
+    end
+
+    @impl OpenAPI.Processor
     def schema_format(_state, _schema), do: :struct
   end
 end
