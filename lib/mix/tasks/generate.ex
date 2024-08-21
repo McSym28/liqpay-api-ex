@@ -149,6 +149,7 @@ defmodule Mix.Tasks.Generate do
     |> Enum.each(&File.rm!/1)
 
     Mix.Task.run("api.gen", ["default", @opeanapi_spec_filename])
+    Mix.Task.run("format")
   end
 
   defp gather_openapi_paths([], _path, openapi_paths), do: openapi_paths
