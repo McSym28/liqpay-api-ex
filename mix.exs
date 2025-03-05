@@ -25,7 +25,7 @@ defmodule LiqPayAPI.MixProject do
       {:open_api_client_ex, opts_for_open_api_client_ex(Mix.env())},
       {:jason, "~> 1.4", optional: true, only: [:dev, :test]},
       {:httpoison, "~> 2.2", optional: true, only: [:dev, :test]},
-      {:mox, "~> 1.1", only: [:dev, :test]},
+      {:mox, "~> 1.2", only: [:dev, :test]},
       {:floki, "~> 0.36", only: [:dev, :test]},
       {:fast_html, "~> 2.0", only: [:dev, :test]},
       {:wallaby, "~> 0.30", runtime: false, only: [:dev, :test]}
@@ -36,5 +36,5 @@ defmodule LiqPayAPI.MixProject do
     do: [{:env, :dev} | opts_for_open_api_client_ex(:prod)]
 
   defp opts_for_open_api_client_ex(_env),
-    do: [git: "../../../open-api-client-ex", ref: "4cd5378d84728ac16948ec09df4a982535f2683e"]
+    do: [git: "../../../open-api-client-ex", ref: "7e2cb4b21dd91c589caebc00697ae98277865c1f"]
 end
