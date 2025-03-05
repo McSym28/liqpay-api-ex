@@ -22,4 +22,4 @@ config :open_api_client_ex,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-if config_env() in [:dev, :test], do: import_config("#{config_env()}.exs")
+import_config "#{config_env()}.exs"
