@@ -1,5 +1,12 @@
 defmodule Mix.Tasks.Generate do
-  @moduledoc "Generates library's modules"
+  @moduledoc """
+  Generates library's modules
+
+  Switches:
+
+  * `fetch`/`f` - Fetch fresh spec from the Internet. When turned off (`--no-fetch`) existing spec will be used.
+  Turned on by default.
+  """
   use Mix.Task
   alias LiqPayAPI.Client.TypedDecoder
   alias Jason.OrderedObject
@@ -97,37 +104,38 @@ defmodule Mix.Tasks.Generate do
   @shortdoc "Generates library's modules"
   @impl true
   def run(args) do
-    args
-    |> OptionParser.parse(switches: [cleanup_htmls: :boolean])
-    |> case do
-      {[cleanup_htmls: value], [], []} -> value
-      # TODO: change to true
-      {[], [], []} -> false
-    end
-    |> if do
+    {parsed_args, _, _} =
+      OptionParser.parse(args,
+        switches: [cleanup_htmls: :boolean, fetch: :boolean],
+        aliases: [f: :fetch]
+      )
+
+    if Keyword.get(parsed_args, :cleanup_htmls, true) do
       "tmp/**/*.html"
       |> Path.wildcard()
       |> Enum.each(&File.rm!/1)
     end
 
-    {:ok, _} = Application.ensure_all_started(:wallaby)
+    if Keyword.get(parsed_args, :fetch, true) do
+      {:ok, _} = Application.ensure_all_started(:wallaby)
 
-    {:ok, session} = Wallaby.start_session()
+      {:ok, session} = Wallaby.start_session()
 
-    {:ok, children} = process_url(@api_url, parse_settings(session: session))
-    openapi_paths = gather_openapi_paths(children, [], [])
+      {:ok, children} = process_url(@api_url, parse_settings(session: session))
+      openapi_paths = gather_openapi_paths(children, [], [])
 
-    OrderedObject.new(
-      openapi: "3.1.0",
-      info: OrderedObject.new(version: "3", title: "External API"),
-      servers: [OrderedObject.new(url: "https://liqpay.ua")],
-      paths:
-        openapi_paths
-        |> Enum.reverse()
-        |> OrderedObject.new()
-    )
-    |> Jason.encode!(pretty: true)
-    |> then(&File.write!(@opeanapi_spec_filename, &1))
+      OrderedObject.new(
+        openapi: "3.1.0",
+        info: OrderedObject.new(version: "3", title: "External API"),
+        servers: [OrderedObject.new(url: "https://liqpay.ua")],
+        paths:
+          openapi_paths
+          |> Enum.reverse()
+          |> OrderedObject.new()
+      )
+      |> Jason.encode!(pretty: true)
+      |> then(&File.write!(@opeanapi_spec_filename, &1))
+    end
 
     "lib/**/*.ex"
     |> Path.wildcard()
