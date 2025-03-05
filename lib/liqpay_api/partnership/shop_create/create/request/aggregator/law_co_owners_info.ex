@@ -1,0 +1,46 @@
+defmodule LiqPayAPI.Partnership.ShopCreate.Create.Request.Aggregator.LawCoOwnersInfo do
+  @moduledoc """
+  Provides struct and type for a Partnership.ShopCreate.Create.Request.Aggregator.LawCoOwnersInfo
+  """
+
+  @behaviour OpenAPIClient.Schema
+
+  @type t :: %__MODULE__{
+          birth_date: Date.t() | nil,
+          citizenship: String.t() | nil,
+          company_name: String.t() | nil,
+          company_okpo: String.t() | nil,
+          inn: String.t() | nil,
+          name: String.t() | nil,
+          residency: String.t() | nil,
+          share_in_capital: String.t() | nil
+        }
+  @type types :: :t
+
+  defstruct [
+    :birth_date,
+    :citizenship,
+    :company_name,
+    :company_okpo,
+    :inn,
+    :name,
+    :residency,
+    :share_in_capital
+  ]
+
+  @doc false
+  @impl OpenAPIClient.Schema
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  def __fields__(:t) do
+    [
+      birth_date: {"birth_date", {:string, :date}},
+      citizenship: {"citizenship", {:string, :generic}},
+      company_name: {"company_name", {:string, :generic}},
+      company_okpo: {"company_okpo", {:string, :generic}},
+      inn: {"inn", {:string, :generic}},
+      name: {"name", {:string, :generic}},
+      residency: {"residency", {:string, :generic}},
+      share_in_capital: {"share_in_capital", {:string, :generic}}
+    ]
+  end
+end

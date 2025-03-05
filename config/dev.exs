@@ -56,7 +56,7 @@ config :oapi_generator,
     ],
     output: [
       base_module: LiqPayAPI,
-      location: "lib"
+      location: "lib/liqpay_api"
     ]
   ]
 
@@ -101,5 +101,5 @@ config :open_api_client_ex,
        ]},
       {{~r/\.Request(?:\..+)?$/, :*}, [fields: [{:*, [enum: [strict: true]]}]]}
     ],
-    test_location: "test"
+    test_location: "test/liqpay_api"
   ]

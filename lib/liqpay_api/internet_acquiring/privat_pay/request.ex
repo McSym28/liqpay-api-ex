@@ -1,0 +1,55 @@
+defmodule LiqPayAPI.InternetAcquiring.PrivatPay.Request do
+  @moduledoc """
+  Provides struct and type for a InternetAcquiring.PrivatPay.Request
+  """
+
+  @behaviour OpenAPIClient.Schema
+
+  @type t :: %__MODULE__{
+          action: :payment_prepare,
+          action_payment: :hold | :pay | :paydonate | :subscribe | nil,
+          amount: number,
+          currency: :eur | :uah | :usd,
+          description: String.t(),
+          language: :en | :uk | nil,
+          order_id: String.t(),
+          public_key: String.t(),
+          result_url: String.t() | nil,
+          version: 3
+        }
+  @type types :: :t
+
+  @enforce_keys [:amount, :currency, :description, :order_id]
+  defstruct [
+    :action_payment,
+    :amount,
+    :currency,
+    :description,
+    :language,
+    :order_id,
+    :public_key,
+    :result_url,
+    action: :payment_prepare,
+    version: 3
+  ]
+
+  @doc false
+  @impl OpenAPIClient.Schema
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  def __fields__(:t) do
+    [
+      action: {"action", {:enum, payment_prepare: "payment_prepare"}},
+      action_payment:
+        {"action_payment",
+         {:enum, hold: "hold", pay: "pay", paydonate: "paydonate", subscribe: "subscribe"}},
+      amount: {"amount", :number},
+      currency: {"currency", {:enum, eur: "EUR", uah: "UAH", usd: "USD"}},
+      description: {"description", {:string, :generic}},
+      language: {"language", {:enum, en: "en", uk: "uk"}},
+      order_id: {"order_id", {:string, :generic}},
+      public_key: {"public_key", {:string, :generic}},
+      result_url: {"result_url", {:string, :uri}},
+      version: {"version", {:enum, [3]}}
+    ]
+  end
+end
