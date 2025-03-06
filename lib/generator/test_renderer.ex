@@ -144,14 +144,7 @@ if Mix.env() in [:dev] do
                       do:
                         assert(
                           {:ok, "application/x-www-form-urlencoded"} ==
-                            with {_, content_type_request} <-
-                                   List.keyfind(headers, "content-type", 0),
-                                 {:ok, {media_type, media_subtype, _parameters}} =
-                                   OpenAPIClient.Client.Operation.parse_content_type_header(
-                                     content_type_request
-                                   ) do
-                              {:ok, "#{media_type}/#{media_subtype}"}
-                            end
+                            OpenAPIClient.Utils.get_content_type(headers)
                         )
                     ),
                     quote(do: form_data = URI.decode_query(body)),
@@ -198,13 +191,16 @@ if Mix.env() in [:dev] do
 
             {expression_new, private_key}
 
-          {:assert, _,
+          {:assert, [],
            [
-             {:=, _,
+             {:==, _,
               [
-                {{:_, _, _}, private_key},
-                {{:., _, [{:__aliases__, _, [:List]}, :keyfind]}, _,
-                 [{:params, _, _}, :private_key, 0]}
+                {:ok, private_key},
+                {{:., _, [{:__aliases__, _, [:Keyword]}, :fetch]}, _,
+                 [
+                   {{:., _, [{:state, _, _}, :function_opts]}, _, _},
+                   :private_key
+                 ]}
               ]}
            ]} = expression,
           nil ->
