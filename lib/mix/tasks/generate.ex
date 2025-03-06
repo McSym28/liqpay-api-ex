@@ -153,14 +153,25 @@ defmodule Mix.Tasks.Generate do
     |> Enum.reject(fn
       "lib/liqpay_api/client/" <> _rest -> true
       "lib/liqpay_api/generator/" <> _rest -> true
+      "lib/liqpay_api/plugs/" <> _rest -> true
       _file -> false
     end)
     |> Enum.each(&File.rm!/1)
 
-    "test/liqpay_api/**/*.exs"
+    "test/support/liqpay_api_web/**/*.ex"
+    |> Path.wildcard()
+    |> Enum.reject(fn
+      "test/support/liqpay_api_web/endpoint.ex" -> true
+      "test/support/liqpay_api_web/router.ex" -> true
+      _file -> false
+    end)
+    |> Enum.each(&File.rm!/1)
+
+    "test/{liqpay_api,liqpay_api_web}/**/*.exs"
     |> Path.wildcard()
     |> Enum.reject(fn
       "test/liqpay_api/client/" <> _rest -> true
+      "test/liqpay_api/plugs/" <> _rest -> true
       _file -> false
     end)
     |> Enum.each(&File.rm!/1)
