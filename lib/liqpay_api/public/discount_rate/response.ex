@@ -12,7 +12,7 @@ defmodule LiqPayAPI.Public.DiscountRate.Response do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [rate_date: {"rate_date", {:string, "date-liqpay"}}, rate_value: {"rate_value", :number}]
   end

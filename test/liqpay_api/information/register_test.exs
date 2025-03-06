@@ -3,20 +3,13 @@ defmodule LiqPayAPI.Information.RegisterTest do
   import Mox
 
   @httpoison OpenAPIClient.HTTPoisonMock
-  @client OpenAPIClient.ClientMock
+  @client OpenAPIClientMock
 
   setup :verify_on_exit!
 
   describe "compensation_per_transaction/2" do
-    test "[200] performs a request, encodes CompensationPerTransaction.Request from request's body and encodes CompensationPerTransaction.Response from response's body" do
-      expect(@client, :perform, fn operation, pipeline ->
-        params = OpenAPIClient.Client.Operation.get_private(operation, :__params__)
-
-        assert {_, "a4825234f4bae72a0be04eafe9e8e2bada209255"} =
-                 List.keyfind(params, :private_key, 0)
-
-        OpenAPIClient.Client.perform(operation, pipeline)
-      end)
+    test "[200] performs a request, encodes CompensationPerTransaction.Request from request's body and decodes CompensationPerTransaction.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :post,
                                       "https://example.com/api/request",
@@ -35,24 +28,10 @@ defmodule LiqPayAPI.Information.RegisterTest do
         form_data = URI.decode_query(body)
         assert {:ok, signature} = Map.fetch(form_data, "signature")
         assert {:ok, data} = Map.fetch(form_data, "data")
-
-        assert LiqPayAPI.Client.Signature.check?(
-                 data,
-                 "a4825234f4bae72a0be04eafe9e8e2bada209255",
-                 signature
-               )
-
+        assert LiqPayAPI.Client.Signature.check?(data, nil, signature)
         assert {:ok, body} = Base.decode64(data)
         headers = List.keystore(headers, "content-type", 0, {"content-type", "application/json"})
-
-        assert {:ok, "application/json"} ==
-                 (with {_, content_type_request} <- List.keyfind(headers, "content-type", 0),
-                       {:ok, {media_type, media_subtype, _parameters}} =
-                         OpenAPIClient.Client.Operation.parse_content_type_header(
-                           content_type_request
-                         ) do
-                    {:ok, "#{media_type}/#{media_subtype}"}
-                  end)
+        assert {:ok, "application/json"} == OpenAPIClient.Utils.get_content_type(headers)
 
         assert {:ok,
                 %{
@@ -154,22 +133,14 @@ defmodule LiqPayAPI.Information.RegisterTest do
                    public_key: "string",
                    version: 3
                  },
-                 private_key: "a4825234f4bae72a0be04eafe9e8e2bada209255",
                  base_url: "https://example.com"
                )
     end
   end
 
   describe "compensation_report_status/2" do
-    test "[200] performs a request, encodes CompensationReportStatus.Request from request's body and encodes CompensationReportStatus.Response from response's body" do
-      expect(@client, :perform, fn operation, pipeline ->
-        params = OpenAPIClient.Client.Operation.get_private(operation, :__params__)
-
-        assert {_, "a4825234f4bae72a0be04eafe9e8e2bada209255"} =
-                 List.keyfind(params, :private_key, 0)
-
-        OpenAPIClient.Client.perform(operation, pipeline)
-      end)
+    test "[200] performs a request, encodes CompensationReportStatus.Request from request's body and decodes CompensationReportStatus.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :post,
                                       "https://example.com/api/request",
@@ -188,24 +159,10 @@ defmodule LiqPayAPI.Information.RegisterTest do
         form_data = URI.decode_query(body)
         assert {:ok, signature} = Map.fetch(form_data, "signature")
         assert {:ok, data} = Map.fetch(form_data, "data")
-
-        assert LiqPayAPI.Client.Signature.check?(
-                 data,
-                 "a4825234f4bae72a0be04eafe9e8e2bada209255",
-                 signature
-               )
-
+        assert LiqPayAPI.Client.Signature.check?(data, nil, signature)
         assert {:ok, body} = Base.decode64(data)
         headers = List.keystore(headers, "content-type", 0, {"content-type", "application/json"})
-
-        assert {:ok, "application/json"} ==
-                 (with {_, content_type_request} <- List.keyfind(headers, "content-type", 0),
-                       {:ok, {media_type, media_subtype, _parameters}} =
-                         OpenAPIClient.Client.Operation.parse_content_type_header(
-                           content_type_request
-                         ) do
-                    {:ok, "#{media_type}/#{media_subtype}"}
-                  end)
+        assert {:ok, "application/json"} == OpenAPIClient.Utils.get_content_type(headers)
 
         assert {:ok,
                 %{
@@ -245,22 +202,14 @@ defmodule LiqPayAPI.Information.RegisterTest do
                    register_token: "compensation_i123456789_2021.11.23.csv",
                    version: 3
                  },
-                 private_key: "a4825234f4bae72a0be04eafe9e8e2bada209255",
                  base_url: "https://example.com"
                )
     end
   end
 
   describe "compensation_report/2" do
-    test "[200] performs a request, encodes CompensationReport.Request from request's body and encodes CompensationReport.Response from response's body" do
-      expect(@client, :perform, fn operation, pipeline ->
-        params = OpenAPIClient.Client.Operation.get_private(operation, :__params__)
-
-        assert {_, "a4825234f4bae72a0be04eafe9e8e2bada209255"} =
-                 List.keyfind(params, :private_key, 0)
-
-        OpenAPIClient.Client.perform(operation, pipeline)
-      end)
+    test "[200] performs a request, encodes CompensationReport.Request from request's body and decodes CompensationReport.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :post,
                                       "https://example.com/api/request",
@@ -279,24 +228,10 @@ defmodule LiqPayAPI.Information.RegisterTest do
         form_data = URI.decode_query(body)
         assert {:ok, signature} = Map.fetch(form_data, "signature")
         assert {:ok, data} = Map.fetch(form_data, "data")
-
-        assert LiqPayAPI.Client.Signature.check?(
-                 data,
-                 "a4825234f4bae72a0be04eafe9e8e2bada209255",
-                 signature
-               )
-
+        assert LiqPayAPI.Client.Signature.check?(data, nil, signature)
         assert {:ok, body} = Base.decode64(data)
         headers = List.keystore(headers, "content-type", 0, {"content-type", "application/json"})
-
-        assert {:ok, "application/json"} ==
-                 (with {_, content_type_request} <- List.keyfind(headers, "content-type", 0),
-                       {:ok, {media_type, media_subtype, _parameters}} =
-                         OpenAPIClient.Client.Operation.parse_content_type_header(
-                           content_type_request
-                         ) do
-                    {:ok, "#{media_type}/#{media_subtype}"}
-                  end)
+        assert {:ok, "application/json"} == OpenAPIClient.Utils.get_content_type(headers)
 
         assert {:ok,
                 %{
@@ -338,22 +273,14 @@ defmodule LiqPayAPI.Information.RegisterTest do
                    resp_format: :csv,
                    version: 3
                  },
-                 private_key: "a4825234f4bae72a0be04eafe9e8e2bada209255",
                  base_url: "https://example.com"
                )
     end
   end
 
   describe "compensation_report_p2p/2" do
-    test "[200] performs a request, encodes CompensationReportP2P.Request from request's body and encodes CompensationReportP2P.Response from response's body" do
-      expect(@client, :perform, fn operation, pipeline ->
-        params = OpenAPIClient.Client.Operation.get_private(operation, :__params__)
-
-        assert {_, "a4825234f4bae72a0be04eafe9e8e2bada209255"} =
-                 List.keyfind(params, :private_key, 0)
-
-        OpenAPIClient.Client.perform(operation, pipeline)
-      end)
+    test "[200] performs a request, encodes CompensationReportP2P.Request from request's body and decodes CompensationReportP2P.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :post,
                                       "https://example.com/api/request",
@@ -372,24 +299,10 @@ defmodule LiqPayAPI.Information.RegisterTest do
         form_data = URI.decode_query(body)
         assert {:ok, signature} = Map.fetch(form_data, "signature")
         assert {:ok, data} = Map.fetch(form_data, "data")
-
-        assert LiqPayAPI.Client.Signature.check?(
-                 data,
-                 "a4825234f4bae72a0be04eafe9e8e2bada209255",
-                 signature
-               )
-
+        assert LiqPayAPI.Client.Signature.check?(data, nil, signature)
         assert {:ok, body} = Base.decode64(data)
         headers = List.keystore(headers, "content-type", 0, {"content-type", "application/json"})
-
-        assert {:ok, "application/json"} ==
-                 (with {_, content_type_request} <- List.keyfind(headers, "content-type", 0),
-                       {:ok, {media_type, media_subtype, _parameters}} =
-                         OpenAPIClient.Client.Operation.parse_content_type_header(
-                           content_type_request
-                         ) do
-                    {:ok, "#{media_type}/#{media_subtype}"}
-                  end)
+        assert {:ok, "application/json"} == OpenAPIClient.Utils.get_content_type(headers)
 
         assert {:ok,
                 %{
@@ -431,22 +344,14 @@ defmodule LiqPayAPI.Information.RegisterTest do
                    type: :p2p,
                    version: 3
                  },
-                 private_key: "a4825234f4bae72a0be04eafe9e8e2bada209255",
                  base_url: "https://example.com"
                )
     end
   end
 
   describe "compensation_report_p2p_status/2" do
-    test "[200] performs a request, encodes CompensationReportP2PStatus.Request from request's body and encodes CompensationReportP2PStatus.Response from response's body" do
-      expect(@client, :perform, fn operation, pipeline ->
-        params = OpenAPIClient.Client.Operation.get_private(operation, :__params__)
-
-        assert {_, "a4825234f4bae72a0be04eafe9e8e2bada209255"} =
-                 List.keyfind(params, :private_key, 0)
-
-        OpenAPIClient.Client.perform(operation, pipeline)
-      end)
+    test "[200] performs a request, encodes CompensationReportP2PStatus.Request from request's body and decodes CompensationReportP2PStatus.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :post,
                                       "https://example.com/api/request",
@@ -465,24 +370,10 @@ defmodule LiqPayAPI.Information.RegisterTest do
         form_data = URI.decode_query(body)
         assert {:ok, signature} = Map.fetch(form_data, "signature")
         assert {:ok, data} = Map.fetch(form_data, "data")
-
-        assert LiqPayAPI.Client.Signature.check?(
-                 data,
-                 "a4825234f4bae72a0be04eafe9e8e2bada209255",
-                 signature
-               )
-
+        assert LiqPayAPI.Client.Signature.check?(data, nil, signature)
         assert {:ok, body} = Base.decode64(data)
         headers = List.keystore(headers, "content-type", 0, {"content-type", "application/json"})
-
-        assert {:ok, "application/json"} ==
-                 (with {_, content_type_request} <- List.keyfind(headers, "content-type", 0),
-                       {:ok, {media_type, media_subtype, _parameters}} =
-                         OpenAPIClient.Client.Operation.parse_content_type_header(
-                           content_type_request
-                         ) do
-                    {:ok, "#{media_type}/#{media_subtype}"}
-                  end)
+        assert {:ok, "application/json"} == OpenAPIClient.Utils.get_content_type(headers)
 
         assert {:ok,
                 %{
@@ -522,22 +413,14 @@ defmodule LiqPayAPI.Information.RegisterTest do
                    register_token: "compensation_i123456789_2021.11.23.csv",
                    version: 3
                  },
-                 private_key: "a4825234f4bae72a0be04eafe9e8e2bada209255",
                  base_url: "https://example.com"
                )
     end
   end
 
   describe "compensation_per_day/2" do
-    test "[200] performs a request, encodes CompensationPerDay.Request from request's body and encodes CompensationPerDay.Response from response's body" do
-      expect(@client, :perform, fn operation, pipeline ->
-        params = OpenAPIClient.Client.Operation.get_private(operation, :__params__)
-
-        assert {_, "a4825234f4bae72a0be04eafe9e8e2bada209255"} =
-                 List.keyfind(params, :private_key, 0)
-
-        OpenAPIClient.Client.perform(operation, pipeline)
-      end)
+    test "[200] performs a request, encodes CompensationPerDay.Request from request's body and decodes CompensationPerDay.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :post,
                                       "https://example.com/api/request",
@@ -556,24 +439,10 @@ defmodule LiqPayAPI.Information.RegisterTest do
         form_data = URI.decode_query(body)
         assert {:ok, signature} = Map.fetch(form_data, "signature")
         assert {:ok, data} = Map.fetch(form_data, "data")
-
-        assert LiqPayAPI.Client.Signature.check?(
-                 data,
-                 "a4825234f4bae72a0be04eafe9e8e2bada209255",
-                 signature
-               )
-
+        assert LiqPayAPI.Client.Signature.check?(data, nil, signature)
         assert {:ok, body} = Base.decode64(data)
         headers = List.keystore(headers, "content-type", 0, {"content-type", "application/json"})
-
-        assert {:ok, "application/json"} ==
-                 (with {_, content_type_request} <- List.keyfind(headers, "content-type", 0),
-                       {:ok, {media_type, media_subtype, _parameters}} =
-                         OpenAPIClient.Client.Operation.parse_content_type_header(
-                           content_type_request
-                         ) do
-                    {:ok, "#{media_type}/#{media_subtype}"}
-                  end)
+        assert {:ok, "application/json"} == OpenAPIClient.Utils.get_content_type(headers)
 
         assert {:ok,
                 %{
@@ -677,7 +546,6 @@ defmodule LiqPayAPI.Information.RegisterTest do
                    resp_format: :json,
                    version: 3
                  },
-                 private_key: "a4825234f4bae72a0be04eafe9e8e2bada209255",
                  base_url: "https://example.com"
                )
     end

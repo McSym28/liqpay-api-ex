@@ -81,7 +81,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Create.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, subscribe: "subscribe"}},
@@ -104,7 +104,9 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Create.Request do
       product_description: {"product_description", {:string, :generic}},
       product_name: {"product_name", {:string, :generic}},
       product_url: {"product_url", {:string, :uri}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       recurring: {"recurring", :boolean},
       recurringbytoken: {"recurringbytoken", {:enum, true: "1"}},
       regular_payment:

@@ -39,7 +39,7 @@ defmodule LiqPayAPI.InternetAcquiring.GPay.DecryptedToken.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, pay: "pay"}},
@@ -50,7 +50,9 @@ defmodule LiqPayAPI.InternetAcquiring.GPay.DecryptedToken.Request do
       language: {"language", {:enum, en: "en", uk: "uk"}},
       order_id: {"order_id", {:string, :generic}},
       paytype: {"paytype", {:enum, gpay: "gpay"}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       result_url: {"result_url", {:string, :uri}},
       server_url: {"server_url", {:string, :uri}},
       version: {"version", {:enum, [3]}}

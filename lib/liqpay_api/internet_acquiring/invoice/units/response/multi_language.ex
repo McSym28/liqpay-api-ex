@@ -18,7 +18,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       full_name_en: {"full_name_en", {:string, :generic}},

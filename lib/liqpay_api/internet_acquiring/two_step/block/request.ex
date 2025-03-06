@@ -71,7 +71,7 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep.Block.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, hold: "hold"}},
@@ -96,7 +96,9 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep.Block.Request do
           apay: "apay", apay_tavv: "apay_tavv", gpay: "gpay", gpay_tavv: "gpay_tavv", tavv: "tavv"}},
       phone: {"phone", {:string, :generic}},
       prepare: {"prepare", {:enum, true: "1"}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       recurring: {"recurring", :boolean},
       recurringbytoken: {"recurringbytoken", {:enum, true: "1"}},
       sender: {"sender", {LiqPayAPI.InternetAcquiring.TwoStep.Block.Request.Sender, :t}},

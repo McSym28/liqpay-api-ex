@@ -68,7 +68,7 @@ defmodule LiqPayAPI.InternetAcquiring.DCC.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, pay: "pay"}},
@@ -85,7 +85,9 @@ defmodule LiqPayAPI.InternetAcquiring.DCC.Request do
       order_id: {"order_id", {:string, :generic}},
       phone: {"phone", {:string, :generic}},
       prepare: {"prepare", {:enum, tariffs: "tariffs"}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       recurringbytoken: {"recurringbytoken", {:enum, true: "1"}},
       result_url: {"result_url", {:string, :uri}},
       sandbox: {"sandbox", {:enum, true: "1"}},

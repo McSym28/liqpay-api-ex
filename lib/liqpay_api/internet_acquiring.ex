@@ -14,18 +14,21 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec card_payment(LiqPayAPI.InternetAcquiring.CardPayment.Request.t()) ::
+          {:ok, LiqPayAPI.InternetAcquiring.CardPayment.Response.t()}
+          | {:error, OpenAPIClient.Error.t()}
   @spec card_payment(LiqPayAPI.InternetAcquiring.CardPayment.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
         ]) ::
           {:ok, LiqPayAPI.InternetAcquiring.CardPayment.Response.t()}
-          | {:error, OpenAPIClient.Client.Error.t()}
+          | {:error, OpenAPIClient.Error.t()}
   def card_payment(body, opts \\ []) do
     body =
       case body do
@@ -39,36 +42,28 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.CardPayment.Request, :t}}],
-      response_types: [
-        {200, [{"application/json", {LiqPayAPI.InternetAcquiring.CardPayment.Response, :t}}]}
-      ]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :card_payment},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.card_payment",
+        method: :post,
+        request_types: [
+          {"application/json", {LiqPayAPI.InternetAcquiring.CardPayment.Request, :t}}
+        ],
+        response_types: [
+          {200, [{"application/json", {LiqPayAPI.InternetAcquiring.CardPayment.Response, :t}}]}
+        ],
+        function_args: [body: body],
+        function_call: {__MODULE__, :card_payment},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -80,18 +75,19 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec cash(LiqPayAPI.InternetAcquiring.Cash.Request.t()) ::
+          {:ok, LiqPayAPI.InternetAcquiring.Cash.Response.t()} | {:error, OpenAPIClient.Error.t()}
   @spec cash(LiqPayAPI.InternetAcquiring.Cash.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
         ]) ::
-          {:ok, LiqPayAPI.InternetAcquiring.Cash.Response.t()}
-          | {:error, OpenAPIClient.Client.Error.t()}
+          {:ok, LiqPayAPI.InternetAcquiring.Cash.Response.t()} | {:error, OpenAPIClient.Error.t()}
   def cash(body, opts \\ []) do
     body =
       case body do
@@ -105,36 +101,26 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Cash.Request, :t}}],
-      response_types: [
-        {200, [{"application/json", {LiqPayAPI.InternetAcquiring.Cash.Response, :t}}]}
-      ]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :cash},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.cash",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Cash.Request, :t}}],
+        response_types: [
+          {200, [{"application/json", {LiqPayAPI.InternetAcquiring.Cash.Response, :t}}]}
+        ],
+        function_args: [body: body],
+        function_call: {__MODULE__, :cash},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -146,16 +132,18 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec checkout(LiqPayAPI.InternetAcquiring.Checkout.Request.t()) ::
+          :ok | {:error, OpenAPIClient.Error.t()}
   @spec checkout(LiqPayAPI.InternetAcquiring.Checkout.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
-        ]) :: :ok | {:error, OpenAPIClient.Client.Error.t()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
+        ]) :: :ok | {:error, OpenAPIClient.Error.t()}
   def checkout(body, opts \\ []) do
     body =
       case body do
@@ -169,33 +157,23 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Checkout.Request, :t}}]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :checkout},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.checkout",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Checkout.Request, :t}}],
+        function_args: [body: body],
+        function_call: {__MODULE__, :checkout},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -207,18 +185,19 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec dcc(LiqPayAPI.InternetAcquiring.DCC.Request.t()) ::
+          {:ok, LiqPayAPI.InternetAcquiring.DCC.Response.t()} | {:error, OpenAPIClient.Error.t()}
   @spec dcc(LiqPayAPI.InternetAcquiring.DCC.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
         ]) ::
-          {:ok, LiqPayAPI.InternetAcquiring.DCC.Response.t()}
-          | {:error, OpenAPIClient.Client.Error.t()}
+          {:ok, LiqPayAPI.InternetAcquiring.DCC.Response.t()} | {:error, OpenAPIClient.Error.t()}
   def dcc(body, opts \\ []) do
     body =
       case body do
@@ -232,36 +211,26 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.DCC.Request, :t}}],
-      response_types: [
-        {200, [{"application/json", {LiqPayAPI.InternetAcquiring.DCC.Response, :t}}]}
-      ]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :dcc},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.dcc",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.DCC.Request, :t}}],
+        response_types: [
+          {200, [{"application/json", {LiqPayAPI.InternetAcquiring.DCC.Response, :t}}]}
+        ],
+        function_args: [body: body],
+        function_call: {__MODULE__, :dcc},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -273,16 +242,18 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec privat_pay(LiqPayAPI.InternetAcquiring.PrivatPay.Request.t()) ::
+          :ok | {:error, OpenAPIClient.Error.t()}
   @spec privat_pay(LiqPayAPI.InternetAcquiring.PrivatPay.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
-        ]) :: :ok | {:error, OpenAPIClient.Client.Error.t()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
+        ]) :: :ok | {:error, OpenAPIClient.Error.t()}
   def privat_pay(body, opts \\ []) do
     body =
       case body do
@@ -296,33 +267,23 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.PrivatPay.Request, :t}}]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :privat_pay},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.privat_pay",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.PrivatPay.Request, :t}}],
+        function_args: [body: body],
+        function_call: {__MODULE__, :privat_pay},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -334,18 +295,19 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec qr(LiqPayAPI.InternetAcquiring.QR.Request.t()) ::
+          {:ok, LiqPayAPI.InternetAcquiring.QR.Response.t()} | {:error, OpenAPIClient.Error.t()}
   @spec qr(LiqPayAPI.InternetAcquiring.QR.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
         ]) ::
-          {:ok, LiqPayAPI.InternetAcquiring.QR.Response.t()}
-          | {:error, OpenAPIClient.Client.Error.t()}
+          {:ok, LiqPayAPI.InternetAcquiring.QR.Response.t()} | {:error, OpenAPIClient.Error.t()}
   def qr(body, opts \\ []) do
     body =
       case body do
@@ -359,36 +321,26 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.QR.Request, :t}}],
-      response_types: [
-        {200, [{"application/json", {LiqPayAPI.InternetAcquiring.QR.Response, :t}}]}
-      ]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :qr},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.qr",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.QR.Request, :t}}],
+        response_types: [
+          {200, [{"application/json", {LiqPayAPI.InternetAcquiring.QR.Response, :t}}]}
+        ],
+        function_args: [body: body],
+        function_call: {__MODULE__, :qr},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -400,18 +352,21 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec refund(LiqPayAPI.InternetAcquiring.Refund.Request.t()) ::
+          {:ok, LiqPayAPI.InternetAcquiring.Refund.Response.t()}
+          | {:error, OpenAPIClient.Error.t()}
   @spec refund(LiqPayAPI.InternetAcquiring.Refund.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
         ]) ::
           {:ok, LiqPayAPI.InternetAcquiring.Refund.Response.t()}
-          | {:error, OpenAPIClient.Client.Error.t()}
+          | {:error, OpenAPIClient.Error.t()}
   def refund(body, opts \\ []) do
     body =
       case body do
@@ -425,36 +380,26 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Refund.Request, :t}}],
-      response_types: [
-        {200, [{"application/json", {LiqPayAPI.InternetAcquiring.Refund.Response, :t}}]}
-      ]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :refund},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.refund",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Refund.Request, :t}}],
+        response_types: [
+          {200, [{"application/json", {LiqPayAPI.InternetAcquiring.Refund.Response, :t}}]}
+        ],
+        function_args: [body: body],
+        function_call: {__MODULE__, :refund},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -466,18 +411,21 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec token(LiqPayAPI.InternetAcquiring.Token.Request.t()) ::
+          {:ok, LiqPayAPI.InternetAcquiring.Token.Response.t()}
+          | {:error, OpenAPIClient.Error.t()}
   @spec token(LiqPayAPI.InternetAcquiring.Token.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
         ]) ::
           {:ok, LiqPayAPI.InternetAcquiring.Token.Response.t()}
-          | {:error, OpenAPIClient.Client.Error.t()}
+          | {:error, OpenAPIClient.Error.t()}
   def token(body, opts \\ []) do
     body =
       case body do
@@ -491,36 +439,26 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Token.Request, :t}}],
-      response_types: [
-        {200, [{"application/json", {LiqPayAPI.InternetAcquiring.Token.Response, :t}}]}
-      ]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :token},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.token",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Token.Request, :t}}],
+        response_types: [
+          {200, [{"application/json", {LiqPayAPI.InternetAcquiring.Token.Response, :t}}]}
+        ],
+        function_args: [body: body],
+        function_call: {__MODULE__, :token},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 
   @doc """
@@ -532,16 +470,18 @@ defmodule LiqPayAPI.InternetAcquiring do
 
   ## Options
 
-    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
-    * `client_pipeline`: Client pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(__operation__, :client_pipeline)}
+    * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
+    * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
 
   """
+  @spec widget(LiqPayAPI.InternetAcquiring.Widget.Request.t()) ::
+          :ok | {:error, OpenAPIClient.Error.t()}
   @spec widget(LiqPayAPI.InternetAcquiring.Widget.Request.t(), [
-          {:private_key, String.t()}
-          | {:base_url, String.t() | URI.t()}
-          | {:client_pipeline, OpenAPIClient.Client.pipeline()}
-        ]) :: :ok | {:error, OpenAPIClient.Client.Error.t()}
+          {:base_url, String.t() | URI.t()}
+          | {:pipeline, OpenAPIClient.pipeline()}
+          | {:client, module()}
+        ]) :: :ok | {:error, OpenAPIClient.Error.t()}
   def widget(body, opts \\ []) do
     body =
       case body do
@@ -555,32 +495,22 @@ defmodule LiqPayAPI.InternetAcquiring do
           body
       end
 
-    initial_args = [body: body]
-
-    client_pipeline = Keyword.get(opts, :client_pipeline)
+    pipeline = opts[:pipeline] || OpenAPIClient.Utils.get_config(:default, :operation_pipeline)
     base_url = opts[:base_url] || @base_url
+    client = opts[:client] || OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)
 
-    private_key =
-      Keyword.get_lazy(opts, :private_key, fn ->
-        Application.get_env(:liqpay_api_ex, :private_key)
-      end)
-
-    client = OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient.Client)
-
-    %OpenAPIClient.Client.Operation{
-      request_base_url: base_url,
-      request_url: "/api/request",
-      request_body: body,
-      request_method: :post,
-      request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Widget.Request, :t}}]
-    }
-    |> OpenAPIClient.Client.Operation.put_private(
-      __args__: initial_args,
-      __call__: {__MODULE__, :widget},
-      __opts__: opts,
-      __params__: [private_key: private_key],
-      __profile__: :default
+    client.operation(
+      %OpenAPIClient.State{
+        request_base_url: base_url,
+        request_path: "/api/request?path=internet_acquiring.widget",
+        method: :post,
+        request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Widget.Request, :t}}],
+        function_args: [body: body],
+        function_call: {__MODULE__, :widget},
+        function_opts: opts,
+        profile: :default
+      },
+      pipeline
     )
-    |> client.perform(client_pipeline)
   end
 end

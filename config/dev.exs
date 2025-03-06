@@ -100,6 +100,5 @@ config :open_api_client_ex,
          ]
        ]},
       {{~r/\.Request(?:\..+)?$/, :*}, [fields: [{:*, [enum: [strict: true]]}]]}
-    ],
-    test_location: "test/liqpay_api"
+    ]
   ]

@@ -32,7 +32,7 @@ defmodule LiqPayAPI.Tokens.Obtain.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action:
@@ -45,7 +45,9 @@ defmodule LiqPayAPI.Tokens.Obtain.Request do
          {LiqPayAPI.Tokens.Obtain.Request.ConnectControlTokenization, :t}},
       is_credit: {"is_credit", :boolean},
       is_debit: {"is_debit", :boolean},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       vceh_tokenization:
         {"vceh_tokenization", {LiqPayAPI.Tokens.Obtain.Request.VCEHTokenization, :t}},
       version: {"version", {:enum, [3]}}

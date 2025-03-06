@@ -19,13 +19,15 @@ defmodule LiqPayAPI.Information.PaymentArchive.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, reports: "reports"}},
       date_from: {"date_from", {:integer, "timestamp-ms"}},
       date_to: {"date_to", {:integer, "timestamp-ms"}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       resp_format: {"resp_format", {:enum, csv: "csv", json: "json", xml: "xml"}},
       version: {"version", {:enum, [3]}}
     ]

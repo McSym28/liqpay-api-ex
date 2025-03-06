@@ -1,7 +1,5 @@
 defmodule LiqPayAPI.Client.TypedEncoder do
-  alias OpenAPIClient.Client.TypedEncoder
-  alias OpenAPIClient.Client.Error
-  alias OpenAPIClient.Utils
+  alias OpenAPIClient.{Error, TypedEncoder, Utils}
 
   @nested_clauses [
     {LiqPayAPI.Tokens.Obtain.Request, :t,

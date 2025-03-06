@@ -17,7 +17,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Response.MCCCodes do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       id: {"id", :number},

@@ -146,7 +146,7 @@ defmodule LiqPayAPI.Information.StatusPayment.Response do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       acq_id: {"acq_id", :number},

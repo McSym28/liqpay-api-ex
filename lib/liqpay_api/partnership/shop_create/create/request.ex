@@ -53,7 +53,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Create.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, agent_shop_create: "agent_shop_create"}},
@@ -72,7 +72,9 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Create.Request do
       name: {"name", {:string, :generic}},
       okpo: {"okpo", {:string, :generic}},
       phone: {"phone", {:string, :generic}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       public_phone: {"public_phone", {:string, :generic}},
       site: {"site", {:string, :generic}},
       version: {"version", {:enum, [3]}}

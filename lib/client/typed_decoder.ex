@@ -1,6 +1,5 @@
 defmodule LiqPayAPI.Client.TypedDecoder do
-  alias OpenAPIClient.Client.TypedDecoder
-  alias OpenAPIClient.Client.Error
+  alias OpenAPIClient.{Error, TypedDecoder}
 
   @behaviour TypedDecoder
 

@@ -20,13 +20,15 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, hold_completion: "hold_completion"}},
       amount: {"amount", :number},
       order_id: {"order_id", {:string, :generic}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       rro_info: {"rro_info", {LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request.RROInfo, :t}},
       version: {"version", {:enum, [3]}}
     ]

@@ -18,12 +18,14 @@ defmodule LiqPayAPI.Information.Register.CompensationReportP2PStatus.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action:
         {"action", {:enum, reports_compensation_file_status: "reports_compensation_file_status"}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       register_token: {"register_token", {:string, :generic}},
       version: {"version", {:enum, [3]}}
     ]

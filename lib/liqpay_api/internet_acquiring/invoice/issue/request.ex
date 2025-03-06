@@ -45,7 +45,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, invoice_send: "invoice_send"}},
@@ -61,7 +61,9 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Request do
       language: {"language", {:enum, en: "en", uk: "uk"}},
       order_id: {"order_id", {:string, :generic}},
       phone: {"phone", {:string, :generic}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       result_url: {"result_url", {:string, :uri}},
       server_url: {"server_url", {:string, :uri}},
       version: {"version", {:enum, [3]}}

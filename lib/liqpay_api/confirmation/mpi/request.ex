@@ -64,7 +64,7 @@ defmodule LiqPayAPI.Confirmation.MPI.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, mpi: "mpi"}},
@@ -90,7 +90,9 @@ defmodule LiqPayAPI.Confirmation.MPI.Request do
       language: {"language", {:enum, en: "en", uk: "uk"}},
       order_id: {"order_id", {:string, :generic}},
       phone: {"phone", {:string, :generic}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       sender_first_name: {"sender_first_name", {:string, :generic}},
       sender_last_name: {"sender_last_name", {:string, :generic}},
       three_ds_info: {"threeDSInfo", {LiqPayAPI.Confirmation.MPI.Request.ThreeDSInfo, :t}},

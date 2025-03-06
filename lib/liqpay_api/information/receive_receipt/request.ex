@@ -21,7 +21,7 @@ defmodule LiqPayAPI.Information.ReceiveReceipt.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, ticket: "ticket"}},
@@ -29,7 +29,9 @@ defmodule LiqPayAPI.Information.ReceiveReceipt.Request do
       language: {"language", {:enum, en: "en", uk: "uk"}},
       order_id: {"order_id", {:string, :generic}},
       payment_id: {"payment_id", :number},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       version: {"version", {:enum, [3]}}
     ]
   end

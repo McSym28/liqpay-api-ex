@@ -19,7 +19,7 @@ defmodule LiqPayAPI.Tokens.ChangeStatus.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, token_update: "token_update"}},
@@ -27,7 +27,9 @@ defmodule LiqPayAPI.Tokens.ChangeStatus.Request do
       card_token_action:
         {"card_token_action",
          {:enum, delete: "DELETE", suspend: "SUSPEND", unsuspend: "UNSUSPEND"}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       version: {"version", {:enum, [3]}}
     ]
   end

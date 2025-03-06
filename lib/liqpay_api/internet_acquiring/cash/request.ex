@@ -57,7 +57,7 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, paycash: "paycash"}},
@@ -77,7 +77,9 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Request do
       product_description: {"product_description", {:string, :generic}},
       product_name: {"product_name", {:string, :generic}},
       product_url: {"product_url", {:string, :uri}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       server_url: {"server_url", {:string, :uri}},
       split_rules: {"split_rules", [{LiqPayAPI.InternetAcquiring.Cash.Request.SplitRules, :t}]},
       version: {"version", {:enum, [3]}}

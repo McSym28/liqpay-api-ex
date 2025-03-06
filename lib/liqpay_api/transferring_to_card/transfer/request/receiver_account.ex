@@ -18,7 +18,7 @@ defmodule LiqPayAPI.TransferringToCard.Transfer.Request.ReceiverAccount do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       receiver_account: {"receiver_account", {:string, :generic}},

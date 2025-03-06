@@ -27,12 +27,14 @@ defmodule LiqPayAPI.Confirmation.ReceiverVerify.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, confirm: "confirm"}},
       confirm_token: {"confirm_token", {:string, :generic}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       receiver_first_name: {"receiver_first_name", {:string, :generic}},
       receiver_last_name: {"receiver_last_name", {:string, :generic}},
       version: {"version", {:enum, [3]}}

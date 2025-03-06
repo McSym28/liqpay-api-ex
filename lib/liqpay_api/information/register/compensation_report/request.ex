@@ -26,13 +26,15 @@ defmodule LiqPayAPI.Information.Register.CompensationReport.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action: {"action", {:enum, reports_compensation_file: "reports_compensation_file"}},
       compensation_id: {"compensation_id", {:string, :generic}},
       date: {"date", {:string, :date}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       resp_format: {"resp_format", {:enum, csv: "csv"}},
       version: {"version", {:enum, [3]}}
     ]

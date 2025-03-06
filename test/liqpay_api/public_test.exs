@@ -3,18 +3,18 @@ defmodule LiqPayAPI.PublicTest do
   import Mox
 
   @httpoison OpenAPIClient.HTTPoisonMock
-  @client OpenAPIClient.ClientMock
+  @client OpenAPIClientMock
 
   setup :verify_on_exit!
 
   describe "exchange/2" do
-    test "[200] performs a request and encodes array of Exchange.Response from response's body" do
-      expect(@client, :perform, &OpenAPIClient.Client.perform/2)
+    test "[200] performs a request and decodes array of Exchange.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :get, "https://example.com/p24api/pubinfo", _, _, options ->
-        assert {_, 5} = List.keyfind(options[:params], "coursid", 0)
-        assert {_, true} = List.keyfind(options[:params], "exchange", 0)
-        assert {_, true} = List.keyfind(options[:params], "json", 0)
+        assert {"coursid", "5"} == List.keyfind(options[:params], "coursid", 0)
+        assert {"exchange", "true"} == List.keyfind(options[:params], "exchange", 0)
+        assert {"json", "true"} == List.keyfind(options[:params], "json", 0)
 
         assert {:ok, body_encoded} =
                  Jason.encode([
@@ -44,24 +44,24 @@ defmodule LiqPayAPI.PublicTest do
                 }
               ]} ==
                LiqPayAPI.Public.exchange(:cash,
-                 json: true,
                  exchange: true,
+                 json: true,
                  base_url: "https://example.com"
                )
     end
   end
 
   describe "archive/2" do
-    test "[200] performs a request and encodes Archive.Response from response's body" do
-      expect(@client, :perform, &OpenAPIClient.Client.perform/2)
+    test "[200] performs a request and decodes Archive.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :get,
                                       "https://example.com/p24api/exchange_rates",
                                       _,
                                       _,
                                       options ->
-        assert {_, "01.02.2024"} = List.keyfind(options[:params], "date", 0)
-        assert {_, true} = List.keyfind(options[:params], "json", 0)
+        assert {"date", "01.02.2024"} == List.keyfind(options[:params], "date", 0)
+        assert {"json", "true"} == List.keyfind(options[:params], "json", 0)
 
         assert {:ok, body_encoded} =
                  Jason.encode(%{
@@ -114,11 +114,11 @@ defmodule LiqPayAPI.PublicTest do
   end
 
   describe "discount_rate/2" do
-    test "[200] performs a request and encodes array of DiscountRate.Response from response's body" do
-      expect(@client, :perform, &OpenAPIClient.Client.perform/2)
+    test "[200] performs a request and decodes array of DiscountRate.Response from response's body" do
+      expect(@client, :operation, &OpenAPIClient.operation/2)
 
       expect(@httpoison, :request, fn :get, "https://example.com/ratenbu.php", _, _, options ->
-        assert {_, "string"} = List.keyfind(options[:params], "year", 0)
+        assert {"year", "string"} == List.keyfind(options[:params], "year", 0)
 
         assert {:ok, body_encoded} =
                  Jason.encode([%{"rate_date" => "17.07.2014", "rate_value" => 12.5}])

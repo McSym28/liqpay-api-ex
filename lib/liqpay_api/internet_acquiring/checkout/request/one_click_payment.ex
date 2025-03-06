@@ -16,7 +16,7 @@ defmodule LiqPayAPI.InternetAcquiring.Checkout.Request.OneClickPayment do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       customer: {"customer", {:string, :generic}},

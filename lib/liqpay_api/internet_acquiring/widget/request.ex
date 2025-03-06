@@ -71,7 +71,7 @@ defmodule LiqPayAPI.InternetAcquiring.Widget.Request do
 
   @doc false
   @impl OpenAPIClient.Schema
-  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.schema_type())
+  @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
       action:
@@ -103,7 +103,9 @@ defmodule LiqPayAPI.InternetAcquiring.Widget.Request do
       product_description: {"product_description", {:string, :generic}},
       product_name: {"product_name", {:string, :generic}},
       product_url: {"product_url", {:string, :uri}},
-      public_key: {"public_key", {:string, :generic}},
+      public_key:
+        {"public_key", {:string, :generic},
+         fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       regular_payment:
         {"regular_payment", {LiqPayAPI.InternetAcquiring.Widget.Request.RegularPayment, :t}},
       result_url: {"result_url", {:string, :uri}},
