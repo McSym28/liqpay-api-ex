@@ -248,5 +248,38 @@ if Mix.env() in [:dev] do
           [expression]
       end)
     end
+
+    @impl OpenAPIClient.Generator.TestRenderer
+    def render_callback(state, operation) do
+      state
+      |> OpenAPIClient.Generator.TestRenderer.render_callback(operation)
+      |> Macro.prewalk(fn
+        {:post, request_metadata,
+         [
+           request_url,
+           {:body_encoded, _, _} | request_args_rest
+         ]} ->
+          {:post, request_metadata,
+           [
+             request_url,
+             quote(do: LiqPayAPI.Client.Signature.generate_form_data(body_encoded))
+             | request_args_rest
+           ]}
+
+        {{:., dot_metadata,
+          [
+            {:__aliases__, alias_metadata, [:Plug, :Conn]},
+            :put_req_header
+          ]}, call_metadata, ["content-type", "application/json"]} ->
+          {{:., dot_metadata,
+            [
+              {:__aliases__, alias_metadata, [:Plug, :Conn]},
+              :put_req_header
+            ]}, call_metadata, ["content-type", "application/x-www-form-urlencoded"]}
+
+        expression ->
+          expression
+      end)
+    end
   end
 end

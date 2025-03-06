@@ -1,11 +1,17 @@
 defmodule LiqPayAPI.Client.Signature do
   require Logger
 
+  @spec generate_form_data(String.t()) :: String.t()
+  def generate_form_data(json_string) do
+    private_key = Application.get_env(:liqpay_api_ex, :private_key)
+    generate_form_data(json_string, private_key)
+  end
+
   @spec generate_form_data(String.t(), String.t()) :: String.t()
   def generate_form_data(json_string, private_key) do
     data = Base.encode64(json_string)
     signature = generate_signature(data, private_key)
-    URI.encode_query(%{data: data, signature: signature})
+    URI.encode_query(%{data: data, signature: signature}, :www_form)
   end
 
   @spec check?(String.t(), String.t(), String.t()) :: boolean()

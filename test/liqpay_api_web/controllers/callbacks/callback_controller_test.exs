@@ -141,8 +141,11 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
 
       conn =
         conn
-        |> Plug.Conn.put_req_header("content-type", "application/json")
-        |> post("/__test__/callbacks/callback", body_encoded)
+        |> Plug.Conn.put_req_header("content-type", "application/x-www-form-urlencoded")
+        |> post(
+          "/__test__/callbacks/callback",
+          LiqPayAPI.Client.Signature.generate_form_data(body_encoded)
+        )
 
       assert response(conn, 200)
     end
