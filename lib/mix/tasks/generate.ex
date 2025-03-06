@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Generate do
   @liqpay_base_url "https://www.liqpay.ua"
   @api_url "#{@liqpay_base_url}/en/doc/api"
 
-  @opeanapi_spec_filename "specs/openapi.json"
+  @opeanapi_spec_filename "priv/fixtures/openapi.json"
 
   @internet_acquiring_regular_payment_fields ~w(subscribe subscribe_date_start subscribe_periodicity)
   @partnership_card_fields ~w(card card_cvv card_exp_month card_exp_year)
