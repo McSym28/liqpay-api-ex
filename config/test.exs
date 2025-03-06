@@ -21,3 +21,7 @@ config :open_api_client_ex,
     httpoison: OpenAPIClient.HTTPoisonMock,
     client: OpenAPIClientMock
   ]
+
+config :liqpay_api_ex,
+  private_key: "your_private_key",
+  public_key: "your_public_key"
