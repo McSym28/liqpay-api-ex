@@ -14,6 +14,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
 
   ## Options
 
+    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
     * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
     * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
@@ -23,7 +24,8 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
           {:ok, LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Response.t()}
           | {:error, OpenAPIClient.Error.t()}
   @spec available_mcc(LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Request.t(), [
-          {:base_url, String.t() | URI.t()}
+          {:private_key, String.t()}
+          | {:base_url, String.t() | URI.t()}
           | {:pipeline, OpenAPIClient.pipeline()}
           | {:client, module()}
         ]) ::
@@ -51,6 +53,11 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
         request_base_url: base_url,
         request_path: "/api/request",
         method: :post,
+        request_parameter_types: [
+          {{:private_key, :custom},
+           {"private_key", {:string, :generic},
+            fn -> Application.get_env(:liqpay_api_ex, :private_key) end}}
+        ],
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Request, :t}}
         ],
@@ -76,6 +83,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
 
   ## Options
 
+    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
     * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
     * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
@@ -85,7 +93,8 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
           {:ok, LiqPayAPI.Partnership.ShopCreate.Create.Response.t()}
           | {:error, OpenAPIClient.Error.t()}
   @spec create(LiqPayAPI.Partnership.ShopCreate.Create.Request.t(), [
-          {:base_url, String.t() | URI.t()}
+          {:private_key, String.t()}
+          | {:base_url, String.t() | URI.t()}
           | {:pipeline, OpenAPIClient.pipeline()}
           | {:client, module()}
         ]) ::
@@ -113,6 +122,11 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
         request_base_url: base_url,
         request_path: "/api/request",
         method: :post,
+        request_parameter_types: [
+          {{:private_key, :custom},
+           {"private_key", {:string, :generic},
+            fn -> Application.get_env(:liqpay_api_ex, :private_key) end}}
+        ],
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.Create.Request, :t}}
         ],
@@ -137,6 +151,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
 
   ## Options
 
+    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
     * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
     * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
@@ -146,7 +161,8 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
           {:ok, LiqPayAPI.Partnership.ShopCreate.Documents.Response.t()}
           | {:error, OpenAPIClient.Error.t()}
   @spec documents(LiqPayAPI.Partnership.ShopCreate.Documents.Request.t(), [
-          {:base_url, String.t() | URI.t()}
+          {:private_key, String.t()}
+          | {:base_url, String.t() | URI.t()}
           | {:pipeline, OpenAPIClient.pipeline()}
           | {:client, module()}
         ]) ::
@@ -174,6 +190,11 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
         request_base_url: base_url,
         request_path: "/api/request",
         method: :post,
+        request_parameter_types: [
+          {{:private_key, :custom},
+           {"private_key", {:string, :generic},
+            fn -> Application.get_env(:liqpay_api_ex, :private_key) end}}
+        ],
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.Documents.Request, :t}}
         ],
@@ -198,6 +219,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
 
   ## Options
 
+    * `private_key`: Private key of the created company (not available to anyone except your developer). Default value obtained through a call to `Application.get_env(:liqpay_api_ex, :private_key)`
     * `base_url`: Request's base URL. Default value is taken from `@base_url`
     * `pipeline`: Operation pipeline for making a request. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :operation_pipeline)}
     * `client`: Module that implements `OpenAPIClient` behaviour. Default value obtained through a call to `OpenAPIClient.Utils.get_config(:default, :client, OpenAPIClient)`
@@ -207,7 +229,8 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
           {:ok, LiqPayAPI.Partnership.ShopCreate.Register.Response.t()}
           | {:error, OpenAPIClient.Error.t()}
   @spec register(LiqPayAPI.Partnership.ShopCreate.Register.Request.t(), [
-          {:base_url, String.t() | URI.t()}
+          {:private_key, String.t()}
+          | {:base_url, String.t() | URI.t()}
           | {:pipeline, OpenAPIClient.pipeline()}
           | {:client, module()}
         ]) ::
@@ -235,6 +258,11 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
         request_base_url: base_url,
         request_path: "/api/request",
         method: :post,
+        request_parameter_types: [
+          {{:private_key, :custom},
+           {"private_key", {:string, :generic},
+            fn -> Application.get_env(:liqpay_api_ex, :private_key) end}}
+        ],
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.Register.Request, :t}}
         ],

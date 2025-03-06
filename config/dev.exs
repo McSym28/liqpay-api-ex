@@ -70,7 +70,7 @@ config :open_api_client_ex,
       {{~r/^\/api\/request(?:\?path=.*)?/, :post},
        [
          params: [
-           {{"private_key", :new},
+           {{"private_key", :custom},
             [
               spec: %{
                 "schema" => %{"type" => "string"},
