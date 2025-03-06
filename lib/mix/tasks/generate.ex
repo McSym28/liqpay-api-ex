@@ -137,21 +137,19 @@ defmodule Mix.Tasks.Generate do
       |> then(&File.write!(@opeanapi_spec_filename, &1))
     end
 
-    "lib/**/*.ex"
+    "lib/liqpay_api/**/*.ex"
     |> Path.wildcard()
     |> Enum.reject(fn
-      "lib/client/" <> _rest -> true
-      "lib/generator/" <> _rest -> true
-      "lib/mix/" <> _rest -> true
+      "lib/liqpay_api/client/" <> _rest -> true
+      "lib/liqpay_api/generator/" <> _rest -> true
       _file -> false
     end)
     |> Enum.each(&File.rm!/1)
 
-    "test/**/*.exs"
+    "test/liqpay_api/**/*.exs"
     |> Path.wildcard()
     |> Enum.reject(fn
-      "test/client/" <> _rest -> true
-      "test/test_helper.exs" -> true
+      "test/liqpay_api/client/" <> _rest -> true
       _file -> false
     end)
     |> Enum.each(&File.rm!/1)
