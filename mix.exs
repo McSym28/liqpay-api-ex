@@ -8,16 +8,22 @@ defmodule LiqPayAPI.MixProject do
       elixir: "~> 1.16",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      dialyzer: [plt_add_apps: [:mix, :wallaby]]
+      dialyzer: [plt_add_apps: [:mix, :wallaby]],
+      elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
 
+  # Configuration for the OTP application.
+  #
+  # Type `mix help compile.app` for more information.
+  defp elixirc_paths(:test), do: ["test/support" | elixirc_paths(:dev)]
+  defp elixirc_paths(_env), do: ["lib"]
+
   # Run "mix help compile.app" to learn about applications.
-  def application do
-    [
-      extra_applications: [:logger, :jason, :httpoison]
-    ]
-  end
+  def application, do: application(Mix.env())
+
+  defp application(:test), do: [{:mod, {LiqPayAPI.Application, []}} | application(:dev)]
+  defp application(_env), do: [extra_applications: [:logger, :runtime_tools]]
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
