@@ -122,7 +122,11 @@ defmodule Mix.Tasks.Generate do
       {:ok, session} = Wallaby.start_session()
 
       {:ok, children} = process_url(@api_url, parse_settings(session: session))
-      openapi_paths = gather_openapi_paths(children, [], [])
+
+      {{_callback_url, callback_path}, openapi_paths} =
+        children
+        |> gather_openapi_paths([], [])
+        |> List.keytake("/api/request?path=callback", 0)
 
       OrderedObject.new(
         openapi: "3.1.0",
@@ -131,7 +135,14 @@ defmodule Mix.Tasks.Generate do
         paths:
           openapi_paths
           |> Enum.reverse()
-          |> OrderedObject.new()
+          |> OrderedObject.new(),
+        components:
+          OrderedObject.new(
+            callbacks:
+              OrderedObject.new(
+                Callback: OrderedObject.new("{$request.body#/server_url}": callback_path)
+              )
+          )
       )
       |> Jason.encode!(pretty: true)
       |> then(&File.write!(@opeanapi_spec_filename, &1))
@@ -154,7 +165,7 @@ defmodule Mix.Tasks.Generate do
     end)
     |> Enum.each(&File.rm!/1)
 
-    Mix.Task.run("api.gen", ["default", @opeanapi_spec_filename])
+    Mix.Task.run("api.gen.proxy", ["default", @opeanapi_spec_filename])
     Mix.Task.run("format")
   end
 
@@ -243,22 +254,32 @@ defmodule Mix.Tasks.Generate do
               else
                 []
               end,
-              if response_schema do
-                [
-                  responses:
-                    OrderedObject.new([
-                      {"200",
-                       OrderedObject.new(
-                         description: "200",
-                         content:
-                           OrderedObject.new([
-                             {"application/json", OrderedObject.new(schema: response_schema)}
-                           ])
-                       )}
-                    ])
-                ]
-              else
-                []
+              cond do
+                response_schema ->
+                  [
+                    responses:
+                      OrderedObject.new([
+                        {"200",
+                         OrderedObject.new(
+                           description: "200",
+                           content:
+                             OrderedObject.new([
+                               {"application/json", OrderedObject.new(schema: response_schema)}
+                             ])
+                         )}
+                      ])
+                  ]
+
+                id == "callback" and path_ids == [] ->
+                  [
+                    responses:
+                      OrderedObject.new([
+                        {"200", OrderedObject.new(description: "200")}
+                      ])
+                  ]
+
+                :else ->
+                  []
               end
             ])
           )}

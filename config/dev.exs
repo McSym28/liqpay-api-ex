@@ -51,7 +51,8 @@ config :oapi_generator,
         {~r/^(Tokens\.Obtain\.Request\.)VcehTokenization$/, "\\1VCEHTokenization"},
         {~r/^(Information\.Register\.CompensationPerDay\.Response\.Data)OneOf0$/, "\\1.Full"},
         {~r/^(Information\.Register\.CompensationPerDay\.Response\.Data)OneOf1$/,
-         "\\1.OnlyCompensationId"}
+         "\\1.OnlyCompensationId"},
+        {~r/^CallbacksCallback\.Request$/, "Callbacks.CallbackRequest"}
       ]
     ],
     output: [
@@ -90,7 +91,9 @@ config :open_api_client_ex,
             [enum: [options: [{5, [value: :cash]}, {11, [value: :non_cash]}]]]}
          ]
        ]},
-      {:*, [params: [{:*, [enum: [strict: true]]}]]}
+      {:*, [params: [{:*, [enum: [strict: true]]}]]},
+      {{~r/^\/__callbacks__\/.*[\?&]__name__=Callback(?:&|$)/, :post},
+       [response_serializers_opts: [serializers: [{:json, json_encoder: Jason}]]]}
     ],
     schemas: [
       {{~r/\.Request$/, :*},

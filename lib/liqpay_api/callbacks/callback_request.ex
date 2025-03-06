@@ -1,6 +1,6 @@
-defmodule LiqPayAPI.Callback do
+defmodule LiqPayAPI.Callbacks.CallbackRequest do
   @moduledoc """
-  Provides struct and type for a Callback
+  Provides struct and type for a Callbacks.CallbackRequest
   """
 
   @behaviour OpenAPIClient.Schema

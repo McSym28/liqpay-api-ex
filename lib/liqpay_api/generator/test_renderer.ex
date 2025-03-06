@@ -130,8 +130,17 @@ if Mix.env() in [:dev] do
           private_key ->
             url_new =
               url
-              |> URI.new!()
-              |> struct!(query: nil)
+              |> URI.parse()
+              |> then(fn
+                %URI{query: nil} = uri ->
+                  uri
+
+                %URI{query: query} = uri ->
+                  query_new =
+                    query |> URI.decode_query() |> Map.delete("path") |> URI.encode_query()
+
+                  %URI{uri | query: if(query_new == "", do: nil, else: query_new)}
+              end)
               |> URI.to_string()
 
             fn_arguments_new = [method, url_new | fn_arguments_rest]
