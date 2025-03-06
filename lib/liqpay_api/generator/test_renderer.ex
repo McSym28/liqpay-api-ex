@@ -221,5 +221,32 @@ if Mix.env() in [:dev] do
 
       macro
     end
+
+    @impl OpenAPIClient.Generator.TestRenderer
+    def render_callback_controller_header(state, operation) do
+      state
+      |> OpenAPIClient.Generator.TestRenderer.render_callback_controller_header(operation)
+      |> Enum.flat_map(fn
+        {:plug, _plug_metadata,
+         [
+           {:__aliases__, _alias_metadata, [:OpenAPIClient, :Plugs, :RequestTypedDecoder]}
+         ]} = plug ->
+          [
+            quote(do: plug(LiqPayAPI.Plugs.CallbackSignatureChecker)),
+            quote(
+              do:
+                plug(Plug.Parsers,
+                  parsers: [:json],
+                  json_decoder: Phoenix.json_library(),
+                  body_reader: {OpenAPIClient.State, :read_body, []}
+                )
+            ),
+            plug
+          ]
+
+        expression ->
+          [expression]
+      end)
+    end
   end
 end

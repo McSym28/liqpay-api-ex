@@ -7,6 +7,14 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackController do
     function_name: :callback
   )
 
+  plug(LiqPayAPI.Plugs.CallbackSignatureChecker)
+
+  plug(Plug.Parsers,
+    parsers: [:json],
+    json_decoder: Phoenix.json_library(),
+    body_reader: {OpenAPIClient.State, :read_body, []}
+  )
+
   plug(OpenAPIClient.Plugs.RequestTypedDecoder)
   plug(OpenAPIClient.Plugs.FunctionCallDecoder)
   plug(OpenAPIClient.Plugs.FunctionCall)
