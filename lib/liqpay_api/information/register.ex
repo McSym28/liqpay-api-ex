@@ -49,7 +49,7 @@ defmodule LiqPayAPI.Information.Register do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.register.compensation_per_day",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Information.Register.CompensationPerDay.Request, :t}}
@@ -119,7 +119,7 @@ defmodule LiqPayAPI.Information.Register do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.register.compensation_per_transaction",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json",
@@ -185,7 +185,7 @@ defmodule LiqPayAPI.Information.Register do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.register.compensation_report",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Information.Register.CompensationReport.Request, :t}}
@@ -253,7 +253,7 @@ defmodule LiqPayAPI.Information.Register do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.register.compensation_report_p2p",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Information.Register.CompensationReportP2P.Request, :t}}
@@ -323,7 +323,7 @@ defmodule LiqPayAPI.Information.Register do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.register.compensation_report_p2p_status",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json",
@@ -394,7 +394,7 @@ defmodule LiqPayAPI.Information.Register do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.register.compensation_report_status",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json",

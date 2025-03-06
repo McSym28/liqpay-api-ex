@@ -49,7 +49,7 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.two_step.block",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.TwoStep.Block.Request, :t}}
@@ -110,7 +110,7 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.two_step.complete",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request, :t}}

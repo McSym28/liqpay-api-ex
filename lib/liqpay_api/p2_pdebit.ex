@@ -46,7 +46,7 @@ defmodule LiqPayAPI.P2Pdebit do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=p2pdebit",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.P2PdebitTransfer.Request, :t}}],
         function_args: [body: body],

@@ -49,7 +49,7 @@ defmodule LiqPayAPI.Partnership do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.info_merchant",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Partnership.InfoMerchant.Request, :t}}],
         response_types: [
@@ -106,7 +106,7 @@ defmodule LiqPayAPI.Partnership do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.info_user",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Partnership.InfoUser.Request, :t}}],
         response_types: [
@@ -163,7 +163,7 @@ defmodule LiqPayAPI.Partnership do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.shop_edit",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Partnership.ShopEdit.Request, :t}}],
         response_types: [

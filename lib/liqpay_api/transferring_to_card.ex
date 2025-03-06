@@ -49,7 +49,7 @@ defmodule LiqPayAPI.TransferringToCard do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=transferring_to_card",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.TransferringToCard.Transfer.Request, :t}}],
         response_types: [

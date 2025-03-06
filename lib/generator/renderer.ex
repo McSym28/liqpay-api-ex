@@ -129,12 +129,12 @@ if Mix.env() in [:dev] do
               base_url_attribute
           end
 
-        {:request_url, url} ->
+        {:request_path, url} ->
           url
           |> URI.new!()
           |> struct!(query: nil)
           |> URI.to_string()
-          |> then(&{:request_url, &1})
+          |> then(&{:request_path, &1})
 
         expression ->
           expression

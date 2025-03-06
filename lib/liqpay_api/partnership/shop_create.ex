@@ -49,7 +49,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.shop_create.available_mcc",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Request, :t}}
@@ -111,7 +111,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.shop_create.create",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.Create.Request, :t}}
@@ -172,7 +172,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.shop_create.documents",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.Documents.Request, :t}}
@@ -233,7 +233,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=partnership.shop_create.register",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Partnership.ShopCreate.Register.Request, :t}}

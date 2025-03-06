@@ -49,7 +49,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.cardverification",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.Confirmation.CardVerification.Request, :t}}
@@ -107,7 +107,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.CVV",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Confirmation.CVV.Request, :t}}],
         response_types: [{200, [{"application/json", {LiqPayAPI.Confirmation.CVV.Response, :t}}]}],
@@ -161,7 +161,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.MPI",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Confirmation.MPI.Request, :t}}],
         response_types: [{200, [{"application/json", {LiqPayAPI.Confirmation.MPI.Response, :t}}]}],
@@ -215,7 +215,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.OTP",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Confirmation.OTP.Request, :t}}],
         response_types: [{200, [{"application/json", {LiqPayAPI.Confirmation.OTP.Response, :t}}]}],
@@ -272,7 +272,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.receiver_verify",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Confirmation.ReceiverVerify.Request, :t}}],
         response_types: [
@@ -331,7 +331,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.sender_verify",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Confirmation.SenderVerify.Request, :t}}],
         response_types: [
@@ -388,7 +388,7 @@ defmodule LiqPayAPI.Confirmation do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=confirmation.3ds",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Confirmation.ThreeDS.Request, :t}}],
         response_types: [

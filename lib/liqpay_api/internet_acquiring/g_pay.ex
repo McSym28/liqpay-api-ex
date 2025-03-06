@@ -46,7 +46,7 @@ defmodule LiqPayAPI.InternetAcquiring.GPay do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.gpay.decrypted_token",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.GPay.DecryptedToken.Request, :t}}
@@ -101,7 +101,7 @@ defmodule LiqPayAPI.InternetAcquiring.GPay do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.gpay.encrypted_token",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.GPay.EncryptedToken.Request, :t}}

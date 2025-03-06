@@ -47,7 +47,7 @@ defmodule LiqPayAPI.Tokens do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=tokens.change_status",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Tokens.ChangeStatus.Request, :t}}],
         response_types: [
@@ -103,7 +103,7 @@ defmodule LiqPayAPI.Tokens do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=tokens.obtain",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Tokens.Obtain.Request, :t}}],
         response_types: [{200, [{"application/json", {LiqPayAPI.Tokens.Obtain.Response, :t}}]}],

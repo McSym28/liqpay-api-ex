@@ -49,7 +49,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.subscription.create",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.Subscription.Create.Request, :t}}
@@ -111,7 +111,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.subscription.edit",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.Subscription.Edit.Request, :t}}
@@ -173,7 +173,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.subscription.unsubscribe",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.Subscription.Unsubscribe.Request, :t}}

@@ -49,7 +49,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.card_payment",
+        request_path: "/api/request",
         method: :post,
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.CardPayment.Request, :t}}
@@ -108,7 +108,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.cash",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Cash.Request, :t}}],
         response_types: [
@@ -164,7 +164,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.checkout",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Checkout.Request, :t}}],
         function_args: [body: body],
@@ -218,7 +218,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.dcc",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.DCC.Request, :t}}],
         response_types: [
@@ -274,7 +274,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.privat_pay",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.PrivatPay.Request, :t}}],
         function_args: [body: body],
@@ -328,7 +328,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.qr",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.QR.Request, :t}}],
         response_types: [
@@ -387,7 +387,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.refund",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Refund.Request, :t}}],
         response_types: [
@@ -446,7 +446,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.token",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Token.Request, :t}}],
         response_types: [
@@ -502,7 +502,7 @@ defmodule LiqPayAPI.InternetAcquiring do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=internet_acquiring.widget",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.InternetAcquiring.Widget.Request, :t}}],
         function_args: [body: body],

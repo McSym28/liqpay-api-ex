@@ -47,7 +47,7 @@ defmodule LiqPayAPI.Information do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.adding_data",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Information.AddingData.Request, :t}}],
         response_types: [
@@ -106,7 +106,7 @@ defmodule LiqPayAPI.Information do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.payment_archive",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Information.PaymentArchive.Request, :t}}],
         response_types: [
@@ -165,7 +165,7 @@ defmodule LiqPayAPI.Information do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.receive_a_receipt",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Information.ReceiveReceipt.Request, :t}}],
         response_types: [
@@ -224,7 +224,7 @@ defmodule LiqPayAPI.Information do
     client.operation(
       %OpenAPIClient.State{
         request_base_url: base_url,
-        request_path: "/api/request?path=information.status_payment",
+        request_path: "/api/request",
         method: :post,
         request_types: [{"application/json", {LiqPayAPI.Information.StatusPayment.Request, :t}}],
         response_types: [
