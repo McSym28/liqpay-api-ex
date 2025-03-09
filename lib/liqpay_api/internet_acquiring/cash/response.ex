@@ -6,7 +6,7 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
   @behaviour OpenAPIClient.Schema
 
   @type t :: %__MODULE__{
-          acq_id: number | nil,
+          acq_id: integer | nil,
           action:
             :auth
             | :hold
@@ -24,6 +24,8 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
           amount_debit: number | nil,
           commission_credit: number | nil,
           commission_debit: number | nil,
+          confirm_phone: String.t() | nil,
+          create_date: DateTime.t() | nil,
           currency: String.t() | nil,
           currency_credit: String.t() | nil,
           currency_debit: String.t() | nil,
@@ -34,16 +36,18 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
           liqpay_order_id: String.t() | nil,
           mpi_eci: 5 | 6 | 7 | integer | nil,
           order_id: String.t() | nil,
-          payment_id: number | nil,
+          payment_id: integer | nil,
+          paytype: :card | :cash | :invoice | :moment_part | :privat24 | :qr | String.t() | nil,
           public_key: String.t() | nil,
           receiver_commission: number | nil,
+          result: :error | :ok | String.t() | nil,
           sender_bonus: number | nil,
           sender_commission: number | nil,
           sender_first_name: String.t() | nil,
           sender_last_name: String.t() | nil,
           sender_phone: String.t() | nil,
           status: :cash_wait | :error | :failure | :success | String.t() | nil,
-          transaction_id: number | nil,
+          transaction_id: integer | nil,
           type: String.t() | nil,
           version: 3 | integer | nil
         }
@@ -59,6 +63,8 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
     :amount_debit,
     :commission_credit,
     :commission_debit,
+    :confirm_phone,
+    :create_date,
     :currency,
     :currency_credit,
     :currency_debit,
@@ -70,8 +76,10 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
     :mpi_eci,
     :order_id,
     :payment_id,
+    :paytype,
     :public_key,
     :receiver_commission,
+    :result,
     :sender_bonus,
     :sender_commission,
     :sender_first_name,
@@ -88,7 +96,7 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
   @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
-      acq_id: {"acq_id", :number},
+      acq_id: {"acq_id", :integer},
       action:
         {"action",
          {:enum,
@@ -109,6 +117,8 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
       amount_debit: {"amount_debit", :number},
       commission_credit: {"commission_credit", :number},
       commission_debit: {"commission_debit", :number},
+      confirm_phone: {"confirm_phone", {:string, :generic}},
+      create_date: {"create_date", {:integer, "timestamp-ms"}},
       currency: {"currency", {:string, :generic}},
       currency_credit: {"currency_credit", {:string, :generic}},
       currency_debit: {"currency_debit", {:string, :generic}},
@@ -119,9 +129,22 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
       liqpay_order_id: {"liqpay_order_id", {:string, :generic}},
       mpi_eci: {"mpi_eci", {:enum, [5, 6, 7, :not_strict]}},
       order_id: {"order_id", {:string, :generic}},
-      payment_id: {"payment_id", :number},
+      payment_id: {"payment_id", :integer},
+      paytype:
+        {"paytype",
+         {:enum,
+          [
+            {:card, "card"},
+            {:cash, "cash"},
+            {:invoice, "invoice"},
+            {:moment_part, "moment_part"},
+            {:privat24, "privat24"},
+            {:qr, "qr"},
+            :not_strict
+          ]}},
       public_key: {"public_key", {:string, :generic}},
       receiver_commission: {"receiver_commission", :number},
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}},
       sender_bonus: {"sender_bonus", :number},
       sender_commission: {"sender_commission", :number},
       sender_first_name: {"sender_first_name", {:string, :generic}},
@@ -137,7 +160,7 @@ defmodule LiqPayAPI.InternetAcquiring.Cash.Response do
             {:success, "success"},
             :not_strict
           ]}},
-      transaction_id: {"transaction_id", :number},
+      transaction_id: {"transaction_id", :integer},
       type: {"type", {:string, :generic}},
       version: {"version", {:enum, [3, :not_strict]}}
     ]

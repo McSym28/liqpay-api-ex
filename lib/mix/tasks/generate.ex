@@ -23,6 +23,7 @@ defmodule Mix.Tasks.Generate do
   @date_liqpay_format "date-liqpay"
   @boolean_yesno_format "boolean-yesno"
   @boolean_integer_format "boolean-integer"
+  @timestamp_s_format "timestamp-s"
   @timestamp_ms_format "timestamp-ms"
   @month_year_liqpay_format "month-year-liqpay"
 
@@ -489,7 +490,10 @@ defmodule Mix.Tasks.Generate do
                   url_new = %URI{uri | query: query_new} |> URI.to_string()
 
                   tab_item_new = section(tab_item, url: url_new)
-                  parse_settings_new = parse_settings(path: [tab_item_new | path])
+
+                  parse_settings_new =
+                    parse_settings(parse_settings, path: [tab_item_new | path])
+
                   process_url(url_new, parse_settings_new)
                 end
 
@@ -521,6 +525,11 @@ defmodule Mix.Tasks.Generate do
       |> then(&{&1, path})
       |> case do
         {class, [_, section(id: "public")]} when is_binary(class) ->
+          "div.#{class} > div.MuiBox-root > div.MuiBox-root"
+
+        {class,
+         [section(id: "decrypted_token"), section(id: "gpay"), section(id: "internet_acquiring")]}
+        when is_binary(class) ->
           "div.#{class} > div.MuiBox-root > div.MuiBox-root"
 
         {class, _path} when is_binary(class) ->
@@ -712,7 +721,7 @@ defmodule Mix.Tasks.Generate do
                 type: :object,
                 properties:
                   OrderedObject.new([
-                    {"id", schema(type: :string, description: "unique number")},
+                    {"id", schema(type: :integer, description: "unique number")},
                     {"full_name_uk",
                      schema(type: :string, description: "full name in Ukrainian")},
                     {"full_name_en", schema(type: :string, description: "full name in English")},
@@ -725,7 +734,7 @@ defmodule Mix.Tasks.Generate do
                 type: :object,
                 properties:
                   OrderedObject.new([
-                    {"id", schema(type: :string, description: "unique number")},
+                    {"id", schema(type: :integer, description: "unique number")},
                     {"full_name", schema(type: :string, description: "full name")},
                     {"short_name", schema(type: :string, description: "short name")}
                   ])
@@ -1101,8 +1110,15 @@ defmodule Mix.Tasks.Generate do
       [["\"", name, value]] -> ~s<{"#{name}": #{value}}>
       [] -> code
     end
-    |> String.replace(~r/"([\s\n]+)"/s, "\",\\1\"")
+    |> String.replace(
+      ~r/("[\w\d]+"\s*:\s*(?:(")?(?(2)(?:[\w\d\s\n\.\-\*]|\\["\w])*\2|[\w\d\.]+)))([\s\n]+")/s,
+      "\\1,\\3"
+    )
     |> String.replace(~r/^\s*(\{[^\{\[]+\[\{[^\]\}]+)\]\}([^\}\]]+\})\s*$/s, "\\1}]\\2")
+    |> String.replace(~r/,([\sn]*\})/s, "\\1")
+    |> String.replace(~r/(^[\s\n]*\{.*[^\}\s\n][\s\n]*$)/s, "\\1}")
+    |> String.replace(~r/("[\w\d]+"\s*:\s*)"(\[)/, "\\1\\2")
+    |> String.replace("”", "\"")
   end
 
   defp parse_block_data(node, block_parse_settings, was_request, path) do
@@ -1227,6 +1243,23 @@ defmodule Mix.Tasks.Generate do
         )
     end
   end
+
+  defp process_block_title(
+         {"response parameters", subtitle},
+         block_data,
+         block_parse_settings,
+         true,
+         [endpoint(id: "documents"), section(id: "shop_create"), section(id: "partnership")] =
+           path
+       ),
+       do:
+         process_block_title(
+           subtitle,
+           block_data,
+           block_parse_settings,
+           false,
+           path
+         )
 
   defp process_block_title({title, subtitle}, block_data, block_parse_settings, false, path)
        when is_binary(title) and is_binary(subtitle) do
@@ -1787,6 +1820,24 @@ defmodule Mix.Tasks.Generate do
        ),
        do: {:ok, block(block_data, update_operation: :new_endpoint)}
 
+  defp process_block_title(
+         "dynamic qr-code",
+         block(node: nil) = block_data,
+         _block_parse_settings,
+         true,
+         [section(id: "qr"), section(id: "internet_acquiring")] = _path
+       ),
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "dynamic")}
+
+  defp process_block_title(
+         "static qr-code",
+         block(node: nil) = block_data,
+         _block_parse_settings,
+         true,
+         [section(id: "qr"), section(id: "internet_acquiring")] = _path
+       ),
+       do: {:ok, block(block_data, update_operation: :new_endpoint, update_name: "static")}
+
   defp update_block_schema(schema, _block_data, _block_parse_settings, true, _path) do
     {true, schema}
   end
@@ -2227,6 +2278,11 @@ defmodule Mix.Tasks.Generate do
     {properties, required} =
       parse_block_properties(schema, block_data, block_parse_settings, path)
 
+    properties =
+      properties
+      |> Enum.uniq_by(fn {name, _property} -> name end)
+      |> OrderedObject.new()
+
     properties_new =
       with true <- is_binary(table_standalone_code_block_class),
            [code] <-
@@ -2586,23 +2642,33 @@ defmodule Mix.Tasks.Generate do
       )
 
     if was_empty do
-      data_items = schema(type: :object, properties: properties)
+      {result_property, properties_new} = pop_in(properties, ["result"])
+
+      data_items =
+        schema(
+          type: :object,
+          properties:
+            properties_new
+            |> Enum.uniq_by(fn {name, _property} -> name end)
+            |> OrderedObject.new()
+        )
 
       data_items_new =
         if Enum.empty?(required) do
           data_items
         else
-          schema(data_items, required: required)
+          schema(data_items, required: required -- ["result"])
         end
 
       properties_new =
         OrderedObject.new([
           {"result",
-           schema(
-             type: :string,
-             description: "The result of a request",
-             enum: ["ok", "error", "success"]
-           )},
+           result_property ||
+             schema(
+               type: :string,
+               description: "The result of a request",
+               enum: ["ok", "error", "success"]
+             )},
           {"data", schema(type: :array, items: data_items_new)}
         ])
 
@@ -2639,23 +2705,33 @@ defmodule Mix.Tasks.Generate do
       )
 
     if was_empty do
-      data_items = schema(type: :object, properties: properties)
+      {result_property, properties_new} = pop_in(properties, ["result"])
+
+      data_items =
+        schema(
+          type: :object,
+          properties:
+            properties_new
+            |> Enum.uniq_by(fn {name, _property} -> name end)
+            |> OrderedObject.new()
+        )
 
       data_items_new =
         if Enum.empty?(required) do
           data_items
         else
-          schema(data_items, required: required)
+          schema(data_items, required: required -- ["result"])
         end
 
       properties_new =
         OrderedObject.new([
           {"result",
-           schema(
-             type: :string,
-             description: "The result of a request",
-             enum: ["ok", "error", "success"]
-           )},
+           result_property ||
+             schema(
+               type: :string,
+               description: "The result of a request",
+               enum: ["ok", "error", "success"]
+             )},
           {"data", schema(type: :array, items: data_items_new)}
         ])
 
@@ -2687,7 +2763,15 @@ defmodule Mix.Tasks.Generate do
 
     if was_empty do
       {result_property, properties_new} = pop_in(properties, ["result"])
-      data_items = schema(type: :object, properties: properties_new)
+
+      data_items =
+        schema(
+          type: :object,
+          properties:
+            properties_new
+            |> Enum.uniq_by(fn {name, _property} -> name end)
+            |> OrderedObject.new()
+        )
 
       data_items_new =
         if Enum.empty?(required) do
@@ -2698,7 +2782,13 @@ defmodule Mix.Tasks.Generate do
 
       properties_new =
         OrderedObject.new([
-          {"result", result_property},
+          {"result",
+           result_property ||
+             schema(
+               type: :string,
+               description: "The result of a request",
+               enum: ["ok", "error", "success"]
+             )},
           {"data", schema(type: :array, items: data_items_new)}
         ])
 
@@ -2862,24 +2952,70 @@ defmodule Mix.Tasks.Generate do
     parse_block_properties_remove_phone(schema, block_data, block_parse_settings, path)
   end
 
+  defp parse_block_properties(
+         schema,
+         block(
+           node: node,
+           update_operation: :patch,
+           update_type: :array,
+           update_name: "expected_docs" = name
+         ) =
+           block_data,
+         block_parse_settings,
+         [
+           [],
+           name,
+           {:schema, :response},
+           endpoint(id: "documents"),
+           section(id: "shop_create"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    {properties, required} =
+      do_parse_block_properties_table(
+        node,
+        schema,
+        block_data,
+        block_parse_settings,
+        path
+      )
+
+    {_result_property, properties_new} = pop_in(properties, ["result"])
+    required_new = required -- ["result"]
+    {properties_new, required_new}
+  end
+
   defp parse_block_properties(schema, block_data, block_parse_settings, path),
     do: do_parse_block_properties(schema, block_data, block_parse_settings, path)
 
   defp do_parse_block_properties(
-         _schema,
-         block(node: node) = _block_data,
+         schema,
+         block(node: node) = block_data,
          block_parse_settings(table_classes: table_classes) = block_parse_settings,
          path
        ) do
-    table =
-      table_classes
-      |> Enum.find_value(fn class ->
-        case Floki.find(node, "div.#{class}.MuiBox-root") do
-          [table] -> table
-          [] -> nil
-        end
-      end)
+    table_classes
+    |> Enum.find_value(fn class ->
+      case Floki.find(node, "div.#{class}.MuiBox-root") do
+        [table] -> table
+        [] -> nil
+      end
+    end)
+    |> do_parse_block_properties_table(
+      schema,
+      block_data,
+      block_parse_settings,
+      path
+    )
+  end
 
+  defp do_parse_block_properties_table(
+         table,
+         _schema,
+         _block_data,
+         block_parse_settings,
+         path
+       ) do
     column_headers =
       table
       |> Floki.find(
@@ -2940,8 +3076,8 @@ defmodule Mix.Tasks.Generate do
       end)
       |> Enum.unzip()
 
-    properties_new = OrderedObject.new(properties)
-    required_new = List.flatten(required)
+    properties_new = properties |> OrderedObject.new()
+    required_new = required |> List.flatten() |> Enum.uniq()
     {properties_new, required_new}
   end
 
@@ -3050,6 +3186,62 @@ defmodule Mix.Tasks.Generate do
                  description:
                    "URL API in your store for notifications of payment status change (`server` -> `server`)",
                  maxLength: 510
+               )},
+              {"rro_info",
+               schema(
+                 type: :object,
+                 description: "Data for fiscalization",
+                 properties:
+                   OrderedObject.new([
+                     {
+                       "items",
+                       schema(
+                         type: :array,
+                         items:
+                           schema(
+                             type: :object,
+                             description: "Data about products for which payment is performed",
+                             properties:
+                               OrderedObject.new([
+                                 {"amount",
+                                  schema(
+                                    type: :number,
+                                    description: "Quantity/volume"
+                                  )},
+                                 {"cost",
+                                  schema(
+                                    type: :number,
+                                    description:
+                                      "The cost of all units of the specified product in the receipt (number of units * unit cost)"
+                                  )},
+                                 {"id",
+                                  schema(
+                                    type: :integer,
+                                    description:
+                                      "Item ID. You can get it in the Liqpay account - SCR - Kasa - Goods"
+                                  )},
+                                 {"price",
+                                  schema(
+                                    type: :number,
+                                    description: "Unit cost of goods"
+                                  )}
+                               ]),
+                             required: ["amount", "cost", "id", "price"]
+                           )
+                       )
+                     },
+                     {"delivery_emails",
+                      schema(
+                        type: :array,
+                        description:
+                          "List of e-mails to which receipts should be sent after fiscalization",
+                        items:
+                          schema(
+                            type: :string,
+                            format: :email
+                          )
+                      )}
+                   ])
                )},
               {"description",
                schema(
@@ -3282,6 +3474,20 @@ defmodule Mix.Tasks.Generate do
 
   defp initialize_property_processing(
          schema(type: :string) = property,
+         [
+           timestamp_property,
+           {:schema, :response},
+           endpoint(id: "static"),
+           section(id: "qr"),
+           section(id: "internet_acquiring")
+         ] = path
+       )
+       when timestamp_property in ~w(create_date final_date) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
          [timestamp_property, [], "data", {:schema, :response} | _] = path
        )
        when timestamp_property in ~w(create_date end_date) do
@@ -3293,6 +3499,13 @@ defmodule Mix.Tasks.Generate do
          [timestamp_property, {:schema, :response} | _] = path
        )
        when timestamp_property in ~w(create_date end_date) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         ["end_date", {:schema, :response} | _] = path
+       ) do
     initialize_property_processing_change_type(property, :integer, path)
   end
 
@@ -3469,6 +3682,148 @@ defmodule Mix.Tasks.Generate do
     initialize_property_processing_change_type(property, :boolean, path)
   end
 
+  defp initialize_property_processing(
+         schema(type: :array) = property,
+         [
+           "comment",
+           {:schema, :response},
+           endpoint(id: "info_merchant"),
+           section(id: "partnership")
+         ] = path
+       ) do
+    initialize_property_processing_change_type(property, :string, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         [
+           field,
+           {:schema, :response} | _rest_path
+         ] = path
+       )
+       when field in ["transaction_id", "acq_id", "payment_id", "shop_id"] do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         [
+           field,
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       )
+       when field in ["transaction_id", "payment_id"] do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         [
+           field,
+           {:schema, :request},
+           endpoint(id: "callback")
+         ] = path
+       )
+       when field in ["acq_id", "payment_id"] do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         [
+           "acq_id",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       ) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         [
+           "payment_id",
+           {:schema, :request},
+           endpoint(id: "receive_a_receipt"),
+           section(id: "information")
+         ] = path
+       ) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "sender_card_country",
+           {:schema, :response} | _rest_path
+         ] = path
+       ) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "sender_card_country",
+           {:schema, :request},
+           endpoint(id: "callback")
+         ] = path
+       ) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "sender_card_country",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
+       ) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         [
+           "sender_card_country",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: endpoint_id),
+           section(id: "register"),
+           section(id: "information")
+         ] = path
+       )
+       when endpoint_id in ["compensation_per_day", "compensation_per_transaction"] do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :number) = property,
+         [field | _] = path
+       )
+       when field in ["id", "mcc_code", "parent_id"] do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
+  defp initialize_property_processing(
+         schema(type: :string) = property,
+         ["mcc_code" | _] = path
+       ) do
+    initialize_property_processing_change_type(property, :integer, path)
+  end
+
   defp initialize_property_processing(property, _path), do: property
 
   defp initialize_property_processing_change_type(property, type, path) do
@@ -3581,6 +3936,33 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp patch_schema_examples(
+         %{"data" => [%{"result" => result}]} = example,
+         schema(type: :object, properties: _properties) = schema,
+         [{:schema, :response}, endpoint(id: "payment_archive"), section(id: "information")] =
+           path
+       )
+       when not is_map_key(example, "result") do
+    example
+    |> Map.put("result", result)
+    |> patch_schema_examples(schema, path)
+  end
+
+  defp patch_schema_examples(
+         %{"result" => _result, "data" => data} = example,
+         schema(type: :object, properties: _properties) = schema,
+         [{:schema, :response}, endpoint(id: "payment_archive"), section(id: "information")] =
+           path
+       )
+       when is_list(data) and map_size(example) > 2 do
+    {data_values, example_rest} = Map.split(example, Map.keys(example) -- ["result", "data"])
+    data_new = Enum.map(data, &(&1 |> Map.merge(data_values) |> Map.delete("result")))
+
+    example_rest
+    |> Map.replace!("data", data_new)
+    |> patch_schema_examples(schema, path)
+  end
+
+  defp patch_schema_examples(
          example,
          schema(type: :object, properties: _properties) = schema,
          path
@@ -3624,8 +4006,15 @@ defmodule Mix.Tasks.Generate do
   defp patch_schema_examples(nil, schema, _path), do: schema
   defp patch_schema_examples("null", schema, _path), do: schema
 
-  defp patch_schema_examples(example, schema(examples: examples_old) = schema, _path) do
-    example_new = parse_schema_value(example, schema)
+  defp patch_schema_examples(example, schema(examples: examples_old) = schema, path) do
+    example_new =
+      if is_binary(example) and String.match?(example, ~r/\{\{info.edittext_\d+\}\}/) do
+        hd(path)
+      else
+        example
+      end
+      |> parse_schema_value(schema)
+
     schema(schema, examples: Enum.uniq(examples_old ++ [example_new]))
   end
 
@@ -3642,7 +4031,7 @@ defmodule Mix.Tasks.Generate do
   end
 
   defp patch_object_schema_examples(
-         _example,
+         example,
          schema(type: :object) = schema,
          [
            key,
@@ -3650,23 +4039,25 @@ defmodule Mix.Tasks.Generate do
            endpoint(id: "create"),
            section(id: "shop_create"),
            section(id: "partnership")
-         ] = _path
+         ] = path
        )
        when key in @partnership_card_fields do
+    IO.inspect(example, label: "Skipped example (#{loggable_schema_path(path)})")
     schema
   end
 
   defp patch_object_schema_examples(
-         _example,
+         example,
          schema(type: :object) = schema,
          [
            key,
            {:schema, :request},
            section(id: "shop_edit"),
            section(id: "partnership")
-         ] = _path
+         ] = path
        )
        when key in @partnership_card_fields do
+    IO.inspect(example, label: "Skipped example (#{loggable_schema_path(path)})")
     schema
   end
 
@@ -3878,6 +4269,20 @@ defmodule Mix.Tasks.Generate do
        )
        when date_property in ~w(create_date end_date) do
     parse_property_format_change_format(property, @timestamp_ms_format, path)
+  end
+
+  defp parse_property_format(
+         schema(type: :integer, format: nil) = property,
+         [
+           timestamp_property,
+           {:schema, :response},
+           endpoint(id: "static"),
+           section(id: "qr"),
+           section(id: "internet_acquiring")
+         ] = path
+       )
+       when timestamp_property in ~w(create_date final_date) do
+    parse_property_format_change_format(property, @timestamp_s_format, path)
   end
 
   defp parse_property_format(
@@ -4312,6 +4717,20 @@ defmodule Mix.Tasks.Generate do
   defp parse_property_enum_specific(
          schema(enum: nil) = property,
          ["result", {:schema, :response} | _] = path
+       ) do
+    parse_property_enum_specific_result(property, path)
+  end
+
+  defp parse_property_enum_specific(
+         schema(enum: nil) = property,
+         [
+           "result",
+           [],
+           "data",
+           {:schema, :response},
+           endpoint(id: "payment_archive"),
+           section(id: "information")
+         ] = path
        ) do
     parse_property_enum_specific_result(property, path)
   end
@@ -4813,7 +5232,7 @@ defmodule Mix.Tasks.Generate do
     {:ok, value_decoded} =
       TypedDecoder.decode(
         value,
-        type,
+        if(type == :string, do: {:string, :generic}, else: type),
         [],
         TypedDecoder
       )
@@ -4981,6 +5400,14 @@ defmodule Mix.Tasks.Generate do
          [_, section(id: "public")] = path
        ),
        do: parse_standalone_example(false, div, block_parse_settings, path)
+
+  defp parse_standalone_example(
+         "example of data about products",
+         div,
+         block_parse_settings,
+         [endpoint(id: "issue"), section(id: "invoice"), section(id: "internet_acquiring")] = path
+       ),
+       do: parse_standalone_example(true, div, block_parse_settings, path)
 
   defp parse_standalone_example(
          is_request,

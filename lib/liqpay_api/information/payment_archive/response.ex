@@ -7,7 +7,7 @@ defmodule LiqPayAPI.Information.PaymentArchive.Response do
 
   @type t :: %__MODULE__{
           data: [LiqPayAPI.Information.PaymentArchive.Response.Data.t()] | nil,
-          result: :error | :ok | :success | String.t() | nil
+          result: :error | :ok | String.t() | nil
         }
   @type types :: :t
 
@@ -19,8 +19,7 @@ defmodule LiqPayAPI.Information.PaymentArchive.Response do
   def __fields__(:t) do
     [
       data: {"data", [{LiqPayAPI.Information.PaymentArchive.Response.Data, :t}]},
-      result:
-        {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, {:success, "success"}, :not_strict]}}
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}}
     ]
   end
 end

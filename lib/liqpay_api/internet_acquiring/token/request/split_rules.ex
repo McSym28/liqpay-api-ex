@@ -10,12 +10,13 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request.SplitRules do
           commission_payer: :receiver | :sender | nil,
           description: String.t() | nil,
           public_key: String.t() | nil,
+          rro_info: LiqPayAPI.InternetAcquiring.Token.Request.SplitRulesRroInfo.t() | nil,
           server_url: String.t() | nil
         }
   @type types :: :t
 
   @enforce_keys [:amount]
-  defstruct [:amount, :commission_payer, :description, :public_key, :server_url]
+  defstruct [:amount, :commission_payer, :description, :public_key, :rro_info, :server_url]
 
   @doc false
   @impl OpenAPIClient.Schema
@@ -26,6 +27,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request.SplitRules do
       commission_payer: {"commission_payer", {:enum, receiver: "receiver", sender: "sender"}},
       description: {"description", {:string, :generic}},
       public_key: {"public_key", {:string, :generic}},
+      rro_info: {"rro_info", {LiqPayAPI.InternetAcquiring.Token.Request.SplitRulesRroInfo, :t}},
       server_url: {"server_url", {:string, :uri}}
     ]
   end

@@ -17,6 +17,7 @@ defmodule LiqPayAPI.InternetAcquiring.GPay.DecryptedToken.Request do
           public_key: String.t(),
           result_url: String.t() | nil,
           server_url: String.t() | nil,
+          split_tickets_only: boolean | nil,
           version: 3
         }
   @type types :: :t
@@ -32,6 +33,7 @@ defmodule LiqPayAPI.InternetAcquiring.GPay.DecryptedToken.Request do
     :public_key,
     :result_url,
     :server_url,
+    :split_tickets_only,
     action: :pay,
     paytype: :gpay,
     version: 3
@@ -55,6 +57,7 @@ defmodule LiqPayAPI.InternetAcquiring.GPay.DecryptedToken.Request do
          fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       result_url: {"result_url", {:string, :uri}},
       server_url: {"server_url", {:string, :uri}},
+      split_tickets_only: {"split_tickets_only", :boolean},
       version: {"version", {:enum, [3]}}
     ]
   end

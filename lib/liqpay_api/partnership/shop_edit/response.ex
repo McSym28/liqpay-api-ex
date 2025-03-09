@@ -8,11 +8,12 @@ defmodule LiqPayAPI.Partnership.ShopEdit.Response do
   @type t :: %__MODULE__{
           private_key: String.t() | nil,
           public_key: String.t() | nil,
+          result: :error | :ok | String.t() | nil,
           status: :success | String.t() | nil
         }
   @type types :: :t
 
-  defstruct [:private_key, :public_key, :status]
+  defstruct [:private_key, :public_key, :result, :status]
 
   @doc false
   @impl OpenAPIClient.Schema
@@ -21,6 +22,7 @@ defmodule LiqPayAPI.Partnership.ShopEdit.Response do
     [
       private_key: {"private_key", {:string, :generic}},
       public_key: {"public_key", {:string, :generic}},
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}},
       status: {"status", {:enum, [{:success, "success"}, :not_strict]}}
     ]
   end

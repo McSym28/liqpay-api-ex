@@ -6,10 +6,10 @@ defmodule LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Response.MCCCodes do
   @behaviour OpenAPIClient.Schema
 
   @type t :: %__MODULE__{
-          id: number | nil,
-          mcc_code: number | nil,
+          id: integer | nil,
+          mcc_code: integer | nil,
           name: String.t() | nil,
-          parent_id: number | nil
+          parent_id: integer | nil
         }
   @type types :: :t
 
@@ -20,10 +20,10 @@ defmodule LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Response.MCCCodes do
   @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
-      id: {"id", :number},
-      mcc_code: {"mcc_code", :number},
+      id: {"id", :integer},
+      mcc_code: {"mcc_code", :integer},
       name: {"name", {:string, :generic}},
-      parent_id: {"parent_id", :number}
+      parent_id: {"parent_id", :integer}
     ]
   end
 end

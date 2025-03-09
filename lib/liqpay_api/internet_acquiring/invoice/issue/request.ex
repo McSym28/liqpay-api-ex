@@ -19,6 +19,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Request do
           phone: String.t(),
           public_key: String.t(),
           result_url: String.t() | nil,
+          rro_info: LiqPayAPI.InternetAcquiring.Invoice.Issue.Request.RroInfo.t() | nil,
           server_url: String.t() | nil,
           version: 3
         }
@@ -38,6 +39,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Request do
     :phone,
     :public_key,
     :result_url,
+    :rro_info,
     :server_url,
     action: :invoice_send,
     version: 3
@@ -65,6 +67,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Request do
         {"public_key", {:string, :generic},
          fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       result_url: {"result_url", {:string, :uri}},
+      rro_info: {"rro_info", {LiqPayAPI.InternetAcquiring.Invoice.Issue.Request.RroInfo, :t}},
       server_url: {"server_url", {:string, :uri}},
       version: {"version", {:enum, [3]}}
     ]

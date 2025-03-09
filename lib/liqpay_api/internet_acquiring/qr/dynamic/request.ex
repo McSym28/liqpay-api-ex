@@ -1,6 +1,6 @@
-defmodule LiqPayAPI.InternetAcquiring.QR.Request do
+defmodule LiqPayAPI.InternetAcquiring.QR.Dynamic.Request do
   @moduledoc """
-  Provides struct and type for a InternetAcquiring.QR.Request
+  Provides struct and type for a InternetAcquiring.QR.Dynamic.Request
   """
 
   @behaviour OpenAPIClient.Schema
@@ -24,7 +24,8 @@ defmodule LiqPayAPI.InternetAcquiring.QR.Request do
           public_key: String.t(),
           recurringbytoken: true | nil,
           server_url: String.t() | nil,
-          split_rules: [LiqPayAPI.InternetAcquiring.QR.Request.SplitRules.t()] | nil,
+          split_rules: [LiqPayAPI.InternetAcquiring.QR.Dynamic.Request.SplitRules.t()] | nil,
+          split_tickets_only: boolean | nil,
           version: 3
         }
   @type types :: :t
@@ -49,6 +50,7 @@ defmodule LiqPayAPI.InternetAcquiring.QR.Request do
     :recurringbytoken,
     :server_url,
     :split_rules,
+    :split_tickets_only,
     action: :payqr,
     version: 3
   ]
@@ -78,7 +80,9 @@ defmodule LiqPayAPI.InternetAcquiring.QR.Request do
          fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       recurringbytoken: {"recurringbytoken", {:enum, true: "1"}},
       server_url: {"server_url", {:string, :uri}},
-      split_rules: {"split_rules", [{LiqPayAPI.InternetAcquiring.QR.Request.SplitRules, :t}]},
+      split_rules:
+        {"split_rules", [{LiqPayAPI.InternetAcquiring.QR.Dynamic.Request.SplitRules, :t}]},
+      split_tickets_only: {"split_tickets_only", :boolean},
       version: {"version", {:enum, [3]}}
     ]
   end

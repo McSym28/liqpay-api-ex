@@ -21,13 +21,16 @@ defmodule LiqPayAPI.InternetAcquiring.APay do
 
   """
   @spec decrypted_token(LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request.t()) ::
-          :ok | {:error, OpenAPIClient.Error.t()}
+          {:ok, LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Response.t()}
+          | {:error, OpenAPIClient.Error.t()}
   @spec decrypted_token(LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request.t(), [
           {:private_key, String.t()}
           | {:base_url, String.t() | URI.t()}
           | {:pipeline, OpenAPIClient.pipeline()}
           | {:client, module()}
-        ]) :: :ok | {:error, OpenAPIClient.Error.t()}
+        ]) ::
+          {:ok, LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Response.t()}
+          | {:error, OpenAPIClient.Error.t()}
   def decrypted_token(body, opts \\ []) do
     body =
       case body do
@@ -57,6 +60,10 @@ defmodule LiqPayAPI.InternetAcquiring.APay do
         ],
         request_types: [
           {"application/json", {LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request, :t}}
+        ],
+        response_types: [
+          {200,
+           [{"application/json", {LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Response, :t}}]}
         ],
         function_args: [body: body],
         function_call: {__MODULE__, :decrypted_token},

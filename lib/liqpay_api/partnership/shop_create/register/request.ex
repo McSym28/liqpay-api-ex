@@ -12,18 +12,18 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Register.Request do
           amount_static_agent: number | nil,
           can_checkout_edit: boolean | nil,
           can_reports: boolean | nil,
-          company: String.t() | nil,
+          company: String.t(),
           currency_static_agent: String.t() | nil,
           description: String.t() | nil,
           docs: [LiqPayAPI.Partnership.ShopCreate.Register.Request.Docs.t()] | nil,
           email: String.t(),
           facebook: String.t() | nil,
-          iban: String.t() | nil,
+          iban: String.t(),
           instagram: String.t() | nil,
           logo: String.t() | nil,
-          mcc_code: String.t() | nil,
+          mcc_code: integer,
           name: String.t(),
-          okpo: String.t() | nil,
+          okpo: String.t(),
           phone: String.t(),
           public_key: String.t(),
           telegram: String.t() | nil,
@@ -37,7 +37,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Register.Request do
         }
   @type types :: :t
 
-  @enforce_keys [:email, :name, :phone]
+  @enforce_keys [:company, :email, :iban, :mcc_code, :name, :okpo, :phone]
   defstruct [
     :aggregator,
     :amount_procent_agent,
@@ -90,7 +90,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Register.Request do
       iban: {"iban", {:string, :generic}},
       instagram: {"instagram", {:string, :generic}},
       logo: {"logo", {:string, :generic}},
-      mcc_code: {"mcc_code", {:string, :generic}},
+      mcc_code: {"mcc_code", :integer},
       name: {"name", {:string, :generic}},
       okpo: {"okpo", {:string, :generic}},
       phone: {"phone", {:string, :generic}},

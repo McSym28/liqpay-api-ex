@@ -10,6 +10,7 @@ if Mix.env() in [:dev] do
     def render_type(_state, {:string, "date-time-liqpay"}), do: quote(do: DateTime.t())
     def render_type(_state, {:string, "date-liqpay"}), do: quote(do: Date.t())
     def render_type(_state, {:string, "month-year-liqpay"}), do: quote(do: Date.t())
+    def render_type(_state, {:integer, "timestamp-s"}), do: quote(do: DateTime.t())
     def render_type(_state, {:integer, "timestamp-ms"}), do: quote(do: DateTime.t())
     def render_type(_state, {:string, "boolean-integer"}), do: quote(do: boolean())
     def render_type(_state, {:string, "boolean-yesno"}), do: quote(do: boolean())

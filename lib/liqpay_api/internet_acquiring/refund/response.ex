@@ -7,12 +7,14 @@ defmodule LiqPayAPI.InternetAcquiring.Refund.Response do
 
   @type t :: %__MODULE__{
           action: :hold | :pay | :paydonate | :subscribe | String.t() | nil,
-          payment_id: number | nil,
-          status: :error | :failure | :reversed | :success | String.t() | nil
+          payment_id: integer | nil,
+          result: :error | :ok | String.t() | nil,
+          status: :error | :failure | :reversed | :success | String.t() | nil,
+          wait_amount: boolean | nil
         }
   @type types :: :t
 
-  defstruct [:action, :payment_id, :status]
+  defstruct [:action, :payment_id, :result, :status, :wait_amount]
 
   @doc false
   @impl OpenAPIClient.Schema
@@ -29,7 +31,8 @@ defmodule LiqPayAPI.InternetAcquiring.Refund.Response do
             {:subscribe, "subscribe"},
             :not_strict
           ]}},
-      payment_id: {"payment_id", :number},
+      payment_id: {"payment_id", :integer},
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}},
       status:
         {"status",
          {:enum,
@@ -39,7 +42,8 @@ defmodule LiqPayAPI.InternetAcquiring.Refund.Response do
             {:reversed, "reversed"},
             {:success, "success"},
             :not_strict
-          ]}}
+          ]}},
+      wait_amount: {"wait_amount", :boolean}
     ]
   end
 end

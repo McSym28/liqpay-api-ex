@@ -6,7 +6,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
   @behaviour OpenAPIClient.Schema
 
   @type t :: %__MODULE__{
-          action: :paytoken,
+          action: :pay,
           amount: number,
           card_token: String.t(),
           currency: :eur | :uah | :usd,
@@ -15,6 +15,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
           description: String.t(),
           info: String.t() | nil,
           ip: String.t(),
+          is_recurring: false | true | nil,
           language: :en | :uk | nil,
           order_id: String.t(),
           phone: String.t() | nil,
@@ -27,6 +28,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
           sender: LiqPayAPI.InternetAcquiring.Token.Request.Sender.t() | nil,
           server_url: String.t() | nil,
           split_rules: [LiqPayAPI.InternetAcquiring.Token.Request.SplitRules.t()] | nil,
+          split_tickets_only: boolean | nil,
           version: 3
         }
   @type types :: :t
@@ -41,6 +43,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
     :description,
     :info,
     :ip,
+    :is_recurring,
     :language,
     :order_id,
     :phone,
@@ -53,7 +56,8 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
     :sender,
     :server_url,
     :split_rules,
-    action: :paytoken,
+    :split_tickets_only,
+    action: :pay,
     version: 3
   ]
 
@@ -62,7 +66,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
   @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
-      action: {"action", {:enum, paytoken: "paytoken"}},
+      action: {"action", {:enum, pay: "pay"}},
       amount: {"amount", :number},
       card_token: {"card_token", {:string, :generic}},
       currency: {"currency", {:enum, eur: "EUR", uah: "UAH", usd: "USD"}},
@@ -71,6 +75,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
       description: {"description", {:string, :generic}},
       info: {"info", {:string, :generic}},
       ip: {"ip", {:string, :generic}},
+      is_recurring: {"is_recurring", {:enum, false: "false", true: "true"}},
       language: {"language", {:enum, en: "en", uk: "uk"}},
       order_id: {"order_id", {:string, :generic}},
       phone: {"phone", {:string, :generic}},
@@ -85,6 +90,7 @@ defmodule LiqPayAPI.InternetAcquiring.Token.Request do
       sender: {"sender", {LiqPayAPI.InternetAcquiring.Token.Request.Sender, :t}},
       server_url: {"server_url", {:string, :uri}},
       split_rules: {"split_rules", [{LiqPayAPI.InternetAcquiring.Token.Request.SplitRules, :t}]},
+      split_tickets_only: {"split_tickets_only", :boolean},
       version: {"version", {:enum, [3]}}
     ]
   end

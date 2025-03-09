@@ -10,7 +10,7 @@ defmodule LiqPayAPI.Information.ReceiveReceipt.Request do
           email: String.t(),
           language: :en | :uk | nil,
           order_id: String.t(),
-          payment_id: number | nil,
+          payment_id: integer | nil,
           public_key: String.t(),
           version: 3
         }
@@ -28,7 +28,7 @@ defmodule LiqPayAPI.Information.ReceiveReceipt.Request do
       email: {"email", {:string, :generic}},
       language: {"language", {:enum, en: "en", uk: "uk"}},
       order_id: {"order_id", {:string, :generic}},
-      payment_id: {"payment_id", :number},
+      payment_id: {"payment_id", :integer},
       public_key:
         {"public_key", {:string, :generic},
          fn -> Application.get_env(:liqpay_api_ex, :public_key) end},

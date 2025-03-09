@@ -15,6 +15,8 @@ defmodule LiqPayAPI.Client.TypedDecoder do
     {:ok, ~D[2023-02-01]}
     iex> #{__MODULE__}.decode("0223", {:string, "month-year-liqpay"}, [], #{__MODULE__})
     {:ok, ~D[2023-02-01]}
+    iex> #{__MODULE__}.decode(1706750625, {:integer, "timestamp-s"}, [], #{__MODULE__})
+    {:ok, ~U[2024-02-01T01:23:45Z]}
     iex> #{__MODULE__}.decode(1706750625987, {:integer, "timestamp-ms"}, [], #{__MODULE__})
     {:ok, ~U[2024-02-01T01:23:45.987Z]}
     iex> #{__MODULE__}.decode("1", {:string, "boolean-integer"}, [], #{__MODULE__})
@@ -76,6 +78,32 @@ defmodule LiqPayAPI.Client.TypedDecoder do
      Error.new(
        message: "Invalid format for month-year value",
        reason: :invalid_monthyear_string,
+       source: path
+     )}
+  end
+
+  def decode(value, {:integer, "timestamp-s"}, path, _caller_module) when is_integer(value) do
+    value
+    |> DateTime.from_unix(:second)
+    |> case do
+      {:ok, value_decoded} ->
+        {:ok, value_decoded}
+
+      {:error, reason} ->
+        {:error,
+         Error.new(
+           message: "Error while decoding timestamp value",
+           reason: reason,
+           source: path
+         )}
+    end
+  end
+
+  def decode(_value, {:integer, "timestamp-s"}, path, _caller_module) do
+    {:error,
+     Error.new(
+       message: "Invalid format for timestamp value",
+       reason: :invalid_timestamp_value,
        source: path
      )}
   end

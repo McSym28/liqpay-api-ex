@@ -114,7 +114,7 @@ defmodule LiqPayAPI.InternetAcquiring.InvoiceTest do
                  Jason.encode(%{
                    "full_name_en" => "string",
                    "full_name_uk" => "string",
-                   "id" => "string",
+                   "id" => 1,
                    "short_name_en" => "string",
                    "short_name_uk" => "string"
                  })
@@ -131,7 +131,7 @@ defmodule LiqPayAPI.InternetAcquiring.InvoiceTest do
               %LiqPayAPI.InternetAcquiring.Invoice.Units.Response.MultiLanguage{
                 full_name_en: "string",
                 full_name_uk: "string",
-                id: "string",
+                id: 1,
                 short_name_en: "string",
                 short_name_uk: "string"
               }} ==
@@ -194,6 +194,10 @@ defmodule LiqPayAPI.InternetAcquiring.InvoiceTest do
                   "phone" => "+380950000001",
                   "public_key" => "string",
                   "result_url" => "http://example.com",
+                  "rro_info" => %{
+                    "delivery_emails" => ["string"],
+                    "items" => [%{"amount" => 2, "cost" => 404, "id" => 123_456, "price" => 202}]
+                  },
                   "server_url" => "http://example.com",
                   "version" => 3
                 }} == Jason.decode(body)
@@ -210,6 +214,7 @@ defmodule LiqPayAPI.InternetAcquiring.InvoiceTest do
                    "order_id" => "98R1U1OV1485849059893399",
                    "receiver_type" => "email",
                    "receiver_value" => "test@gmail.com",
+                   "result" => "ok",
                    "status" => "invoice_wait",
                    "token" => "150112455893001_6480_GBe3Mxwnq2O7G0MLX4gkQLtZf2"
                  })
@@ -234,6 +239,7 @@ defmodule LiqPayAPI.InternetAcquiring.InvoiceTest do
                 order_id: "98R1U1OV1485849059893399",
                 receiver_type: "email",
                 receiver_value: "test@gmail.com",
+                result: :ok,
                 status: :invoice_wait,
                 token: "150112455893001_6480_GBe3Mxwnq2O7G0MLX4gkQLtZf2"
               }} ==
@@ -259,6 +265,17 @@ defmodule LiqPayAPI.InternetAcquiring.InvoiceTest do
                    phone: "+380950000001",
                    public_key: "string",
                    result_url: "http://example.com",
+                   rro_info: %LiqPayAPI.InternetAcquiring.Invoice.Issue.Request.RroInfo{
+                     delivery_emails: ["string"],
+                     items: [
+                       %LiqPayAPI.InternetAcquiring.Invoice.Issue.Request.RroInfoItems{
+                         amount: 2,
+                         cost: 404,
+                         id: 123_456,
+                         price: 202
+                       }
+                     ]
+                   },
                    server_url: "http://example.com",
                    version: 3
                  },

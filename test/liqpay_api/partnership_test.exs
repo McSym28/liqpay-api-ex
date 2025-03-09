@@ -63,8 +63,9 @@ defmodule LiqPayAPI.PartnershipTest do
 
         assert {:ok, body_encoded} =
                  Jason.encode(%{
-                   "private_key" => "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6",
-                   "public_key" => "i000000000",
+                   "private_key" => "A4iOYADwxEnd0EIObBR0Plq6P1B83ko7RrjyEBFE",
+                   "public_key" => "i59535170441",
+                   "result" => "ok",
                    "status" => "success"
                  })
 
@@ -78,8 +79,9 @@ defmodule LiqPayAPI.PartnershipTest do
 
       assert {:ok,
               %LiqPayAPI.Partnership.ShopEdit.Response{
-                private_key: "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6",
-                public_key: "i000000000",
+                private_key: "A4iOYADwxEnd0EIObBR0Plq6P1B83ko7RrjyEBFE",
+                public_key: "i59535170441",
+                result: :ok,
                 status: :success
               }} ==
                LiqPayAPI.Partnership.shop_edit(
@@ -154,15 +156,16 @@ defmodule LiqPayAPI.PartnershipTest do
                    "data" => [
                      %{
                        "blocked" => true,
-                       "create_date" => 1_491_294_687_862,
+                       "create_date" => 1_706_273_095_032,
                        "description" => "site description",
-                       "email" => "test@gmail.com",
+                       "email" => "lost@gmail.com",
                        "logo" => "string",
-                       "name" => "Shop",
-                       "public_key" => "i000000000",
+                       "name" => "New name",
+                       "public_key" => "i59535170441",
+                       "public_phone" => "string",
                        "role" => "undefined",
-                       "update_date" => 1_491_294_687_862,
-                       "url" => "http://test.com"
+                       "update_date" => 1_706_273_095_032,
+                       "url" => "agent1.site.com"
                      }
                    ],
                    "result" => "ok"
@@ -181,15 +184,16 @@ defmodule LiqPayAPI.PartnershipTest do
                 data: [
                   %LiqPayAPI.Partnership.InfoUser.Response.Data{
                     blocked: true,
-                    create_date: ~U[2017-04-04 08:31:27.862Z],
+                    create_date: ~U[2024-01-26 12:44:55.032Z],
                     description: "site description",
-                    email: "test@gmail.com",
+                    email: "lost@gmail.com",
                     logo: "string",
-                    name: "Shop",
-                    public_key: "i000000000",
+                    name: "New name",
+                    public_key: "i59535170441",
+                    public_phone: "string",
                     role: "undefined",
-                    update_date: ~U[2017-04-04 08:31:27.862Z],
-                    url: "http://test.com"
+                    update_date: ~U[2024-01-26 12:44:55.032Z],
+                    url: "agent1.site.com"
                   }
                 ],
                 result: :ok
@@ -250,25 +254,28 @@ defmodule LiqPayAPI.PartnershipTest do
         assert {:ok, body_encoded} =
                  Jason.encode(%{
                    "blocked" => true,
+                   "category" => "string",
                    "comment" => "string",
-                   "company_name" => "string",
-                   "create_date" => 1_501_764_124_764,
+                   "company_name" => "Site name",
+                   "create_date" => 1_706_273_095_032,
                    "description" => "site description",
-                   "email" => "test@gmail.com",
+                   "email" => "lost@gmail.com",
                    "link" => "string",
                    "logo" => "string",
+                   "mcc" => "8999",
                    "mfo" => "string",
-                   "name" => "Site name",
+                   "name" => "New name",
                    "okpo" => "string",
-                   "phone" => "380950000001",
-                   "public_key" => "i000000000",
-                   "refund_number" => "4731180000000001",
-                   "refund_way" => "card",
+                   "phone" => "380933454182",
+                   "public_key" => "i59535170441",
+                   "public_phone" => "string",
+                   "refund_number" => "string",
+                   "refund_way" => "string",
                    "result" => "ok",
-                   "status" => "activated",
+                   "status" => "new",
                    "status_description" => "string",
-                   "update_date" => 1_501_764_124_764,
-                   "url" => "site123.site.com"
+                   "update_date" => 1_706_273_095_032,
+                   "url" => "agent1.site.com"
                  })
 
         {:ok,
@@ -282,25 +289,28 @@ defmodule LiqPayAPI.PartnershipTest do
       assert {:ok,
               %LiqPayAPI.Partnership.InfoMerchant.Response{
                 blocked: true,
+                category: "string",
                 comment: "string",
-                company_name: "string",
-                create_date: ~U[2017-08-03 12:42:04.764Z],
+                company_name: "Site name",
+                create_date: ~U[2024-01-26 12:44:55.032Z],
                 description: "site description",
-                email: "test@gmail.com",
+                email: "lost@gmail.com",
                 link: "string",
                 logo: "string",
+                mcc: "8999",
                 mfo: "string",
-                name: "Site name",
+                name: "New name",
                 okpo: "string",
-                phone: "380950000001",
-                public_key: "i000000000",
-                refund_number: "4731180000000001",
-                refund_way: "card",
+                phone: "380933454182",
+                public_key: "i59535170441",
+                public_phone: "string",
+                refund_number: "string",
+                refund_way: "string",
                 result: :ok,
-                status: :activated,
+                status: "new",
                 status_description: "string",
-                update_date: ~U[2017-08-03 12:42:04.764Z],
-                url: "site123.site.com"
+                update_date: ~U[2024-01-26 12:44:55.032Z],
+                url: "agent1.site.com"
               }} ==
                LiqPayAPI.Partnership.info_merchant(
                  %LiqPayAPI.Partnership.InfoMerchant.Request{

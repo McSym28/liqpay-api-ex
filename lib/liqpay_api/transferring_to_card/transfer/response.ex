@@ -6,7 +6,7 @@ defmodule LiqPayAPI.TransferringToCard.Transfer.Response do
   @behaviour OpenAPIClient.Schema
 
   @type t :: %__MODULE__{
-          acq_id: number | nil,
+          acq_id: integer | nil,
           action:
             :auth
             | :hold
@@ -34,14 +34,15 @@ defmodule LiqPayAPI.TransferringToCard.Transfer.Response do
           liqpay_order_id: String.t() | nil,
           mpi_eci: 5 | 6 | 7 | integer | nil,
           order_id: String.t() | nil,
-          payment_id: number | nil,
+          payment_id: integer | nil,
           public_key: String.t() | nil,
           receiver_commission: number | nil,
           redirect_to: String.t() | nil,
+          result: :error | :ok | String.t() | nil,
           sender_bonus: number | nil,
           sender_commission: number | nil,
           status: :error | :failure | :success | String.t() | nil,
-          transaction_id: number | nil,
+          transaction_id: integer | nil,
           type: String.t() | nil,
           version: 3 | integer | nil
         }
@@ -71,6 +72,7 @@ defmodule LiqPayAPI.TransferringToCard.Transfer.Response do
     :public_key,
     :receiver_commission,
     :redirect_to,
+    :result,
     :sender_bonus,
     :sender_commission,
     :status,
@@ -84,7 +86,7 @@ defmodule LiqPayAPI.TransferringToCard.Transfer.Response do
   @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
-      acq_id: {"acq_id", :number},
+      acq_id: {"acq_id", :integer},
       action:
         {"action",
          {:enum,
@@ -115,16 +117,17 @@ defmodule LiqPayAPI.TransferringToCard.Transfer.Response do
       liqpay_order_id: {"liqpay_order_id", {:string, :generic}},
       mpi_eci: {"mpi_eci", {:enum, [5, 6, 7, :not_strict]}},
       order_id: {"order_id", {:string, :generic}},
-      payment_id: {"payment_id", :number},
+      payment_id: {"payment_id", :integer},
       public_key: {"public_key", {:string, :generic}},
       receiver_commission: {"receiver_commission", :number},
       redirect_to: {"redirect_to", {:string, :generic}},
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}},
       sender_bonus: {"sender_bonus", :number},
       sender_commission: {"sender_commission", :number},
       status:
         {"status",
          {:enum, [{:error, "error"}, {:failure, "failure"}, {:success, "success"}, :not_strict]}},
-      transaction_id: {"transaction_id", :number},
+      transaction_id: {"transaction_id", :integer},
       type: {"type", {:string, :generic}},
       version: {"version", {:enum, [3, :not_strict]}}
     ]

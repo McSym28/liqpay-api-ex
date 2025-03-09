@@ -10,6 +10,7 @@ if Mix.env() in [:dev] do
     def example(_state, {:string, "date-time-liqpay"}, _path), do: "2024-01-02 01:23:45"
     def example(_state, {:string, "date-liqpay"}, _path), do: "01.02.2024"
     def example(_state, {:string, "month-year-liqpay"}, _path), do: "0124"
+    def example(_state, {:integer, "timestamp-s"}, _path), do: 1_706_750_625
     def example(_state, {:integer, "timestamp-ms"}, _path), do: 1_706_750_625_987
     def example(_state, {:string, "boolean-integer"}, _path), do: "1"
     def example(_state, {:string, "boolean-yesno"}, _path), do: "Y"

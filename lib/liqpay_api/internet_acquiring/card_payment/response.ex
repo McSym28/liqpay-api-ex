@@ -6,7 +6,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
   @behaviour OpenAPIClient.Schema
 
   @type t :: %__MODULE__{
-          acq_id: number | nil,
+          acq_id: integer | nil,
           action:
             :auth
             | :hold
@@ -29,6 +29,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
           card_token: String.t() | nil,
           commission_credit: number | nil,
           commission_debit: number | nil,
+          confirm_phone: String.t() | nil,
           create_date: DateTime.t() | nil,
           currency: String.t() | nil,
           currency_credit: String.t() | nil,
@@ -38,19 +39,21 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
           end_date: DateTime.t() | nil,
           ip: String.t() | nil,
           is_3ds: boolean | nil,
+          language: String.t() | nil,
           liqpay_order_id: String.t() | nil,
           mpi_cres: String.t() | nil,
           mpi_eci: 5 | 6 | 7 | integer | nil,
           order_id: String.t() | nil,
-          payment_id: number | nil,
+          payment_id: integer | nil,
           paytype: :card | :cash | :invoice | :moment_part | :privat24 | :qr | String.t() | nil,
           public_key: String.t() | nil,
           receiver_commission: number | nil,
+          result: :error | :ok | String.t() | nil,
           rrn_credit: String.t() | nil,
           rrn_debit: String.t() | nil,
           sender_bonus: number | nil,
           sender_card_bank: String.t() | nil,
-          sender_card_country: String.t() | nil,
+          sender_card_country: integer | nil,
           sender_card_mask2: String.t() | nil,
           sender_card_type: String.t() | nil,
           sender_commission: number | nil,
@@ -70,7 +73,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
             | :wait_secure
             | String.t()
             | nil,
-          transaction_id: number | nil,
+          transaction_id: integer | nil,
           type: String.t() | nil,
           version: 3 | integer | nil
         }
@@ -91,6 +94,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
     :card_token,
     :commission_credit,
     :commission_debit,
+    :confirm_phone,
     :create_date,
     :currency,
     :currency_credit,
@@ -100,6 +104,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
     :end_date,
     :ip,
     :is_3ds,
+    :language,
     :liqpay_order_id,
     :mpi_cres,
     :mpi_eci,
@@ -108,6 +113,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
     :paytype,
     :public_key,
     :receiver_commission,
+    :result,
     :rrn_credit,
     :rrn_debit,
     :sender_bonus,
@@ -130,7 +136,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
   @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
-      acq_id: {"acq_id", :number},
+      acq_id: {"acq_id", :integer},
       action:
         {"action",
          {:enum,
@@ -165,6 +171,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
       card_token: {"card_token", {:string, :generic}},
       commission_credit: {"commission_credit", :number},
       commission_debit: {"commission_debit", :number},
+      confirm_phone: {"confirm_phone", {:string, :generic}},
       create_date: {"create_date", {:integer, "timestamp-ms"}},
       currency: {"currency", {:string, :generic}},
       currency_credit: {"currency_credit", {:string, :generic}},
@@ -175,11 +182,12 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
       end_date: {"end_date", {:integer, "timestamp-ms"}},
       ip: {"ip", {:string, :generic}},
       is_3ds: {"is_3ds", :boolean},
+      language: {"language", {:string, :generic}},
       liqpay_order_id: {"liqpay_order_id", {:string, :generic}},
       mpi_cres: {"mpi_cres", {:string, :generic}},
       mpi_eci: {"mpi_eci", {:enum, [5, 6, 7, :not_strict]}},
       order_id: {"order_id", {:string, :generic}},
-      payment_id: {"payment_id", :number},
+      payment_id: {"payment_id", :integer},
       paytype:
         {"paytype",
          {:enum,
@@ -194,11 +202,12 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
           ]}},
       public_key: {"public_key", {:string, :generic}},
       receiver_commission: {"receiver_commission", :number},
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}},
       rrn_credit: {"rrn_credit", {:string, :generic}},
       rrn_debit: {"rrn_debit", {:string, :generic}},
       sender_bonus: {"sender_bonus", :number},
       sender_card_bank: {"sender_card_bank", {:string, :generic}},
-      sender_card_country: {"sender_card_country", {:string, :generic}},
+      sender_card_country: {"sender_card_country", :integer},
       sender_card_mask2: {"sender_card_mask2", {:string, :generic}},
       sender_card_type: {"sender_card_type", {:string, :generic}},
       sender_commission: {"sender_commission", :number},
@@ -221,7 +230,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Response do
             {:wait_secure, "wait_secure"},
             :not_strict
           ]}},
-      transaction_id: {"transaction_id", :number},
+      transaction_id: {"transaction_id", :integer},
       type: {"type", {:string, :generic}},
       version: {"version", {:enum, [3, :not_strict]}}
     ]

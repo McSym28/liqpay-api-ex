@@ -27,6 +27,7 @@ defmodule LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request do
           server_url: String.t() | nil,
           split_rules:
             [LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request.SplitRules.t()] | nil,
+          split_tickets_only: boolean | nil,
           version: 3
         }
   @type types :: :t
@@ -52,6 +53,7 @@ defmodule LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request do
     :sender,
     :server_url,
     :split_rules,
+    :split_tickets_only,
     paytype: :apay,
     version: 3
   ]
@@ -85,6 +87,7 @@ defmodule LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request do
       split_rules:
         {"split_rules",
          [{LiqPayAPI.InternetAcquiring.APay.DecryptedToken.Request.SplitRules, :t}]},
+      split_tickets_only: {"split_tickets_only", :boolean},
       version: {"version", {:enum, [3]}}
     ]
   end

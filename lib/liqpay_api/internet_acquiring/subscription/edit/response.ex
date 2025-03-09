@@ -6,7 +6,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
   @behaviour OpenAPIClient.Schema
 
   @type t :: %__MODULE__{
-          acq_id: number | nil,
+          acq_id: integer | nil,
           action:
             :auth
             | :hold
@@ -35,19 +35,20 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
           liqpay_order_id: String.t() | nil,
           mpi_eci: 5 | 6 | 7 | integer | nil,
           order_id: String.t() | nil,
-          payment_id: number | nil,
+          payment_id: integer | nil,
           paytype: :card | :cash | :invoice | :moment_part | :privat24 | :qr | String.t() | nil,
           public_key: String.t() | nil,
           receiver_commission: number | nil,
           sender_bonus: number | nil,
           sender_card_bank: String.t() | nil,
-          sender_card_country: String.t() | nil,
+          sender_card_country: integer | nil,
           sender_card_mask2: String.t() | nil,
           sender_card_type: String.t() | nil,
           sender_commission: number | nil,
           sender_phone: String.t() | nil,
           status: :error | :failure | :reversed | :subscribed | :success | String.t() | nil,
-          transaction_id: number | nil,
+          transaction_id: integer | nil,
+          type: String.t() | nil,
           version: 3 | integer | nil
         }
   @type types :: :t
@@ -86,6 +87,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
     :sender_phone,
     :status,
     :transaction_id,
+    :type,
     :version
   ]
 
@@ -94,7 +96,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
   @spec __fields__(types()) :: keyword(OpenAPIClient.Schema.field_type())
   def __fields__(:t) do
     [
-      acq_id: {"acq_id", :number},
+      acq_id: {"acq_id", :integer},
       action:
         {"action",
          {:enum,
@@ -126,7 +128,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
       liqpay_order_id: {"liqpay_order_id", {:string, :generic}},
       mpi_eci: {"mpi_eci", {:enum, [5, 6, 7, :not_strict]}},
       order_id: {"order_id", {:string, :generic}},
-      payment_id: {"payment_id", :number},
+      payment_id: {"payment_id", :integer},
       paytype:
         {"paytype",
          {:enum,
@@ -143,7 +145,7 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
       receiver_commission: {"receiver_commission", :number},
       sender_bonus: {"sender_bonus", :number},
       sender_card_bank: {"sender_card_bank", {:string, :generic}},
-      sender_card_country: {"sender_card_country", {:string, :generic}},
+      sender_card_country: {"sender_card_country", :integer},
       sender_card_mask2: {"sender_card_mask2", {:string, :generic}},
       sender_card_type: {"sender_card_type", {:string, :generic}},
       sender_commission: {"sender_commission", :number},
@@ -159,7 +161,8 @@ defmodule LiqPayAPI.InternetAcquiring.Subscription.Edit.Response do
             {:success, "success"},
             :not_strict
           ]}},
-      transaction_id: {"transaction_id", :number},
+      transaction_id: {"transaction_id", :integer},
+      type: {"type", {:string, :generic}},
       version: {"version", {:enum, [3, :not_strict]}}
     ]
   end

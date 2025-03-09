@@ -16,8 +16,8 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
 
       expect(@behaviour_module, :callback, fn body ->
         assert %LiqPayAPI.Callbacks.CallbackRequest{
-                 acq_id: 1.0,
-                 action: :auth,
+                 acq_id: 1,
+                 action: :hold,
                  agent_commission: 1.0,
                  amount: 1.0,
                  amount_bonus: 1.0,
@@ -45,7 +45,7 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
                  liqpay_order_id: "string",
                  mpi_eci: 5,
                  order_id: "string",
-                 payment_id: 1.0,
+                 payment_id: 1,
                  paytype: :card,
                  product_category: "string",
                  product_description: "string",
@@ -60,7 +60,7 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
                  rrn_debit: "string",
                  sender_bonus: 1.0,
                  sender_card_bank: "string",
-                 sender_card_country: "string",
+                 sender_card_country: 1,
                  sender_card_mask2: "string",
                  sender_card_type: "string",
                  sender_commission: 1.0,
@@ -80,8 +80,8 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
 
       assert {:ok, body_encoded} =
                Jason.encode(%{
-                 "acq_id" => 1.0,
-                 "action" => "auth",
+                 "acq_id" => 1,
+                 "action" => "hold",
                  "agent_commission" => 1.0,
                  "amount" => 1.0,
                  "amount_bonus" => 1.0,
@@ -109,7 +109,7 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
                  "liqpay_order_id" => "string",
                  "mpi_eci" => 5,
                  "order_id" => "string",
-                 "payment_id" => 1.0,
+                 "payment_id" => 1,
                  "paytype" => "card",
                  "product_category" => "string",
                  "product_description" => "string",
@@ -124,7 +124,7 @@ defmodule LiqPayAPIWeb.Callbacks.CallbackControllerTest do
                  "rrn_debit" => "string",
                  "sender_bonus" => 1.0,
                  "sender_card_bank" => "string",
-                 "sender_card_country" => "string",
+                 "sender_card_country" => 1,
                  "sender_card_mask2" => "string",
                  "sender_card_type" => "string",
                  "sender_commission" => 1.0,

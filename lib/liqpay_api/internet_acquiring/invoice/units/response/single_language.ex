@@ -7,7 +7,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage do
 
   @type t :: %__MODULE__{
           full_name: String.t() | nil,
-          id: String.t() | nil,
+          id: integer | nil,
           short_name: String.t() | nil
         }
   @type types :: :t
@@ -20,7 +20,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Units.Response.SingleLanguage do
   def __fields__(:t) do
     [
       full_name: {"full_name", {:string, :generic}},
-      id: {"id", {:string, :generic}},
+      id: {"id", :integer},
       short_name: {"short_name", {:string, :generic}}
     ]
   end

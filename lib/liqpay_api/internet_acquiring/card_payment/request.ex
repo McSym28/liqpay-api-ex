@@ -37,6 +37,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Request do
           sender: LiqPayAPI.InternetAcquiring.CardPayment.Request.Sender.t() | nil,
           server_url: String.t() | nil,
           split_rules: [LiqPayAPI.InternetAcquiring.CardPayment.Request.SplitRules.t()] | nil,
+          split_tickets_only: boolean | nil,
           tavv: String.t() | nil,
           tid: String.t() | nil,
           version: 3
@@ -74,6 +75,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Request do
     :sender,
     :server_url,
     :split_rules,
+    :split_tickets_only,
     :tavv,
     :tid,
     action: :pay,
@@ -122,6 +124,7 @@ defmodule LiqPayAPI.InternetAcquiring.CardPayment.Request do
       server_url: {"server_url", {:string, :uri}},
       split_rules:
         {"split_rules", [{LiqPayAPI.InternetAcquiring.CardPayment.Request.SplitRules, :t}]},
+      split_tickets_only: {"split_tickets_only", :boolean},
       tavv: {"tavv", {:string, :generic}},
       tid: {"tid", {:string, :generic}},
       version: {"version", {:enum, [3]}}

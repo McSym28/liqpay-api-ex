@@ -20,10 +20,11 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Response do
           currency: String.t() | nil,
           description: String.t() | nil,
           href: String.t() | nil,
-          id: number | nil,
+          id: integer | nil,
           order_id: String.t() | nil,
           receiver_type: String.t() | nil,
           receiver_value: String.t() | nil,
+          result: :error | :ok | String.t() | nil,
           status: :error | :failure | :invoice_wait | :success | String.t() | nil,
           token: String.t() | nil
         }
@@ -39,6 +40,7 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Response do
     :order_id,
     :receiver_type,
     :receiver_value,
+    :result,
     :status,
     :token
   ]
@@ -65,10 +67,11 @@ defmodule LiqPayAPI.InternetAcquiring.Invoice.Issue.Response do
       currency: {"currency", {:string, :generic}},
       description: {"description", {:string, :generic}},
       href: {"href", {:string, :generic}},
-      id: {"id", :number},
+      id: {"id", :integer},
       order_id: {"order_id", {:string, :generic}},
       receiver_type: {"receiver_type", {:string, :generic}},
       receiver_value: {"receiver_value", {:string, :generic}},
+      result: {"result", {:enum, [{:error, "error"}, {:ok, "ok"}, :not_strict]}},
       status:
         {"status",
          {:enum,

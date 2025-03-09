@@ -11,12 +11,21 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request do
           order_id: String.t(),
           public_key: String.t(),
           rro_info: LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request.RROInfo.t() | nil,
+          split_tickets_only: boolean | nil,
           version: 3
         }
   @type types :: :t
 
   @enforce_keys [:amount, :order_id]
-  defstruct [:amount, :order_id, :public_key, :rro_info, action: :hold_completion, version: 3]
+  defstruct [
+    :amount,
+    :order_id,
+    :public_key,
+    :rro_info,
+    :split_tickets_only,
+    action: :hold_completion,
+    version: 3
+  ]
 
   @doc false
   @impl OpenAPIClient.Schema
@@ -30,6 +39,7 @@ defmodule LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request do
         {"public_key", {:string, :generic},
          fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
       rro_info: {"rro_info", {LiqPayAPI.InternetAcquiring.TwoStep.Complete.Request.RROInfo, :t}},
+      split_tickets_only: {"split_tickets_only", :boolean},
       version: {"version", {:enum, [3]}}
     ]
   end

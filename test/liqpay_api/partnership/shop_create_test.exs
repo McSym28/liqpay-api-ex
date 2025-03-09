@@ -95,8 +95,9 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
 
         assert {:ok, body_encoded} =
                  Jason.encode(%{
-                   "private_key" => "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6",
-                   "public_key" => "i000000000",
+                   "private_key" => "A4iOYADwxEnd0EIObBR0Plq6P1B83ko7RrjyEBFE",
+                   "public_key" => "i59535170441",
+                   "result" => "ok",
                    "status" => "success"
                  })
 
@@ -110,8 +111,9 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
 
       assert {:ok,
               %LiqPayAPI.Partnership.ShopCreate.Create.Response{
-                private_key: "wGsqoko5412LcD0vB215XK2wQSgLDVBrsaPIRi6",
-                public_key: "i000000000",
+                private_key: "A4iOYADwxEnd0EIObBR0Plq6P1B83ko7RrjyEBFE",
+                public_key: "i59535170441",
+                result: :ok,
                 status: :success
               }} ==
                LiqPayAPI.Partnership.ShopCreate.create(
@@ -216,7 +218,7 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
                 %{
                   "action" => "agent_info_mcc_docs",
                   "language" => "uk",
-                  "mcc_code" => 1.0,
+                  "mcc_code" => 1,
                   "public_key" => "string",
                   "version" => 3
                 }} == Jason.decode(body)
@@ -262,7 +264,7 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
                  %LiqPayAPI.Partnership.ShopCreate.Documents.Request{
                    action: :agent_info_mcc_docs,
                    language: :uk,
-                   mcc_code: 1.0,
+                   mcc_code: 1,
                    public_key: "string",
                    version: 3
                  },
@@ -314,7 +316,7 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
         assert {:ok, body_encoded} =
                  Jason.encode(%{
                    "mcc_codes" => [
-                     %{"id" => 1.0, "mcc_code" => 1.0, "name" => "string", "parent_id" => 1.0}
+                     %{"id" => 1, "mcc_code" => 1, "name" => "string", "parent_id" => 1}
                    ],
                    "result" => "error",
                    "status" => "string"
@@ -332,10 +334,10 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
               %LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Response{
                 mcc_codes: [
                   %LiqPayAPI.Partnership.ShopCreate.AvailableMCC.Response.MCCCodes{
-                    id: 1.0,
-                    mcc_code: 1.0,
+                    id: 1,
+                    mcc_code: 1,
                     name: "string",
-                    parent_id: 1.0
+                    parent_id: 1
                   }
                 ],
                 result: :error,
@@ -441,7 +443,7 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
                     }
                   ],
                   "logo" => "string",
-                  "mcc_code" => "string",
+                  "mcc_code" => 1,
                   "name" => "Site name",
                   "okpo" => "string",
                   "phone" => "+380950000001",
@@ -556,7 +558,7 @@ defmodule LiqPayAPI.Partnership.ShopCreateTest do
                    iban: "string",
                    instagram: "string",
                    logo: "string",
-                   mcc_code: "string",
+                   mcc_code: 1,
                    name: "Site name",
                    okpo: "string",
                    phone: "+380950000001",

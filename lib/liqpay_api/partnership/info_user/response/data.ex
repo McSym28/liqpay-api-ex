@@ -13,6 +13,7 @@ defmodule LiqPayAPI.Partnership.InfoUser.Response.Data do
           logo: String.t() | nil,
           name: String.t() | nil,
           public_key: String.t() | nil,
+          public_phone: String.t() | nil,
           role: String.t() | nil,
           update_date: DateTime.t() | nil,
           url: String.t() | nil
@@ -27,6 +28,7 @@ defmodule LiqPayAPI.Partnership.InfoUser.Response.Data do
     :logo,
     :name,
     :public_key,
+    :public_phone,
     :role,
     :update_date,
     :url
@@ -44,6 +46,7 @@ defmodule LiqPayAPI.Partnership.InfoUser.Response.Data do
       logo: {"logo", {:string, :generic}},
       name: {"name", {:string, :generic}},
       public_key: {"public_key", {:string, :generic}},
+      public_phone: {"public_phone", {:string, :generic}},
       role: {"role", {:string, :generic}},
       update_date: {"update_date", {:integer, "timestamp-ms"}},
       url: {"url", {:string, :generic}}

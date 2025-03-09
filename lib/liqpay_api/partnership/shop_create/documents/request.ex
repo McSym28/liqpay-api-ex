@@ -8,7 +8,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Documents.Request do
   @type t :: %__MODULE__{
           action: :agent_info_mcc_docs,
           language: :en | :uk | nil,
-          mcc_code: number,
+          mcc_code: integer,
           public_key: String.t(),
           version: 3
         }
@@ -24,7 +24,7 @@ defmodule LiqPayAPI.Partnership.ShopCreate.Documents.Request do
     [
       action: {"action", {:enum, agent_info_mcc_docs: "agent_info_mcc_docs"}},
       language: {"language", {:enum, en: "en", uk: "uk"}},
-      mcc_code: {"mcc_code", :number},
+      mcc_code: {"mcc_code", :integer},
       public_key:
         {"public_key", {:string, :generic},
          fn -> Application.get_env(:liqpay_api_ex, :public_key) end},
