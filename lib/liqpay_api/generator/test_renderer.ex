@@ -50,6 +50,16 @@ if Mix.env() in [:dev] do
       end
     )
 
+    def example(
+          state,
+          %OpenAPIClient.Generator.Field{} = type,
+          ["split_rules", {:request_body, "application/json"} | _] = path
+        ) do
+      state
+      |> OpenAPIClient.Generator.TestRenderer.example(type, path)
+      |> Jason.encode!()
+    end
+
     def example(state, type, path),
       do: OpenAPIClient.Generator.TestRenderer.example(state, type, path)
 
@@ -100,6 +110,17 @@ if Mix.env() in [:dev] do
         end
       end
     )
+
+    def decode_example(
+          state,
+          value,
+          type,
+          ["split_rules", {:request_body, "application/json"} | _] = path
+        )
+        when is_binary(value) do
+      value_new = Jason.decode!(value)
+      decode_example(state, value_new, type, path)
+    end
 
     def decode_example(state, value, type, path),
       do: OpenAPIClient.Generator.TestRenderer.decode_example(state, value, type, path)

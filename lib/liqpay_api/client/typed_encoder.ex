@@ -218,6 +218,30 @@ defmodule LiqPayAPI.Client.TypedEncoder do
     end
   end
 
+  def encode(
+        value,
+        type,
+        ["split_rules", {:request_body, "application/json"} | _] = path,
+        caller_module
+      )
+      when is_list(value) do
+    with {:ok, value_new} <- TypedEncoder.encode(value, type, path, caller_module),
+         {:ok, json_library} <- json_library(path) do
+      case json_library.encode(value_new) do
+        {:ok, encoded_value} ->
+          {:ok, encoded_value}
+
+        {:error, reason} ->
+          {:error,
+           Error.new(
+             message: "JSON encode failed",
+             reason: :json_encode_failed,
+             source: {reason, path}
+           )}
+      end
+    end
+  end
+
   def encode(value, type, path, caller_module),
     do: TypedEncoder.encode(value, type, path, caller_module)
 
@@ -239,4 +263,22 @@ defmodule LiqPayAPI.Client.TypedEncoder do
 
   @spec nested_clauses() :: [{module(), atom(), [atom()]}]
   def nested_clauses, do: @nested_clauses
+
+  defp json_library(path) do
+    cond do
+      json_library = Code.ensure_loaded?(Phoenix) && apply(Phoenix, :json_library, []) ->
+        {:ok, json_library}
+
+      Code.ensure_loaded?(Jason) ->
+        {:ok, Jason}
+
+      :else ->
+        {:error,
+         Error.new(
+           message: "JSON library not found",
+           reason: :json_library_not_found,
+           source: path
+         )}
+    end
+  end
 end

@@ -157,21 +157,8 @@ defmodule LiqPayAPI.InternetAcquiring.QrTest do
                   "public_key" => "string",
                   "recurringbytoken" => "1",
                   "server_url" => "http://example.com",
-                  "split_rules" => [
-                    %{
-                      "amount" => 404,
-                      "commission_payer" => "sender",
-                      "description" => "string",
-                      "public_key" => "i000000001",
-                      "rro_info" => %{
-                        "delivery_emails" => ["string"],
-                        "items" => [
-                          %{"amount" => 2, "cost" => 404, "id" => 123_456, "price" => 202}
-                        ]
-                      },
-                      "server_url" => "https://server1/callback"
-                    }
-                  ],
+                  "split_rules" =>
+                    "[{\"amount\":404,\"commission_payer\":\"sender\",\"description\":\"string\",\"public_key\":\"i000000001\",\"rro_info\":{\"delivery_emails\":[\"string\"],\"items\":[{\"amount\":2,\"cost\":404,\"id\":123456,\"price\":202}]},\"server_url\":\"https://server1/callback\"}]",
                   "split_tickets_only" => true,
                   "version" => 3
                 }} == Jason.decode(body)
